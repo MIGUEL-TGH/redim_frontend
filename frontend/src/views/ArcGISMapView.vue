@@ -2,7 +2,7 @@
   <div>
     <v-app-bar app dark elevation="10" color="#ec1e4c" clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer_left_map=!drawer_left_map"></v-app-bar-nav-icon>
-        logo 1
+        logo REDIM
       <v-spacer></v-spacer>
         <img src="@/assets/logos/redim_logo.png" style="width: 100%; max-width: 60px; height: auto;">
     </v-app-bar>
@@ -23,6 +23,8 @@ import * as reactiveUtils from '@arcgis/core/core/reactiveUtils'
 // import Graphic from '@arcgis/core/Graphic'
 // import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
 // import Point from '@arcgis/core/geometry/Point'
+
+import axios from 'axios'
 
 export default {
   name: 'ArcGISMap',
@@ -102,7 +104,20 @@ export default {
 
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
-  created () {
+  async created () {
+    try {
+      const url = `${process.env.VUE_APP_API_SERVER}map?type=items`
+      console.log(url)
+
+      const response = await axios.get(url)
+      console.log(response.data.result)
+      // if (response.data.status === 200) {
+      //   this.citas.all = response.data.result
+      // }
+    } catch (error) {
+      console.log(error.response.data)
+      console.log(error)
+    }
   },
   beforeMount () {},
   mounted () {
