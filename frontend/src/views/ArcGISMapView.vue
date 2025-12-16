@@ -2,7 +2,7 @@
   <div>
     <v-app-bar app dark elevation="10" color="#ec1e4c" clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer_left_map=!drawer_left_map"></v-app-bar-nav-icon>
-        logo REDIM
+        REDIM
       <v-spacer></v-spacer>
         <img src="@/assets/logos/redim_logo.png" style="width: 100%; max-width: 60px; height: auto;">
     </v-app-bar>

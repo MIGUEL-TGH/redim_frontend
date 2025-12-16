@@ -120,6 +120,9 @@ INSERT INTO `states`(`country_id`, `name`, `demonym`, `iso_code`, `status`) VALU
     (1, 'Yucatán', 'Yucatecos', 'YUC', '1'),
     (1, 'Zacatecas', 'Zacatecanos', 'ZAC', '1');
 
+INSERT INTO `indicators` (`name`, `team`, `map`, `status`) VALUES 
+    ('Delitos', '1', '1', '1');
+
 INSERT INTO `indicator_categories`(`indicator_id`, `name`, `status`) VALUES 
     ('1','Aborto','1'),
     ('1','Abuso de autoridad','1'),
@@ -134,11 +137,13 @@ INSERT INTO `indicator_categories`(`indicator_id`, `name`, `status`) VALUES
     ('1','Armas y objetos prohibidos','1'),
     ('1','Asociación delictuosa','1');
 
-INSERT INTO `centers`(`state_id`, `name`, `locate`, `status`) VALUES 
+INSERT INTO `centers`(`state_id`, `name`, `locate`, `status`) VALUES
+    ('1','','','1'),
     ('1','CENTRO PENITENCIARIO ESTATAL AGUASCALIENTES','','1'),
     ('1','CENTRO PENITENCIARIO ESTATAL EL LLANO','','1'),
     ('1','CENTRO PENITENCIARIO ESTATAL DE MUJERES','','1'),
     ('1','CENTRO ESTATAL PARA EL DESARROLLO DEL ADOLESCENTE','','1'),
+    ('2','','','1'),
     ('2','CERESO MEXICALI','','1'),
     ('2','CERESO TIJUANA','','1'),
     ('2','CERESO ENSENADA','','1'),
@@ -150,8 +155,11 @@ INSERT INTO `centers`(`state_id`, `name`, `locate`, `status`) VALUES
     ('2','CENTRO DE INTERNAMIENTO PARA ADOLESCENTES MEXICALI','','1'),
     ('2','CENTRO DE INTERNAMIENTO PARA ADOLESCENTES ENSENADA','','1'),
     ('2','CENTRO DE INTERNAMIENTO PARA ADOLESCENTES TIJUANA','','1'),
+    ('3','','','1'),
     ('3','CENTRO PENITENCIARIO LA PAZ','','1'),
     ('3','CENTRO PENITENCIARIO SAN JOSE DEL CABO','','1'),
     ('3','CENTRO PENITENCIARIO CIUDAD CONSTITUCION','','1'),
     ('3','CENTRO PENITENCIARIO SANTA ROSALIA','','1'),
     ('3','CENTRO DE INTERNAMIENTO ESPECIALIZADO PARA ADOLESCENTES','','1');
+
+
