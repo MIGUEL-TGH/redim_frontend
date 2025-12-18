@@ -23,8 +23,9 @@ import * as reactiveUtils from '@arcgis/core/core/reactiveUtils'
 // import Graphic from '@arcgis/core/Graphic'
 // import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
 // import Point from '@arcgis/core/geometry/Point'
+import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer'
 
-import axios from 'axios'
+// import axios from 'axios'
 
 export default {
   name: 'ArcGISMap',
@@ -72,6 +73,38 @@ export default {
   // 5️⃣ Métodos
   methods: {
     // map
+    async AddGeoJSONLayer (item) {
+      // console.log('AddGeoJSONLayer() -->', item)
+
+      const layerOptions = {
+        renderer: {
+          type: 'simple',
+          symbol: {
+            type: 'simple-fill',
+            color: item.color,
+            outline: {
+              width: 1.2,
+              color: 'gray' // black
+            }
+          }
+        },
+        title: 'GeoJSON Layer',
+        zIndex: 10 // Asegura que esté debajo de los gráficos
+      }
+
+      if (item.type === 'rendered') {
+        layerOptions.url = URL.createObjectURL(new Blob([JSON.stringify(item.data)], { type: 'application/json' }))
+      } else if (item.type === 'files') {
+        layerOptions.url = item.url
+        layerOptions.renderer.symbol.outline = {
+          width: 1,
+          color: 'black' // gray
+        }
+      }
+      const geojsonLayer = new GeoJSONLayer(layerOptions)
+      this.map.add(geojsonLayer)
+    },
+
     async initMap () {
       console.log('initMap()')
       this.map = new Map({
@@ -99,25 +132,28 @@ export default {
           }
         }
       )
+
+      // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
+      await this.AddGeoJSONLayer({ url: '/assets/21ent.json', color: [130, 130, 130, 0.1], type: 'files' })
     }
   },
 
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
   async created () {
-    try {
-      const url = `${process.env.VUE_APP_API_SERVER}map?type=items`
-      console.log(url)
+    // try {
+    //   const url = `${process.env.VUE_APP_API_SERVER}map?type=items`
+    //   console.log(url)
 
-      const response = await axios.get(url)
-      console.log(response.data.result)
-      // if (response.data.status === 200) {
-      //   this.citas.all = response.data.result
-      // }
-    } catch (error) {
-      console.log(error.response.data)
-      console.log(error)
-    }
+    //   const response = await axios.get(url)
+    //   console.log(response.data.result)
+    //   if (response.data.status === 200) {
+    //     this.citas.all = response.data.result
+    //   }
+    // } catch (error) {
+    //   console.log(error.response.data)
+    //   console.log(error)
+    // }
   },
   beforeMount () {},
   mounted () {
