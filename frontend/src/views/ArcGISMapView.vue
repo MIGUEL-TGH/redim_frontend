@@ -101,6 +101,7 @@ export default {
           color: 'black' // gray
         }
       }
+      console.log('layerOptions -->', layerOptions)
       const geojsonLayer = new GeoJSONLayer(layerOptions)
       this.map.add(geojsonLayer)
     },
@@ -114,10 +115,10 @@ export default {
       this.view = new MapView({
         container: this.$refs.mapView,
         map: this.map,
-        // center: [-98.18635039767328, 19.054906905810686], // Estadio Olímpico Zaragoza
-        center: [-102.37592182483502, 24.097127823504444], // Estadio Olímpico Zaragoza
-        // 24.097127823504444, -102.37592182483502
-        zoom: 5
+        center: [-98.18635039767328, 19.054906905810686], // Estadio Olímpico Zaragoza
+        // center: [-102.37592182483502, 24.097127823504444], // Estadio Olímpico Zaragoza
+        // zoom: 5
+        zoom: 7
       })
 
       await this.view.when() // Esperar a que la vista esté lista antes de agregar el componente
@@ -134,7 +135,10 @@ export default {
       )
 
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
-      await this.AddGeoJSONLayer({ url: '/assets/21ent.json', color: [130, 130, 130, 0.1], type: 'files' })
+      // await this.AddGeoJSONLayer({ url: '/assets/Pue_M001.json', color: [130, 130, 130, 0.1], type: 'files' })
+      // await this.AddGeoJSONLayer({ url: '/assets/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
+
+      await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
     }
   },
 
