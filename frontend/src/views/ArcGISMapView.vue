@@ -11,10 +11,14 @@
       Navegar por el mapa
     </v-navigation-drawer>
     <!-- #3c8c43 #4071b2-->
+
+    <loader-comp />
   </div>
 </template>
 
 <script>
+import LoaderComp from '@/components/LoaderComp.vue'
+
 import '@/assets/css/style_maps.css'
 import '@arcgis/core/assets/esri/themes/light/main.css'
 import Map from '@arcgis/core/Map'
@@ -26,10 +30,12 @@ import * as reactiveUtils from '@arcgis/core/core/reactiveUtils'
 import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer'
 
 // import axios from 'axios'
+import { mapState, mapActions } from 'vuex'
 
 export default {
   name: 'ArcGISMap',
   components: { // Importación de componentes hijos
+    LoaderComp
   },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -64,7 +70,9 @@ export default {
     }
   },
   computed: {
-
+    ...mapState([
+      'dialog_loader'
+    ])
   },
 
   // 4️⃣ Observadores
@@ -72,10 +80,13 @@ export default {
 
   // 5️⃣ Métodos
   methods: {
+    // vuex
+    ...mapActions([
+      'setSleep'
+    ]),
     // map
     async AddGeoJSONLayer (item) {
       // console.log('AddGeoJSONLayer() -->', item)
-
       const layerOptions = {
         renderer: {
           type: 'simple',
@@ -93,7 +104,9 @@ export default {
       }
 
       if (item.type === 'rendered') {
-        layerOptions.url = URL.createObjectURL(new Blob([JSON.stringify(item.data)], { type: 'application/json' }))
+        layerOptions.url = URL.createObjectURL(
+          new Blob([JSON.stringify(item.data)], { type: 'application/json' })
+        )
       } else if (item.type === 'files') {
         layerOptions.url = item.url
         layerOptions.renderer.symbol.outline = {
@@ -101,9 +114,83 @@ export default {
           color: 'black' // gray
         }
       }
-      console.log('layerOptions -->', layerOptions)
+
+      // console.log('layerOptions -->', layerOptions)
       const geojsonLayer = new GeoJSONLayer(layerOptions)
       this.map.add(geojsonLayer)
+
+      // -------------------------------highlight-----------------------------------------------------
+      let highlightHandle = null
+      let layerView = null
+      let ObjectID = null
+
+      // 1. Esperar a que el LayerView esté listo
+      this.view.whenLayerView(geojsonLayer).then((lv) => {
+        layerView = lv
+      })
+
+      this.view.on('pointer-move', async (event) => {
+        if (!layerView) return
+
+        const hit = await this.view.hitTest(event, {
+          include: geojsonLayer
+        })
+
+        const graphic = hit.results[0]?.graphic
+
+        // Cursor fuera de la capa
+        if (!graphic) {
+          if (highlightHandle) highlightHandle.remove()
+          // layerView.effect = null
+          ObjectID = null
+          return
+        }
+
+        const objectId = graphic.attributes.__OBJECTID
+
+        // ❗ Si sigue sobre el mismo estado, NO hacer nada
+        if (objectId === ObjectID) return
+
+        ObjectID = objectId
+        // --------------------------------------------------------------------------------
+        // 1. Highlight (opcional)
+        if (highlightHandle) highlightHandle.remove()
+        highlightHandle = layerView.highlight(graphic)
+
+        // --------------------------------------------------------------------------------
+        // 2. SOLO contorno usando effect
+        // layerView.effect = {
+        //   filter: {
+        //     objectIds: [objectId]
+        //   },
+        //   includedEffect: 'drop-shadow(0px, 0px, 0px) brightness(1.2)',
+        //   excludedEffect: 'opacity(0.2)'
+        // }
+      })
+
+      // 2. Evento hover
+      // this.view.on('pointer-move', async (event) => {
+      //   if (!layerView) return
+
+      // const hit = await this.view.hitTest(event)
+
+      // const graphic = hit.results.find(
+      //   (result) => result.graphic.layer === geojsonLayer
+      // )?.graphic
+
+      // Limpiar highlight anterior
+      // if (highlightHandle) {
+      //   highlightHandle.remove()
+      //   highlightHandle = null
+      // }
+
+      // Aplicar nuevo highlight
+      // if (graphic) {
+      //   idLayerView = graphic.attributes.__OBJECTID
+      //   console.log(graphic)
+      //   highlightHandle = layerView.highlight(graphic)
+      // }
+      // })
     },
 
     async initMap () {
@@ -115,10 +202,10 @@ export default {
       this.view = new MapView({
         container: this.$refs.mapView,
         map: this.map,
-        center: [-98.18635039767328, 19.054906905810686], // Estadio Olímpico Zaragoza
-        // center: [-102.37592182483502, 24.097127823504444], // Estadio Olímpico Zaragoza
-        // zoom: 5
-        zoom: 7
+        // center: [-98.18635039767328, 19.054906905810686], // Estadio Olímpico Zaragoza
+        // zoom: 7
+        center: [-102.37592182483502, 24.097127823504444],
+        zoom: 5
       })
 
       await this.view.when() // Esperar a que la vista esté lista antes de agregar el componente
@@ -127,17 +214,13 @@ export default {
         () => this.view.updating, // 🔹 propiedad reactiva
         async (updating) => {
           if (!updating) {
-            // await this.setSleep(1500) // 🔸 esperamos un poco para asegurar que todo terminó de renderizar
-            // this.dialog_loader.actived = false
-            // this.btnGet = false
+            await this.setSleep(1500) // 🔸 espera un poco para asegurar que todo terminó de renderizar
+            this.dialog_loader.actived = false
           }
         }
       )
 
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
-      // await this.AddGeoJSONLayer({ url: '/assets/Pue_M001.json', color: [130, 130, 130, 0.1], type: 'files' })
-      // await this.AddGeoJSONLayer({ url: '/assets/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
-
       await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
     }
   },
@@ -145,6 +228,8 @@ export default {
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
   async created () {
+    this.dialog_loader.actived = true
+    this.dialog_loader.message = 'Por favor espere...'
     // try {
     //   const url = `${process.env.VUE_APP_API_SERVER}map?type=items`
     //   console.log(url)
