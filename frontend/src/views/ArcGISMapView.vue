@@ -29,7 +29,7 @@ import * as reactiveUtils from '@arcgis/core/core/reactiveUtils'
 // import Point from '@arcgis/core/geometry/Point'
 import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer'
 
-// import axios from 'axios'
+import axios from 'axios'
 import { mapState, mapActions } from 'vuex'
 
 export default {
@@ -128,60 +128,68 @@ export default {
       // console.log('layerOptions -->', layerOptions)
       const geojsonLayer = new GeoJSONLayer(layerOptions)
       this.map.add(geojsonLayer)
-      // ------------------------------------------------------------------------------------------------
 
-      // -------------------------------highlight-----------------------------------------------------
-      // let highlightHandle = null
-      // let layerView = null
-      // let ObjectID = null
+      // --------------------------------------------------------------------------------
+      // 2. Variables de control para hover
+      let layerView = null
+      let highlightHandle = null
+      let currentObjectId = null
 
-      // // 1. Esperar a que el LayerView esté listo
-      // this.view.whenLayerView(geojsonLayer).then((lv) => {
-      //   layerView = lv
-      // })
+      // --------------------------------------------------------------------------------
+      // 3. Obtener LayerView (una sola vez)
+      await this.view.whenLayerView(geojsonLayer).then((lv) => {
+        layerView = lv
+      })
 
-      // this.view.on('pointer-move', async (event) => {
-      //   if (!layerView) return
+      // --------------------------------------------------------------------------------
+      // 4. Handler de hover (SIN throttle aquí)
+      const pointerMoveHandler = async (event) => {
+        if (!layerView) return
 
-      //   const hit = await this.view.hitTest(event, {
-      //     include: geojsonLayer
-      //   })
+        const hit = await this.view.hitTest(event, {
+          include: geojsonLayer
+        })
 
-      //   const graphic = hit.results[0]?.graphic
+        const graphic = hit.results[0]?.graphic
 
-      //   // Cursor fuera de la capa
-      //   if (!graphic) {
-      //     if (highlightHandle) highlightHandle.remove()
-      //     layerView.effect = null
-      //     ObjectID = null
-      //     return
-      //   }
+        // Cursor fuera de la capa
+        if (!graphic) {
+          if (highlightHandle) {
+            highlightHandle.remove()
+            highlightHandle = null
+          }
+          currentObjectId = null
+          this.view.container.style.cursor = 'default'
+          return
+        }
 
-      //   const objectId = graphic.attributes.__OBJECTID
+        const objectId = graphic.attributes.__OBJECTID
 
-      //   // ❗ Si sigue sobre el mismo estado, NO hacer nada
-      //   if (objectId === ObjectID) return
+        // ❗ Si sigue sobre el mismo estado, no reprocesar
+        if (objectId === currentObjectId) return
 
-      //   ObjectID = objectId
-      //   // --------------------------------------------------------------------------------
-      //   // 1. Highlight (opcional)
-      //   if (highlightHandle) highlightHandle.remove()
-      //   highlightHandle = layerView.highlight(graphic)
-      //   // --------------------------------------------------------------------------------
-      //   // 2. SOLO contorno usando effect
-      //   layerView.effect = {
-      //     filter: {
-      //       objectIds: [objectId]
-      //     },
-      //     includedEffect: 'drop-shadow(0px, 0px, 0px) brightness(1.2)',
-      //     excludedEffect: 'opacity(0.2)'
-      //   }
-      //   console.log('ID LEYER -->', ObjectID, layerView)
-      // })
+        currentObjectId = objectId
+
+        // Limpiar highlight anterior
+        if (highlightHandle) highlightHandle.remove()
+
+        // Aplicar nuevo highlight (rápido)
+        highlightHandle = layerView.highlight(graphic)
+
+        // Cambiar cursor
+        this.view.container.style.cursor = 'pointer'
+      }
+
+      // --------------------------------------------------------------------------------
+      // 5. Registrar evento con throttle (CLAVE de rendimiento)
+      this.view.on(
+        'pointer-move',
+        this.throttle(pointerMoveHandler, 60) // ~16 FPS
+      )
     },
 
     async initMap () {
-      console.log('initMap()')
+      // console.log('initMap()')
       this.map = new Map({
         basemap: this.vector[0] // 'streets-navigation-vector'
       })
@@ -209,7 +217,7 @@ export default {
 
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
-      await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+      // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     }
   },
 
@@ -218,23 +226,23 @@ export default {
   async created () {
     this.dialog_loader.actived = true
     this.dialog_loader.message = 'Por favor espere...'
-    // try {
-    //   const url = `${process.env.VUE_APP_API_SERVER}map?type=items`
-    //   console.log(url)
+    try {
+      const url = `${process.env.VUE_APP_API_SERVER}map?type=items`
+      console.log(url)
 
-    //   const response = await axios.get(url)
-    //   console.log(response.data.result)
-    //   if (response.data.status === 200) {
-    //     this.citas.all = response.data.result
-    //   }
-    // } catch (error) {
-    //   console.log(error.response.data)
-    //   console.log(error)
-    // }
+      const response = await axios.get(url)
+      console.log(response.data.result)
+      // if (response.data.status === 200) {
+      //   this.citas.all = response.data.result
+      // }
+    } catch (error) {
+      console.log(error.response.data)
+      console.log(error)
+    }
   },
   beforeMount () {},
   mounted () {
-    this.initMap()
+    // this.initMap()
   },
   beforeUpdate () {},
   updated () {},
