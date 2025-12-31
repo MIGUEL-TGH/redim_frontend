@@ -6,3 +6,9 @@ https://www.inegi.org.mx/temas/mg/#Descargas
 Convertir .SHP a .GEOJSON
 https://www.youtube.com/watch?v=53SIqquCT_E
 https://mapshaper.org/
+---------------------------------------------------------------
+NEGI suele venir en EPSG:6372 / ITRF2008
+ArcGIS API trabaja mejor con EPSG:4326 (WGS84)
+---------------------------------------------------------------
+Simplificado_v1
+Simplificado_v2

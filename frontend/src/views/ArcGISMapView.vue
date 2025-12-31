@@ -85,6 +85,16 @@ export default {
       'setSleep'
     ]),
     // map
+    throttle (func, limit) {
+      let lastCall = 0
+      return function (...args) {
+        const now = Date.now()
+        if (now - lastCall >= limit) {
+          lastCall = now
+          func.apply(this, args)
+        }
+      }
+    },
     async AddGeoJSONLayer (item) {
       // console.log('AddGeoJSONLayer() -->', item)
       const layerOptions = {
@@ -118,78 +128,55 @@ export default {
       // console.log('layerOptions -->', layerOptions)
       const geojsonLayer = new GeoJSONLayer(layerOptions)
       this.map.add(geojsonLayer)
+      // ------------------------------------------------------------------------------------------------
 
       // -------------------------------highlight-----------------------------------------------------
-      let highlightHandle = null
-      let layerView = null
-      let ObjectID = null
+      // let highlightHandle = null
+      // let layerView = null
+      // let ObjectID = null
 
-      // 1. Esperar a que el LayerView esté listo
-      this.view.whenLayerView(geojsonLayer).then((lv) => {
-        layerView = lv
-      })
+      // // 1. Esperar a que el LayerView esté listo
+      // this.view.whenLayerView(geojsonLayer).then((lv) => {
+      //   layerView = lv
+      // })
 
-      this.view.on('pointer-move', async (event) => {
-        if (!layerView) return
-
-        const hit = await this.view.hitTest(event, {
-          include: geojsonLayer
-        })
-
-        const graphic = hit.results[0]?.graphic
-
-        // Cursor fuera de la capa
-        if (!graphic) {
-          if (highlightHandle) highlightHandle.remove()
-          // layerView.effect = null
-          ObjectID = null
-          return
-        }
-
-        const objectId = graphic.attributes.__OBJECTID
-
-        // ❗ Si sigue sobre el mismo estado, NO hacer nada
-        if (objectId === ObjectID) return
-
-        ObjectID = objectId
-        // --------------------------------------------------------------------------------
-        // 1. Highlight (opcional)
-        if (highlightHandle) highlightHandle.remove()
-        highlightHandle = layerView.highlight(graphic)
-
-        // --------------------------------------------------------------------------------
-        // 2. SOLO contorno usando effect
-        // layerView.effect = {
-        //   filter: {
-        //     objectIds: [objectId]
-        //   },
-        //   includedEffect: 'drop-shadow(0px, 0px, 0px) brightness(1.2)',
-        //   excludedEffect: 'opacity(0.2)'
-        // }
-      })
-
-      // 2. Evento hover
       // this.view.on('pointer-move', async (event) => {
       //   if (!layerView) return
 
-      // const hit = await this.view.hitTest(event)
+      //   const hit = await this.view.hitTest(event, {
+      //     include: geojsonLayer
+      //   })
 
-      // const graphic = hit.results.find(
-      //   (result) => result.graphic.layer === geojsonLayer
-      // )?.graphic
+      //   const graphic = hit.results[0]?.graphic
 
-      // Limpiar highlight anterior
-      // if (highlightHandle) {
-      //   highlightHandle.remove()
-      //   highlightHandle = null
-      // }
+      //   // Cursor fuera de la capa
+      //   if (!graphic) {
+      //     if (highlightHandle) highlightHandle.remove()
+      //     layerView.effect = null
+      //     ObjectID = null
+      //     return
+      //   }
 
-      // Aplicar nuevo highlight
-      // if (graphic) {
-      //   idLayerView = graphic.attributes.__OBJECTID
-      //   console.log(graphic)
+      //   const objectId = graphic.attributes.__OBJECTID
+
+      //   // ❗ Si sigue sobre el mismo estado, NO hacer nada
+      //   if (objectId === ObjectID) return
+
+      //   ObjectID = objectId
+      //   // --------------------------------------------------------------------------------
+      //   // 1. Highlight (opcional)
+      //   if (highlightHandle) highlightHandle.remove()
       //   highlightHandle = layerView.highlight(graphic)
-      // }
+      //   // --------------------------------------------------------------------------------
+      //   // 2. SOLO contorno usando effect
+      //   layerView.effect = {
+      //     filter: {
+      //       objectIds: [objectId]
+      //     },
+      //     includedEffect: 'drop-shadow(0px, 0px, 0px) brightness(1.2)',
+      //     excludedEffect: 'opacity(0.2)'
+      //   }
+      //   console.log('ID LEYER -->', ObjectID, layerView)
       // })
     },
 
@@ -221,7 +208,8 @@ export default {
       )
 
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
-      await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
+      // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
+      await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     }
   },
 
