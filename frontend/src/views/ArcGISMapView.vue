@@ -7,10 +7,13 @@
         <img src="@/assets/logos/redim_logo.png" style="width: 100%; max-width: 60px; height: auto;">
     </v-app-bar>
     <div id="viewDiv" ref="mapView"></div>
-    <v-navigation-drawer app dark v-model="drawer_left_map" width="250px" clipped style="padding-top: 10px;" color="#B0B0B0">
-      Navegar por el mapa
+    <v-navigation-drawer app v-model="drawer_left_map" width="250px" clipped style="padding: 10px !important;" color="#B2B2B1"> <!-- #B0B0B0-->
+      <!-- Navegar por el mapa -->
+      <v-form ref="form_item" style="padding-top: 5px;">
+        <v-select  item-value="id" item-text="title" :items="indicators" v-model="frmData.indicator_id" :rules="[v => !!v || 'Campo obligatorio']" label="Indicador"
+          dense outlined background-color="#ECECEC" color="#246257" @change="getCategories"></v-select>
+      </v-form>
     </v-navigation-drawer>
-    <!-- #3c8c43 #4071b2-->
 
     <loader-comp />
   </div>
@@ -66,7 +69,11 @@ export default {
       stopWatchHandle: null,
       graphicsLayer: null,
       // vue
-      drawer_left_map: false
+      drawer_left_map: true,
+      indicators: [],
+      frmData: {
+        indicator_id: null
+      }
     }
   },
   computed: {
@@ -187,7 +194,6 @@ export default {
         this.throttle(pointerMoveHandler, 60) // ~16 FPS
       )
     },
-
     async initMap () {
       // console.log('initMap()')
       this.map = new Map({
@@ -218,27 +224,54 @@ export default {
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+    },
+    // data
+    async getIndicators () {
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}map?type=indicators`
+        // console.log(url)
+        const response = await axios.get(url)
+        if (response.data.status === 200) {
+          this.indicators = response.data.result
+        }
+        // const data = [
+        //   { id: 1, title: 'Indicador 1' },
+        //   { id: 2, title: 'Indicador 2' },
+        //   { id: 3, title: 'Indicador 3' }
+        // ]
+      } catch (error) {
+        console.log(error.response.data)
+        console.log(error)
+      }
+    },
+    async getCategories () {
+      // console.log('getCategories() -->', this.frmData.indicator_id)
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
+        // console.log(url)
+        const response = await axios.post(url, this.frmData.indicator_id)
+        console.log(response.data)
+        // if (response.data.status === 200) {
+        //   this.indicators = response.data.result
+        // }
+        // const data = [
+        //   { id: 1, title: 'Indicador 1' },
+        //   { id: 2, title: 'Indicador 2' },
+        //   { id: 3, title: 'Indicador 3' }
+        // ]
+      } catch (error) {
+        console.log(error.response.data)
+        console.log(error)
+      }
     }
   },
 
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
   async created () {
-    this.dialog_loader.actived = true
-    this.dialog_loader.message = 'Por favor espere...'
-    try {
-      const url = `${process.env.VUE_APP_API_SERVER}map?type=items`
-      console.log(url)
-
-      const response = await axios.get(url)
-      console.log(response.data.result)
-      // if (response.data.status === 200) {
-      //   this.citas.all = response.data.result
-      // }
-    } catch (error) {
-      console.log(error.response.data)
-      console.log(error)
-    }
+    // this.dialog_loader.actived = true
+    // this.dialog_loader.message = 'Por favor espere...'
+    this.getIndicators()
   },
   beforeMount () {},
   mounted () {

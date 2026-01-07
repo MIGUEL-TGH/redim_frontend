@@ -28,10 +28,11 @@
    // strtolower($URI);
    if(strlen($URI) != 0){
       switch (strtolower($URI)){
-         //--------------------map------------------------------
+         //--------------------map redim------------------------------
          case '/redim_backend/api/map':
             include "services/serv_map.php";
          break;
+         //-----------------------------------------------------------
          case '/redim_backend/api/economy':
             include "services/serv_economy.php";
          break;

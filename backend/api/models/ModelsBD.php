@@ -4,7 +4,40 @@
    use Firebase\JWT\JWT;
 
    class ModelsBD{
-      
+      //------------------------2026------------------------------------------------    
+      static public function setQuery($sql, $params = [], $fetch = 'all'){
+          try {
+            $stmt = ConnectionBD::CNN()->prepare($sql);
+            $stmt->execute($params);
+
+            switch ($fetch) {
+               // case 'column':
+               //    return $stmt->fetchColumn();
+               // case 'none':
+               //    return true; // Para INSERT, UPDATE, DELETE
+
+               case 'update':
+                  return array(
+                     "status"=> 200,
+                     "comment" => "The process was successful",
+                  );
+               case 'one': // find
+                  return $stmt->fetch(PDO::FETCH_ASSOC);
+               case 'all': // filter
+               default:
+                  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+
+         } catch (PDOException $e) {
+            return [
+               "status" => 400,
+               "alert"  => "Query execution failed",
+               "error"  => $e->getMessage()
+            ];
+         }
+      }
+
+      //------------------------2025------------------------------------------------    
       static public function SelectFrom($sql){
          $stmt = ConnectionBD::CNN()->prepare($sql);
          
