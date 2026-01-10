@@ -7,21 +7,28 @@
   switch ($METHOD){
     case 'GET': // Obtener
       if($Type == "indicators"){
-        $Return = map::getIndicators();
+        $response = map::getIndicators();
+      } else if ($Type == "years") {
+        $response = map::getYears();
+      } else if ($Type == "states") {
+        $response = map::getStates();
+      } else if ($Type == "genders") {
+        $response = map::getGenders();
       }
+
       break;
     case 'POST': // Insertar
       if($Type == "categories"){
-        $Return = map::getIndicatorCategories($value);
+        $response = map::getIndicatorCategories($value);
       }
        break;
     // case 'PUT': // Actualizar
-    //    $Return = ALERT(400, 'Method under construction');
+    //    $return = ALERT(400, 'Method under construction');
     //    break;
     // case 'DELETE': // Eliminar
-    //    $Return = ALERT(400, 'Method under construction');
+    //    $return = ALERT(400, 'Method under construction');
     //    break;
     default:
-      $Return = ALERT(405, 'Method Not Allowed');
+      $return = ALERT(405, 'Method Not Allowed');
   } 
 ?>

@@ -1,7 +1,7 @@
 <?php
   require_once "models/ModelsBD.php";
-  require_once "Response.php";
-  class map {
+  require_once "response.php";
+  class map extends ModelsBD {
     public function __construct(){}
     //--------------------public access-------------------------------------------        
     static public function _getIndicators(){
@@ -70,7 +70,7 @@
       //  return $return->setResponse($result, null, null);
 
     }
-
+    //----------------------------------------------------------------------------
     static public function getIndicators(){
         $return = new response();
         $result = array();
@@ -85,7 +85,7 @@
         GROUP BY i.id, i.name
         ORDER BY i.name ASC;";
 
-        $items = ModelsBD::setQuery($query, [1, 1], 'all');
+        $items = self::setQuery($query, [1, 1], 'all');
     
         if (empty($items)) {
           return $return->setResponse(null, '¡items not found!', 400);
@@ -102,18 +102,71 @@
         "SELECT ic.id, ic.name AS title
         FROM indicator_categories ic
         WHERE ic.indicator_id = ? 
-            AND ic.status = 1
+            AND ic.status = ?
         ORDER BY ic.name ASC;";
 
         // $params = array($indicatorId);
-        $items = ModelsBD::setQuery($query, [$indicatorId], 'all');
+        $items = self::setQuery($query, [$indicatorId, 1], 'all');
     
         if (empty($items)) {
           return $return->setResponse(null, '¡items not found!', 400);
         }
 
         return $return->setResponse($items, null, null);
+    }
+    static public function getYears(){
+      $return = new response();
+      $result = array();
 
+      $query = 
+      "SELECT y.id, y.name AS title
+      FROM years y
+      WHERE y.status = ?
+      ORDER BY y.name DESC;";
+
+      $items = self::setQuery($query, [1], 'all');
+  
+      if (empty($items)) {
+        return $return->setResponse(null, '¡items not found!', 400);
+      }
+
+      return $return->setResponse($items, null, null);
+    }
+    static public function getStates(){
+      $return = new response();
+      $result = array();
+
+      $query = 
+      "SELECT s.id, s.name AS title
+      FROM states s
+      WHERE s.status = ? AND s.country_id = ?
+      ORDER BY s.name ASC;";
+
+      $items = self::setQuery($query, [1, 1], 'all');
+  
+      if (empty($items)) {
+        return $return->setResponse(null, '¡items not found!', 400);
+      }
+
+      return $return->setResponse($items, null, null);
+    }
+    static public function getGenders(){
+      $return = new response();
+      $result = array();
+
+      $query = 
+      "SELECT g.id, g.name AS title
+      FROM genders g
+      WHERE g.status = ?
+      ORDER BY g.name ASC;";
+
+      $items = self::setQuery($query, [1], 'all');
+  
+      if (empty($items)) {
+        return $return->setResponse(null, '¡items not found!', 400);
+      }
+
+      return $return->setResponse($items, null, null);
     }
 
     //--------------------private access------------------------------------------- 

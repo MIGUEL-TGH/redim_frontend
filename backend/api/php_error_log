@@ -1,0 +1,10 @@
+[31-Dec-2025 19:37:08 Europe/Berlin] PHP Fatal error:  Uncaught exception 'RuntimeException' with message 'Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.0.0". You are running 5.6.32.' in C:\xampp\htdocs\redim_backend\api\vendor\composer\platform_check.php:22
+Stack trace:
+#0 C:\xampp\htdocs\redim_backend\api\vendor\composer\autoload_real.php(25): require()
+#1 C:\xampp\htdocs\redim_backend\api\vendor\autoload.php(22): ComposerAutoloaderInit20fad51902f91e7fd3039e016a6556b5::getLoader()
+#2 C:\xampp\htdocs\redim_backend\api\models\ModelsBD.php(3): require_once('C:\\xampp\\htdocs...')
+#3 C:\xampp\htdocs\redim_backend\api\controllers\cont_map.php(3): require_once('C:\\xampp\\htdocs...')
+#4 C:\xampp\htdocs\redim_backend\api\routes\services\serv_map.php(2): require_once('C:\\xampp\\htdocs...')
+#5 C:\xampp\htdocs\redim_backend\api\routes\routes.php(33): include('C:\\xampp\\htdocs...')
+#6 C:\xampp\htdocs\redim_backend\api\controllers\controller-routes.php(4): include('C:\\xampp\\htdocs...')
+#7 C:\xampp\htdocs\redim_backend in C:\xampp\htdocs\redim_backend\api\vendor\composer\platform_check.php on line 22

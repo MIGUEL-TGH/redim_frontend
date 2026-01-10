@@ -4,9 +4,9 @@
 
    header("Content-Type: application/json");
    $value = file_get_contents('php://input');
-   $Json = json_decode($value, true);
+   $json = json_decode($value, true);
 
-   $Return = '';
+   $response = '';
    $REQ_URI = $_SERVER['REQUEST_URI'];
    $URI_EXP = explode("/", $REQ_URI);
    $URI_END = end($URI_EXP);
@@ -82,7 +82,7 @@
          default:
             echo ALERT(406, 'Not Acceptable');
       }
-      echo $Return;
+      echo $response;
 
    } else {
       echo ALERT(404, 'Not Found');
