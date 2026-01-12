@@ -11,8 +11,8 @@
     <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped style="padding: 10px !important;" color="#B2B2B1"> <!-- #B0B0B0-->
       <!-- Navegar por el mapa -->
       <v-form ref="form_item" style="padding-top: 5px;">
-        <v-select v-model="frmData.indicator_id" item-value="id" item-text="title" :items="indicators" :rules="[v => !!v || 'Campo obligatorio']" label="Indicador"
-          dense filled background-color="#fafafa" color="#246257" @change="getCategories">
+        <v-select v-model="frmData.indicator_id" item-value="id" item-text="title" :items="indicators" :rules="[v => !!v || 'Campo obligatorio']"
+          dense filled background-color="#fafafa" color="#246257" @change="getCategories" label="Indicador*:">
           <template v-slot:selection="{ item, index }">
               <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
                 <span>{{ truncateText(item.title, 30) }}</span>
@@ -21,7 +21,7 @@
         </v-select>
 
         <v-select v-model="frmData.category_id" :items="categories" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isCategoryDisabled"
-          dense filled background-color="#fafafa" color="#246257" label="Categoría">
+          dense filled background-color="#fafafa" color="#246257" label="Categoría*:">
             <template v-slot:selection="{ item, index }">
               <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
                 <span>{{ truncateText(item.title, 20) }}</span>
@@ -33,7 +33,7 @@
         </v-select>
 
         <v-select v-model="frmData.state_id" :items="states" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isStateDisabled"
-          dense filled background-color="#fafafa" color="#246257" label="Entidad Federativa">
+          dense filled background-color="#fafafa" color="#246257" label="Entidad Federativa*:">
             <template v-slot:selection="{ item, index }">
               <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
                 <span>{{ truncateText(item.title, 20) }}</span>
@@ -45,7 +45,7 @@
         </v-select>
 
         <v-select v-model="frmData.year_id" :items="years" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isYearDisabled"
-          dense filled background-color="#fafafa" color="#246257" label="Año">
+          dense filled background-color="#fafafa" color="#246257" label="Año*:">
           <template v-slot:selection="{ item, index }">
             <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
               <span>{{ truncateText(item.title, 20) }}</span>
@@ -57,7 +57,7 @@
         </v-select>
 
         <v-select v-model="frmData.gender_id" :items="genders" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isGenderDisabled"
-          dense filled background-color="#fafafa" color="#246257" label="Género">
+          dense filled background-color="#fafafa" color="#246257" label="Género*:">
             <template v-slot:selection="{ item, index }">
               <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
                 <span>{{ truncateText(item.title, 20) }}</span>
@@ -225,8 +225,7 @@ export default {
   methods: {
     // vuex
     ...mapActions([
-      'setSleep',
-      'setNotifications'
+      'setSleep'
     ]),
     // map
     throttle (func, limit) {
@@ -449,8 +448,11 @@ export default {
     },
     async getCategories () {
       try {
+        console.log(this.frmData.indicator_id)
         const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
         const response = await axios.post(url, this.frmData.indicator_id)
+        console.log(response)
+        // const response = await axios.post(url, 1)
         if (response.data.status === 200) {
           this.frmData.category_id = []
           // console.log(response.data.result)
@@ -459,7 +461,7 @@ export default {
           this.frmData.category_id = [0]
         }
       } catch (error) {
-        console.log(error.response.data)
+        // console.log(error.response.data)
         console.log(error)
       }
     },
@@ -467,39 +469,44 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=indicators`
         const response = await axios.get(url)
+        console.log(response.data)
         if (response.data.status === 200) {
           this.indicators = response.data.result
           // this.frmData.indicator_id = this.indicators[1].id
         }
       } catch (error) {
-        console.log(error.response.data)
         console.log(error)
       }
     },
 
-    submit (value) {
+    async submit () {
       // this.$refs.notifier.success('Operación realizada correctamente')
+      // console.log('submit-->', value)
 
-      // console.log('submit-->', value);
-      // const message = (this.device_type === '1')
-      //   ? '¡Favor de llenar todos los campos!'
-      //   : '¡Los campos no admiten carácteres especiales, favor de reingresar su número de expediente!'
-
-      // console.log(message)
-
-      // const send = async () => {
-      //   if (!this.$refs.form_checker.validate()) {
-      //     alert(message)
-      //     this.forms.exp = ''
-      //     this.$refs.txt_exp.focus()
-      //     return
-      //   }
-      //   await this.Check_IN_OUT()
+      // if (!this.$refs.form_item.validate()) {
+      //   this.$refs.notifier.error('¡Favor de seleccionar las opciones obligatorias para generar la consulta!')
+      //   return ''
       // }
 
-      // if ((this.device_type === '1' && value === '1') || (this.device_type === '2' && value === '2')) {
-      //   send()
-      // }
+      const sendData = {
+        category_id: [1, 2, 3],
+        year_id: [24, 25, 26],
+        gender_id: [1, 2],
+        state_id: [1, 2, 3]
+      }
+      console.log(sendData)
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
+        const response = await axios.post(url, sendData)
+        // const response = await axios.post(url, 1)
+        console.log(response)
+        // if (response.data.status === 200) {
+        //   console.log(response.data.result)
+        // }
+      } catch (error) {
+        console.log(error)
+        console.log(error.response.data)
+      }
     },
     async reset () {
       this.$refs.form_checker.reset()
@@ -518,14 +525,15 @@ export default {
   beforeCreate () {},
   async created () {
     // this.$refs.notifier.success('Operación realizada correctamente')
-    // this.setNotifications({ type: 'warning', message: 'Favor de seleccionar una plantilla', ms: 5000 })
     // this.dialog_loader.actived = true
     // this.dialog_loader.message = 'Por favor espere...'
 
-    // this.getIndicators()
+    this.getIndicators()
     // this.getStates()
     // this.getYears()
     // this.getGenders()
+
+    // this.getCategories()
 
     // this.categories = [
     //   { id: 0, title: 'Todos' },
@@ -537,6 +545,7 @@ export default {
     // ]
     // this.frmData.category_id = [1]
     // console.log(this.frmData.category_id)
+    // this.submit()
   },
   beforeMount () {},
   mounted () {
