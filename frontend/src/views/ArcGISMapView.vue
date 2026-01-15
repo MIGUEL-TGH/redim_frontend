@@ -359,7 +359,7 @@ export default {
 
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
-      // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+      await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     },
     // data
     truncateText (text, maxLength) {
@@ -448,20 +448,16 @@ export default {
     },
     async getCategories () {
       try {
-        console.log(this.frmData.indicator_id)
         const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
         const response = await axios.post(url, this.frmData.indicator_id)
-        console.log(response)
-        // const response = await axios.post(url, 1)
+        console.log(response.data)
         if (response.data.status === 200) {
           this.frmData.category_id = []
-          // console.log(response.data.result)
           this.categories = response.data.result
           this.categories.unshift({ id: 0, title: 'Todos' })
           this.frmData.category_id = [0]
         }
       } catch (error) {
-        // console.log(error.response.data)
         console.log(error)
       }
     },
@@ -483,28 +479,72 @@ export default {
       // this.$refs.notifier.success('Operación realizada correctamente')
       // console.log('submit-->', value)
 
-      // if (!this.$refs.form_item.validate()) {
-      //   this.$refs.notifier.error('¡Favor de seleccionar las opciones obligatorias para generar la consulta!')
-      //   return ''
-      // }
+      if (!this.$refs.form_item.validate()) {
+        this.$refs.notifier.error('¡Favor de seleccionar las opciones obligatorias para generar la consulta!')
+        return ''
+      }
 
       const sendData = {
-        category_id: [1, 2, 3],
-        year_id: [24, 25, 26],
-        gender_id: [1, 2],
-        state_id: [1, 2, 3]
+      // category_id: [1, 2, 3],
+      // year_id: [24, 25, 26],
+      // gender_id: [1, 2],
+      // state_id: [1, 2, 3]
+        category_id: [],
+        state_id: [],
+        year_id: []
       }
+
+      if (this.frmData.category_id.includes(0)) {
+        const ids = this.categories
+          .filter(item => item.id !== 0)
+          .map(item => item.id)
+
+        sendData.category_id = ids
+      } else {
+        sendData.category_id = this.frmData.category_id
+      }
+
+      if (this.frmData.state_id.includes(0)) {
+        const ids = this.states
+          .filter(item => item.id !== 0)
+          .map(item => item.id)
+
+        sendData.state_id = ids
+      } else {
+        sendData.state_id = this.frmData.state_id
+      }
+
+      if (this.frmData.year_id.includes(0)) {
+        const ids = this.years
+          .filter(item => item.id !== 0)
+          .map(item => item.id)
+
+        sendData.year_id = ids
+      } else {
+        sendData.year_id = this.frmData.year_id
+      }
+
+      if (this.frmData.gender_id.includes(0)) {
+        const ids = this.genders
+          .filter(item => item.id !== 0)
+          .map(item => item.id)
+
+        sendData.gender_id = ids
+      } else {
+        sendData.gender_id = this.frmData.gender_id
+      }
+
       console.log(sendData)
+      // console.log(this.frmData.category_id)
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
         const response = await axios.post(url, sendData)
-        // const response = await axios.post(url, 1)
-        console.log(response)
+        console.log(response.data)
         // if (response.data.status === 200) {
         //   console.log(response.data.result)
         // }
       } catch (error) {
-        console.log(error)
+        // console.log(error)
         console.log(error.response.data)
       }
     },
@@ -527,12 +567,12 @@ export default {
     // this.$refs.notifier.success('Operación realizada correctamente')
     // this.dialog_loader.actived = true
     // this.dialog_loader.message = 'Por favor espere...'
-
+    // --------------------------------------------------------------------------------
     this.getIndicators()
-    // this.getStates()
-    // this.getYears()
-    // this.getGenders()
-
+    this.getStates()
+    this.getYears()
+    this.getGenders()
+    // --------------------------------------------------------------------------------
     // this.getCategories()
 
     // this.categories = [
@@ -545,11 +585,12 @@ export default {
     // ]
     // this.frmData.category_id = [1]
     // console.log(this.frmData.category_id)
+
     // this.submit()
   },
   beforeMount () {},
   mounted () {
-    // this.initMap()
+    this.initMap()
   },
   beforeUpdate () {},
   updated () {},

@@ -1,4 +1,4 @@
-
+-- INSERTS
 
 -- INSERT INTO `marital_statuses`(`name`, `status`) VALUES
 -- ('Soltero(a)','1'),
@@ -163,3 +163,8 @@ INSERT INTO `centers`(`state_id`, `name`, `locate`, `status`) VALUES
     ('3','CENTRO DE INTERNAMIENTO ESPECIALIZADO PARA ADOLESCENTES','','1');
 
 
+-- UPDATES
+
+UPDATE indicator_category_details
+SET state_id = 1
+WHERE center_id IN (1, 2, 3, 4, 5);

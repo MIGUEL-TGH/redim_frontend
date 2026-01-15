@@ -64,7 +64,9 @@ class MapController extends BaseController {
       
       return match ($type) {
         'indicators' => MapService::getIndicators(),
+        'states' => MapService::getStates(),
         'years'      => MapService::getYears(),
+        'genders'      => MapService::getGenders(),
         default      => throw new ValidationException([
           'type' => 'Invalid type parameter'
         ])
@@ -80,6 +82,8 @@ class MapController extends BaseController {
 
       return match ($type) {
         'categories' => MapService::getIndicatorCategories($body),
+        'getdata' => MapService::getData($body),
+        // 'getdata' => $body,
         default      => throw new ValidationException([
           'type' => 'Invalid type parameter'
         ])
