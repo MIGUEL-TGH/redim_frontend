@@ -168,3 +168,14 @@ INSERT INTO `centers`(`state_id`, `name`, `locate`, `status`) VALUES
 UPDATE indicator_category_details
 SET state_id = 1
 WHERE center_id IN (1, 2, 3, 4, 5);
+
+
+
+SELECT i.id
+FROM indicators i
+JOIN indicator_categories ic ON ic.indicator_id = i.id
+LEFT JOIN indicator_categories cat ON cat.parent_id = ic.id
+WHERE ic.parent_id IS NULL
+GROUP BY i.id
+HAVING COUNT(ic.id) = 1 AND COUNT(cat.id) = 0;
+

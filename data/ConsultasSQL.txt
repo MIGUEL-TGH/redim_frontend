@@ -1,0 +1,13 @@
+1 Aborto
+2 Abuso de confianza y falsedad
+
+
+getIndicatorCategories()
+SELECT DISTINCT
+	ic.id, ic.name AS title, ic.parent_id
+        FROM indicator_categories ic
+        INNER JOIN indicator_category_details icd
+        ON icd.category_id = ic.id
+        WHERE ic.indicator_id = 3 
+            AND ic.status = 1
+        ORDER BY ic.name ASC;

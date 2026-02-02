@@ -18,21 +18,133 @@ class MapService {
 
     return " AND {$field} IN (" . implode(',', $placeholders) . ")";
   }
+  //--------------------Constructor de nodos de indicadores------------------------------------------- 
+  private static function indexCategories(array $rows): array{
+      $categories = [];
+
+      foreach ($rows as $row) {
+          $id = (int)$row['category_id'];
+
+          if (!isset($categories[$id])) {
+              $categories[$id] = [
+                  'id'        => $id,
+                  'title'     => $row['category_name'],
+                  'parent_id' => $row['parent_id'] !== null ? (int)$row['parent_id'] : null,
+                  'children'  => []
+              ];
+          }
+      }
+
+      return $categories;
+  }
+  private static function buildCategoryTree(array &$categories): array {
+      $tree = [];
+
+      foreach ($categories as $id => &$node) {
+          if ($node['parent_id'] === null) {
+              $tree[] = &$node;
+          } else {
+              if (isset($categories[$node['parent_id']])) {
+                  $categories[$node['parent_id']]['children'][] = &$node;
+              }
+          }
+      }
+
+      return $tree;
+  }
+  private static function indexIndicators(array $rows): array {
+      $indicators = [];
+
+      foreach ($rows as $row) {
+          $id = (int)$row['indicator_id'];
+
+          if (!isset($indicators[$id])) {
+              $indicators[$id] = [
+                  'id'       => $id,
+                  'title'    => $row['indicator_name'],
+                  'children' => []
+              ];
+          }
+      }
+
+      return $indicators;
+  }
+  private static function mapCategoryToIndicator(array $rows): array {
+      $map = [];
+
+      foreach ($rows as $row) {
+          $map[(int)$row['category_id']] = (int)$row['indicator_id'];
+      }
+
+      return $map;
+  }
+  private static function assignTreeToIndicators( array &$indicators, array $categoryTree, array $categoryToIndicatorMap): array {
+    foreach ($categoryTree as $node) {
+      $categoryId = $node['id'];
+
+      if (isset($categoryToIndicatorMap[$categoryId])) {
+        $indicatorId = $categoryToIndicatorMap[$categoryId];
+        $indicators[$indicatorId]['children'][] = $node;
+      }
+    }
+    return array_values($indicators);
+  }
+  private static function fetchCategoryIdsWithData(): array {
+      $sql = 
+      "SELECT DISTINCT category_id
+        FROM indicator_category_details
+        WHERE status = ?
+      ";
+
+      $rows = BaseModel::query($sql, [1], 'all');
+
+      return array_column($rows, 'category_id', 'category_id');
+  }
+  private static function includeParentCategories(array $categories, array $validIds): array {
+      foreach ($validIds as $id => $_) {
+          $current = $categories[$id]['parent_id'] ?? null;
+
+          while ($current !== null) {
+              if (isset($validIds[$current])) break;
+              $validIds[$current] = true;
+              $current = $categories[$current]['parent_id'] ?? null;
+          }
+      }
+
+      return $validIds;
+  }
+  private static function filterCategories(array $categories, array $validIds): array {
+    return array_intersect_key($categories, $validIds);
+  }
+
   //--------------------public access-------------------------------------------        
   public static function getIndicators() {  
+    // $sql = 
+    //   "SELECT i.id, i.name AS title
+    //   FROM indicators i
+    //   INNER JOIN indicator_categories ic 
+    //     ON ic.indicator_id = i.id
+    //     AND ic.status = ?
+    //   WHERE i.status = ?
+    //   GROUP BY i.id, i.name
+    //   ORDER BY i.name ASC
+    // ";
+
     $sql = 
-      "SELECT i.id, i.name AS title
+      "SELECT DISTINCT
+        i.id, i.name AS title
       FROM indicators i
-      INNER JOIN indicator_categories ic 
+      INNER JOIN indicator_categories ic
         ON ic.indicator_id = i.id
-        AND ic.status = ?
+      INNER JOIN indicator_category_details icd
+        ON icd.category_id = ic.id
       WHERE i.status = ?
-      GROUP BY i.id, i.name
-      ORDER BY i.name ASC
+      ORDER BY i.name;
     ";
 
     try {
-      $items = BaseModel::query($sql, [1, 1], 'all');
+      // $items = BaseModel::query($sql, [1, 1], 'all');
+      $items = BaseModel::query($sql, [1], 'all');
     } catch (Throwable $e) {
       throw new DatabaseException($e->getMessage());
     }
@@ -43,11 +155,103 @@ class MapService {
 
     return $items;
   }
-  public static function getIndicatorCategories($indicatorId) {
+  
+  public static function getCategoriesNode($indicatorId) {
     try {
+      $result = [];
+
+      // 1️⃣ Traer TODAS las categorías (sin filtrar por datos aún)
       $sql = 
-        "SELECT ic.id, ic.name AS title
+        "SELECT
+          i.id   AS indicator_id,
+          i.name AS indicator_name,
+
+          ic.id        AS category_id,
+          ic.parent_id,
+          ic.name      AS category_name,
+          ic.level,
+          ic.sort_order
+
+        FROM indicators i
+        INNER JOIN indicator_categories ic
+          ON ic.indicator_id = i.id
+        WHERE
+          i.status = ?
+          AND ic.status = ?
+          AND i.id = ?
+        ORDER BY
+          i.id,
+          ic.level,
+          ic.sort_order,
+          ic.name;
+      ";
+
+      $rows = BaseModel::query($sql, [1, 1, $indicatorId], 'all');
+      
+      // 2️⃣ Indexar categorías
+      $categories = self::indexCategories($rows);
+      
+      // 3️⃣ Categorías que sí tienen datos reales
+      $categoriesWithData = self::fetchCategoryIdsWithData();
+
+      // 4️⃣ Incluir padres necesarios
+      $validCategoryIds = self::includeParentCategories(
+        $categories,
+        $categoriesWithData
+      );
+
+      // 5️⃣ Filtrar categorías válidas
+      $filteredCategories = self::filterCategories(
+        $categories,
+        $validCategoryIds
+      );
+
+      // 6️⃣ Construir árbol
+      $categoryTree = self::buildCategoryTree($filteredCategories);
+
+      // 7️⃣ Indicadores
+      // $indicators = self::indexIndicators($rows);
+      // $categoryToIndicatorMap = self::mapCategoryToIndicator($rows);
+
+      // 8️⃣ Asignar árbol a indicadores
+      // $dataNode = self::assignTreeToIndicators(
+      //   $indicators,
+      //   $categoryTree,
+      //   $categoryToIndicatorMap
+      // );
+
+      // $result = $dataNode;
+      $result = $categoryTree;
+
+    } catch (Throwable $e) {
+      throw new DatabaseException($e->getMessage());
+    }
+    
+    if (empty($result)) {
+      throw new NotFoundException('¡items not found!');
+    }
+
+    return $result;
+  }
+
+  
+  public static function getIndicatorCategoriesv1($indicatorId) {
+    try {
+      // $sql = 
+      //   "SELECT ic.id, ic.name AS title, ic.parent_id
+      //   FROM indicator_categories ic
+      //   WHERE ic.indicator_id = ? 
+      //       AND ic.status = ?
+      //   ORDER BY ic.name ASC;
+      // ";
+
+      // $items = BaseModel::query($sql, [$indicatorId, 1], 'all');
+    
+      $sql = 
+        "SELECT ic.id, ic.name AS title, ic.parent_id
         FROM indicator_categories ic
+        INNER JOIN indicator_category_details icd
+        ON icd.category_id = ic.id
         WHERE ic.indicator_id = ? 
             AND ic.status = ?
         ORDER BY ic.name ASC;
@@ -65,6 +269,7 @@ class MapService {
 
     return $items;
   }
+
   public static function getStates() {
     try {
       $sql = 

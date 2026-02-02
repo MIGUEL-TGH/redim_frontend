@@ -1,0 +1,33 @@
+indicator_categories
+
+
+{id:1, indicator_id:1, name: Aborto, parent_id: NULL, level: 0}
+{id:2, indicator_id:2, name: Abuso de confianza, parent_id: NULL, level: 1}
+{id:3, indicator_id:2, name: Falsedad, parent_id: NULL, level: 1}
+{id:4, indicator_id:3, name: Allanamiento de morada, parent_id: NULL, level: 0}
+{id:5, indicator_id:4, name: Abuso, acoso y hostigamiento sexual, parent_id: NULL, level: 1}
+{id:6, indicator_id:4, name: Abuso sexual, parent_id: 5, level: 2}
+{id:7, indicator_id:4, name: Acoso sexual, parent_id: 5, level: 2}
+{id:8, indicator_id:4, name: Acoso sexual, parent_id: 5, level: 2}
+
+
+INSERT INTO `indicator_categories` (`indicator_id`, `parent_id`, `name`, `level`, `sort_order`, `status`, `center_id`, `created_at`) VALUES 
+('2', NULL, 'Falsedad', '0', '0', '1', '1', '2026-02-01 00:00:00'), 
+('3', NULL, 'Abuso, acoso y hostigamiento sexual', '0', '0', '1', '1', '2026-02-01 00:00:00');
+
+
+
+INSERT INTO `indicator_categories` (`indicator_id`, `parent_id`, `name`, `level`, `sort_order`, `status`, `center_id`, `created_at`) VALUES 
+('3', '4', 'Abuso sexual', '0', '1', '1', '1', '2026-02-01 00:00:00'), 
+('3', '4', 'Acoso sexual', '0', '1', '1', '1', '2026-02-01 00:00:00'),
+('3', '4', 'Hostigamiento sexual', '0', '1', '1', '1', '2026-02-01 00:00:00');
+
+INSERT INTO `indicator_categories` (`indicator_id`, `parent_id`, `name`, `level`, `sort_order`, `status`, `center_id`, `created_at`) VALUES 
+('3', NULL, 'Otros delitos sexuales', '0', '0', '1', NULL, '2026-02-01 00:00:00');
+
+
+INSERT INTO `indicator_categories` (`indicator_id`, `parent_id`, `name`, `level`, `sort_order`, `status`, `center_id`, `created_at`) VALUES 
+('3', '9', 'Contra la Libertad y el Normal Desarrollo Psicosexual', '0', '1', '1', NULL, '2026-02-01 00:00:00'), 
+('3', '9', 'Delitos Contra la Libertad y el Normal Desarrollo Psicosexual', '0', '1', '1', NULL, '2026-02-01 00:00:00'),
+('3', '9', 'La libertad y la seguridad sexual', '0', '1', '1', NULL, '2026-02-01 00:00:00');
+

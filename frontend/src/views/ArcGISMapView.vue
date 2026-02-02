@@ -21,6 +21,7 @@
         </v-select>
 
         <v-select v-model="frmData.category_id" :items="categories" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isCategoryDisabled"
+          :disabled="frmDisabled.category"
           dense filled background-color="#fafafa" color="#246257" label="Categoría*:">
             <template v-slot:selection="{ item, index }">
               <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
@@ -31,6 +32,8 @@
               </span>
             </template>
         </v-select>
+
+        <v-treeview :items="categories" item-text="title" item-key="id" open-all></v-treeview>
 
         <v-select v-model="frmData.state_id" :items="states" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isStateDisabled"
           dense filled background-color="#fafafa" color="#246257" label="Entidad Federativa*:">
@@ -144,6 +147,9 @@ export default {
         year_id: [],
         gender_id: [],
         state_id: []
+      },
+      frmDisabled: {
+        category: false
       },
       isUpdatingYear: false,
       isUpdatingCategory: false,
@@ -450,10 +456,20 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
         const response = await axios.post(url, this.frmData.indicator_id)
-        console.log(response.data)
+        console.log('getCategories()', response.data.result)
         if (response.data.status === 200) {
           this.frmData.category_id = []
+          this.categories = []
+
           this.categories = response.data.result
+
+          if (response.data.total > 1) {
+            // this.categories = response.data.result
+            this.frmDisabled.category = false
+          } else {
+            this.frmDisabled.category = true
+          }
+
           this.categories.unshift({ id: 0, title: 'Todos' })
           this.frmData.category_id = [0]
         }
@@ -465,7 +481,7 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=indicators`
         const response = await axios.get(url)
-        console.log(response.data)
+        console.log(response.data.result)
         if (response.data.status === 200) {
           this.indicators = response.data.result
           // this.frmData.indicator_id = this.indicators[1].id
@@ -569,9 +585,9 @@ export default {
     // this.dialog_loader.message = 'Por favor espere...'
     // --------------------------------------------------------------------------------
     this.getIndicators()
-    this.getStates()
-    this.getYears()
-    this.getGenders()
+    // this.getStates()
+    // this.getYears()
+    // this.getGenders()
     // --------------------------------------------------------------------------------
     // this.getCategories()
 
@@ -590,7 +606,7 @@ export default {
   },
   beforeMount () {},
   mounted () {
-    this.initMap()
+    // this.initMap()
   },
   beforeUpdate () {},
   updated () {},

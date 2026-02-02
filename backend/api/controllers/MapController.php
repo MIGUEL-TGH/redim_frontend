@@ -81,7 +81,8 @@ class MapController extends BaseController {
       $body = Request::body();
 
       return match ($type) {
-        'categories' => MapService::getIndicatorCategories($body),
+        // 'categories' => MapService::getIndicatorCategories($body),
+        'categories' => MapService::getCategoriesNode($body),
         'getdata' => MapService::getData($body),
         // 'getdata' => $body,
         default      => throw new ValidationException([
