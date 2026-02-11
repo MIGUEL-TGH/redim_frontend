@@ -7,6 +7,13 @@
       <v-spacer></v-spacer>
         <img src="@/assets/logos/redim_logo.png" style="width: 100%; max-width: 60px; height: auto;">
     </v-app-bar>
+    <!-- <v-col cols="12">
+      <label class="tree-label">Categoría</label>
+      <v-treeview selectable v-model="frmData.category_id" :items="categories" item-text="title" item-key="id"
+        class="tree-compact" open-all selected-color="white"
+      >
+      </v-treeview>
+    </v-col> -->
     <div id="viewDiv" ref="mapView"></div>
     <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped style="padding: 10px !important;" color="#B2B2B1"> <!-- #B0B0B0-->
       <!-- Navegar por el mapa -->
@@ -20,7 +27,7 @@
             </template>
         </v-select>
 
-        <v-select v-model="frmData.category_id" :items="categories" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isCategoryDisabled"
+        <!-- <v-select v-model="frmData.category_id" :items="categories" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isCategoryDisabled"
           :disabled="frmDisabled.category"
           dense filled background-color="#fafafa" color="#246257" label="Categoría*:">
             <template v-slot:selection="{ item, index }">
@@ -31,9 +38,7 @@
                 (+{{ frmData.category_id.length - 1 }} más)
               </span>
             </template>
-        </v-select>
-
-        <v-treeview :items="categories" item-text="title" item-key="id" open-all></v-treeview>
+        </v-select> -->
 
         <v-select v-model="frmData.state_id" :items="states" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isStateDisabled"
           dense filled background-color="#fafafa" color="#246257" label="Entidad Federativa*:">
@@ -60,7 +65,7 @@
         </v-select>
 
         <v-select v-model="frmData.gender_id" :items="genders" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isGenderDisabled"
-          dense filled background-color="#fafafa" color="#246257" label="Género*:">
+          dense filled background-color="#fafafa" color="#246257" label="Sexo*:">
             <template v-slot:selection="{ item, index }">
               <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
                 <span>{{ truncateText(item.title, 20) }}</span>
@@ -70,6 +75,17 @@
               </span>
             </template>
         </v-select>
+
+        <div v-if="categories.length">
+          <label class="tree-label">Categoría</label>
+          <v-treeview selectable v-model="frmData.category_id" :items="categories" item-text="title" item-key="id"
+            class="tree-compact" open-all selected-color="white"
+          >
+          </v-treeview>
+          <!-- <br>
+          {{ frmData.category_id }} -->
+          <br>
+        </div>
 
         <v-btn color="#246257" elevation="5" @click="submit" block class="white--text">consultar</v-btn>
       </v-form>
@@ -100,6 +116,7 @@ import axios from 'axios'
 import { mapState, mapActions } from 'vuex'
 
 export default {
+  // 1️⃣ Identificación
   name: 'ArcGISMap',
   components: { // Importación de componentes hijos
     LoaderComp,
@@ -137,6 +154,78 @@ export default {
       drawer_left_map: true,
       indicators: [],
       categories: [],
+      // categories: [
+      //   {
+      //     id: 1,
+      //     title: 'Applications :',
+      //     children: [
+      //       { id: 2, title: 'Calendar : app' },
+      //       { id: 3, title: 'Chrome : app' },
+      //       { id: 4, title: 'Webstorm : app' }
+      //     ]
+      //   },
+      //   {
+      //     id: 5,
+      //     title: 'Documents :',
+      //     children: [
+      //       {
+      //         id: 6,
+      //         title: 'vuetify :',
+      //         children: [
+      //           {
+      //             id: 7,
+      //             title: 'src :',
+      //             children: [
+      //               { id: 8, title: 'index : ts' },
+      //               { id: 9, title: 'bootstrap : ts' }
+      //             ]
+      //           }
+      //         ]
+      //       },
+      //       {
+      //         id: 10,
+      //         title: 'material2 :',
+      //         children: [
+      //           {
+      //             id: 11,
+      //             title: 'src :',
+      //             children: [
+      //               { id: 12, title: 'v-btn : ts' },
+      //               { id: 13, title: 'v-card : ts' },
+      //               { id: 14, title: 'v-window : ts' }
+      //             ]
+      //           }
+      //         ]
+      //       }
+      //     ]
+      //   },
+      //   {
+      //     id: 15,
+      //     title: 'Downloads :',
+      //     children: [
+      //       { id: 16, title: 'October : pdf' },
+      //       { id: 17, title: 'November : pdf' },
+      //       { id: 18, title: 'Tutorial : html' }
+      //     ]
+      //   },
+      //   {
+      //     id: 19,
+      //     title: 'Videos :',
+      //     children: [
+      //       {
+      //         id: 20,
+      //         title: 'Tutorials :',
+      //         children: [
+      //           { id: 21, title: 'Basic layouts : mp4' },
+      //           { id: 22, title: 'Advanced techniques : mp4' },
+      //           { id: 23, title: 'All about app : dir' }
+      //         ]
+      //       },
+      //       { id: 24, title: 'Intro : mov' },
+      //       { id: 25, title: 'Conference introduction : avi' }
+      //     ]
+      //   }
+      // ],
       years: [],
       genders: [],
       states: [],
@@ -410,6 +499,17 @@ export default {
       return false
     },
 
+    getAllLeafIds (nodes, result = []) {
+      nodes.forEach(node => {
+        if (node.children && node.children.length) {
+          this.getAllLeafIds(node.children, result)
+        } else {
+          result.push(node.id)
+        }
+      })
+      return result
+    },
+
     async getGenders () {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=genders`
@@ -456,22 +556,23 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
         const response = await axios.post(url, this.frmData.indicator_id)
-        console.log('getCategories()', response.data.result)
+        // console.log('getCategories() --> ', response.data.result)
         if (response.data.status === 200) {
           this.frmData.category_id = []
           this.categories = []
 
-          this.categories = response.data.result
-
-          if (response.data.total > 1) {
-            // this.categories = response.data.result
-            this.frmDisabled.category = false
-          } else {
-            this.frmDisabled.category = true
+          if (response.data.total === 1 && !response.data.result[0].children.length) { // Sin nodos
+            this.frmData.category_id = [response.data.result[0].id]
+            return
           }
 
-          this.categories.unshift({ id: 0, title: 'Todos' })
-          this.frmData.category_id = [0]
+          this.categories = response.data.result
+
+          await this.setSleep(100)
+          const LeafIds = await this.getAllLeafIds(this.categories)
+          // console.log('LeafIds-->', LeafIds)
+          this.frmData.category_id = LeafIds
+          //   this.frmDisabled.category = false
         }
       } catch (error) {
         console.log(error)
@@ -481,7 +582,7 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=indicators`
         const response = await axios.get(url)
-        console.log(response.data.result)
+        // console.log(response.data.result)
         if (response.data.status === 200) {
           this.indicators = response.data.result
           // this.frmData.indicator_id = this.indicators[1].id
@@ -510,17 +611,7 @@ export default {
         year_id: []
       }
 
-      if (this.frmData.category_id.includes(0)) {
-        const ids = this.categories
-          .filter(item => item.id !== 0)
-          .map(item => item.id)
-
-        sendData.category_id = ids
-      } else {
-        sendData.category_id = this.frmData.category_id
-      }
-
-      if (this.frmData.state_id.includes(0)) {
+      if (this.frmData.state_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
         const ids = this.states
           .filter(item => item.id !== 0)
           .map(item => item.id)
@@ -530,7 +621,7 @@ export default {
         sendData.state_id = this.frmData.state_id
       }
 
-      if (this.frmData.year_id.includes(0)) {
+      if (this.frmData.year_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
         const ids = this.years
           .filter(item => item.id !== 0)
           .map(item => item.id)
@@ -540,7 +631,7 @@ export default {
         sendData.year_id = this.frmData.year_id
       }
 
-      if (this.frmData.gender_id.includes(0)) {
+      if (this.frmData.gender_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
         const ids = this.genders
           .filter(item => item.id !== 0)
           .map(item => item.id)
@@ -550,19 +641,27 @@ export default {
         sendData.gender_id = this.frmData.gender_id
       }
 
-      console.log(sendData)
-      // console.log(this.frmData.category_id)
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
-        const response = await axios.post(url, sendData)
-        console.log(response.data)
-        // if (response.data.status === 200) {
-        //   console.log(response.data.result)
-        // }
-      } catch (error) {
-        // console.log(error)
-        console.log(error.response.data)
+      const categoryIds = this.frmData.category_id
+        .filter(item => item !== 0)
+        .map(item => item)
+
+      if (!categoryIds.length) {
+        return this.$refs.notifier.error('¡Favor de seleccionar al menos una de las categorías disponobles!')
       }
+      sendData.category_id = categoryIds
+
+      return console.log(sendData)
+      // try {
+      //   const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
+      //   const response = await axios.post(url, sendData)
+      //   console.log(response.data.result)
+      //   // if (response.data.status === 200) {
+      //   //   console.log(response.data.result)
+      //   // }
+      // } catch (error) {
+      //   // console.log(error)
+      //   console.log(error.response.data)
+      // }
     },
     async reset () {
       this.$refs.form_checker.reset()
@@ -585,9 +684,9 @@ export default {
     // this.dialog_loader.message = 'Por favor espere...'
     // --------------------------------------------------------------------------------
     this.getIndicators()
-    // this.getStates()
-    // this.getYears()
-    // this.getGenders()
+    this.getStates()
+    this.getYears()
+    this.getGenders()
     // --------------------------------------------------------------------------------
     // this.getCategories()
 
@@ -606,7 +705,7 @@ export default {
   },
   beforeMount () {},
   mounted () {
-    // this.initMap()
+    this.initMap()
   },
   beforeUpdate () {},
   updated () {},
@@ -621,12 +720,12 @@ export default {
 </script>
 
 <style scoped>
-  .v-input {
+  /* .v-input {
     font-size: 14px;
   }
   .v-label {
     font-size: 25px !important;
-  }
+  } */
   .chip-select {
     font-size: 12px;
     padding: 0 5px;
@@ -635,6 +734,71 @@ export default {
   .span-select {
     font-size: 11px;
     padding: 0 5px !important;
+  }
+  /* --------------------------------treeview------------------------------------------------ */
+  /* Label tipo v-text-field */
+  .tree-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 4px;
+  }
+
+  /* Contenedor general */
+  .tree-compact {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  /* Cada nodo */
+  .tree-compact ::v-deep .v-treeview-node__root {
+    min-height: 20px !important;
+    padding: 0 4px !important;
+  }
+
+  /* Texto del nodo */
+  .tree-compact ::v-deep .v-treeview-node__label {
+    font-size: 12px;
+    line-height: 1.2 !important;
+  }
+
+  /* --------------------------------Checkbox------------------------------------------------ */
+  /* Checkbox */
+  .tree-compact ::v-deep .v-input--selection-controls {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Iconos (expand + checkbox) */
+  /* .tree-compact ::v-deep .v-icon {
+    font-size: 20px !important;
+  } */
+
+  .tree-compact ::v-deep .v-treeview-node__checkbox {
+    width: 10px !important;
+    /* font-size: 25px !important; */
+    transform: scale(0.85) !important;
+  }
+
+  /* -------------------------------------------------------------------------------- */
+  /* Botón del icono expand/collapse */
+  .tree-compact ::v-deep .v-treeview-node__toggle {
+    width: 25px;
+    height: 25px;
+  }
+
+  /* Icono expand/collapse */
+  .tree-compact ::v-deep .v-treeview-node__toggle .v-icon {
+    font-size: 20px !important;
+  }
+
+  /* Estado activo (seleccionado / focus) */
+  .tree-compact ::v-deep .v-treeview-node__toggle.v-btn--active {
+    border-radius: 50%;
   }
 
 </style>

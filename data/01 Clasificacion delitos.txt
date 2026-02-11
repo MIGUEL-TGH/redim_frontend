@@ -1,0 +1,59 @@
+1 ➡ Aborto
+2 ➡ Abuso de confianza y falsedad
+	2 ▶ Abuso de confianza
+	3 ▶ Falsedad
+3 ➡Otros delitos sexuales
+	4 ▶ Abuso, acoso y hostigamiento sexual
+		5 ▶ Abuso sexual
+		6 ▶ Acoso sexual
+		7 ▶ Hostigamiento sexual
+	8 ▶ Incesto
+	9 ▶ Otros delitos sexuales
+		11  ▶ Contra la Libertad y el Normal Desarrollo Psicosexual
+		11 ▶ Delitos Contra la Libertad y el Normal Desarrollo Psicosexual
+		12 ▶ La libertad y la seguridad sexual
+4 ➡Delitos de delincuencia organizada y tipificados en Convención de Palermo
+5 ➡Allanamiento de morada
+6 ➡Amenazas
+7 ➡Otros delitos asociados a la delincuencia organizada 
+
+
+dashboard
+//-------------------------------------------------------------------------------------------------------------
+
+SELECT
+        icd.category_id AS category_id,
+        ic.name AS category_name,
+
+        icd.year_id,
+        y.name AS year_name,
+
+        icd.gender_id,
+        g.name AS gender_name,
+
+        icd.state_id,
+        s.name AS state_name,
+
+        icd.PI,
+        icd.PS
+      FROM indicator_category_details icd
+      INNER JOIN indicator_categories ic ON ic.id = icd.category_id
+      INNER JOIN years y ON y.id = icd.year_id
+      INNER JOIN genders g ON g.id = icd.gender_id
+      INNER JOIN states s ON s.id = icd.state_id
+      WHERE icd.status = 1
+AND icd.category_id IN (:icd_category_id_0) 
+AND icd.year_id IN (:icd_year_id_0,:icd_year_id_1,:icd_year_id_2,:icd_year_id_3,:icd_year_id_4,:icd_year_id_5,:icd_year_id_6,:icd_year_id_7,:icd_year_id_8,:icd_year_id_9,:icd_year_id_10,:icd_year_id_11,:icd_year_id_12,:icd_year_id_13,:icd_year_id_14,:icd_year_id_15,:icd_year_id_16,:icd_year_id_17,:icd_year_id_18,:icd_year_id_19,:icd_year_id_20,:icd_year_id_21,:icd_year_id_22,:icd_year_id_23,:icd_year_id_24,:icd_year_id_25) 
+AND icd.gender_id IN (:icd_gender_id_0,:icd_gender_id_1,:icd_gender_id_2,:icd_gender_id_3,:icd_gender_id_4) 
+AND icd.state_id IN (:icd_state_id_0,:icd_state_id_1,:icd_state_id_2,:icd_state_id_3,:icd_state_id_4,:icd_state_id_5,:icd_state_id_6,:icd_state_id_7,:icd_state_id_8,:icd_state_id_9,:icd_state_id_10,:icd_state_id_11,:icd_state_id_12,:icd_state_id_13,:icd_state_id_14,:icd_state_id_15,:icd_state_id_16,:icd_state_id_17,:icd_state_id_18,:icd_state_id_19,:icd_state_id_20,:icd_state_id_21,:icd_state_id_22,:icd_state_id_23,:icd_state_id_24,:icd_state_id_25,:icd_state_id_26,:icd_state_id_27,:icd_state_id_28,:icd_state_id_29,:icd_state_id_30,:icd_state_id_31)
+
+//-------------------------------------------------------------------------------------------------------------
+
+SELECT DISTINCT icd.year_id, y.name AS title
+        FROM indicator_category_details icd
+        INNER JOIN years y ON y.id = icd.year_id
+        WHERE icd.status = 1  
+        ORDER BY icd.year_id DESC;
+
+
+

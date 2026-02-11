@@ -1,0 +1,35 @@
+/* ---------global----------------------------------------- */
+/* ---------dashboard----------------------------------------- */
+.title-mod h2{
+   text-align: center;
+   background-color: transparent;
+   text-transform: uppercase;
+   font-size: clamp(20px, 5vw, 40px);
+   font-weight: normal;
+   color: #78909C;
+   
+   word-break: break-word; /* permite que las palabras se dividan si es necesario */
+   white-space: normal; /* permite los saltos de línea */
+   line-height: 1.2; /* mejora el espaciado entre líneas */
+   padding: 0 5px; /* opcional: margen interno para pantallas pequeñas */
+
+   margin: 0px 0px 0px 0px;
+}
+.content-title {
+   padding: 10px 0px 5px 0px !important;
+}
+.content-title p{
+   font-size: 15px;
+   position: relative;
+   top: 10px;
+   /* padding: 5px 0px 0px 0px; */
+   margin: 0px 15px 0px 0px !important;
+}
+.content-title .search-field {
+   padding: 0px 0px 0px 0px;
+   margin: 0px 0px 0px 0px;
+}
+
+/* .text-white {
+  color: #fff !important;
+} */

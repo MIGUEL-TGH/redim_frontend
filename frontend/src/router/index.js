@@ -1,10 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/MainView.vue'
+import RoutesDashBoard from './RoutesDashBoard'
 
 Vue.use(VueRouter)
 
 const routes = [
+  ...RoutesDashBoard,
   {
     path: '/',
     name: 'home',
