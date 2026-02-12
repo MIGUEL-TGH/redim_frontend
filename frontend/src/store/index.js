@@ -11,7 +11,7 @@ export default new Vuex.Store({
   getters: {
   },
   mutations: {
-    // -------------------------------------------------------------------
+    // -------------------------- notifications -----------------------------------------
     PUSH (state, payload) {
       const maxLength = 3
       if (state.notifications.length >= maxLength) {
@@ -41,7 +41,7 @@ export default new Vuex.Store({
       }
       return text
     },
-    // -------------------------------------------------------------------
+    // -------------------------- notifications -----------------------------------------
     notify ({ commit }, { message, type = 'info', duration = 3000, icon = '' }) {
       const id = Date.now() + Math.random()
       commit('PUSH', { id, message, type, icon })
