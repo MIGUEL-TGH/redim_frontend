@@ -235,7 +235,7 @@ class MapService {
   }
 
   
-  public static function getIndicatorCategoriesv1($indicatorId) {
+  public static function getIndicatorCategoriesv1($indicatorId) { // Borrar despues
     try {
       // $sql = 
       //   "SELECT ic.id, ic.name AS title, ic.parent_id
@@ -272,14 +272,20 @@ class MapService {
 
   public static function getStates() {
     try {
+      // $sql = 
+      //   "SELECT s.id, s.name AS title
+      //   FROM states s
+      //   WHERE s.status = ? AND s.country_id = ?
+      //   ORDER BY s.name ASC;
+      // ";
       $sql = 
-        "SELECT s.id, s.name AS title
-        FROM states s
-        WHERE s.status = ? AND s.country_id = ?
+      " SELECT DISTINCT icd.state_id AS id, s.name AS title
+        FROM indicator_category_details icd
+        INNER JOIN states s ON s.id = icd.state_id
+        WHERE icd.status = ?  
         ORDER BY s.name ASC;
       ";
-
-      $items = BaseModel::query($sql, [1, 1], 'all');
+      $items = BaseModel::query($sql, [1], 'all');
     
     } catch (Throwable $e) {
       throw new DatabaseException($e->getMessage());
@@ -293,11 +299,19 @@ class MapService {
   }
   public static function getYears() {
     try {
+      // $sql = 
+      //   "SELECT y.id, y.name AS title
+      //   FROM years y
+      //   WHERE y.status = ?
+      //   ORDER BY y.name DESC;
+      // ";
+
       $sql = 
-        "SELECT y.id, y.name AS title
-        FROM years y
-        WHERE y.status = ?
-        ORDER BY y.name DESC;
+        "SELECT DISTINCT icd.year_id AS id, y.name AS title
+        FROM indicator_category_details icd
+        INNER JOIN years y ON y.id = icd.year_id
+        WHERE icd.status = ?  
+        ORDER BY icd.year_id DESC;
       ";
 
       $items = BaseModel::query($sql, [1], 'all');
@@ -314,13 +328,20 @@ class MapService {
   }
   public static function getGenders() {
     try {
+      // $sql = 
+      //   "SELECT g.id, g.name AS title
+      //   FROM genders g
+      //   WHERE g.status = ?
+      //   ORDER BY g.name ASC;
+      // ";
       $sql = 
-        "SELECT g.id, g.name AS title
-        FROM genders g
-        WHERE g.status = ?
-        ORDER BY g.name ASC;
+      "SELECT DISTINCT icd.gender_id AS id, g.name AS title
+        FROM indicator_category_details icd
+        INNER JOIN genders g ON g.id = icd.gender_id
+        WHERE icd.status = ?  
+        ORDER BY g.name DESC;
+      
       ";
-
       $items = BaseModel::query($sql, [1], 'all');
     
     } catch (Throwable $e) {
@@ -337,7 +358,7 @@ class MapService {
   public static function getData($data) {
     $params = [];
     $query = "SELECT
-        icd.indicator_category_id AS category_id,
+        icd.category_id AS category_id,
         ic.name AS category_name,
 
         icd.year_id,
@@ -349,9 +370,10 @@ class MapService {
         icd.state_id,
         s.name AS state_name,
 
-        icd.quantity
+        icd.PI,
+        icd.PS
       FROM indicator_category_details icd
-      INNER JOIN indicator_categories ic ON ic.id = icd.indicator_category_id
+      INNER JOIN indicator_categories ic ON ic.id = icd.category_id
       INNER JOIN years y ON y.id = icd.year_id
       INNER JOIN genders g ON g.id = icd.gender_id
       INNER JOIN states s ON s.id = icd.state_id
@@ -360,7 +382,7 @@ class MapService {
 
     // Construcción dinámica de filtros
     if (!empty($data['category_id'])) {
-      $query .= self::buildInClause('icd.indicator_category_id', $data['category_id'], $params);
+      $query .= self::buildInClause('icd.category_id', $data['category_id'], $params);
     }
     
     if (!empty($data['year_id'])) {
@@ -375,6 +397,7 @@ class MapService {
       $query .= self::buildInClause('icd.state_id', $data['state_id'], $params);
     }
 
+    // return $query;
     // -------------------------------------------------------------------------------------------------
     try {
       $items = BaseModel::query($query, $params, 'all');
@@ -388,5 +411,6 @@ class MapService {
 
     return $items;
   }
+
 }
 ?>

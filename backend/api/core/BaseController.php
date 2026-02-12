@@ -1,5 +1,4 @@
 <?php
-
 abstract class BaseController {
 
   protected static function handle(callable $callback): void {
@@ -29,6 +28,17 @@ abstract class BaseController {
         'Internal server error',
         500
       );
+      // ------------------- verificar de donde viene el error----------------------------------------------------------------------
+      // Response::error(
+      //   get_class($e) . ' - ' . $e->getMessage(),
+      //   500
+      // );
+      
+      // -------------------- verificar de donde viene el archivo----------------------------------------------------------------------
+      // Response::error(
+      //   get_class($e) . ' | FILE: ' . (new ReflectionClass($e))->getFileName(),
+      //   500
+      // );
     }
   }
 }

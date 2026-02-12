@@ -1,5 +1,4 @@
 <?php
-
 class NotFoundException extends ApiException {
 
   public function __construct(string $message = 'Resource not found') {

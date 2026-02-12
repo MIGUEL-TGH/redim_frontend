@@ -1,5 +1,4 @@
 <?php
-
 class ValidationException extends ApiException {
 
   protected array $errors;
