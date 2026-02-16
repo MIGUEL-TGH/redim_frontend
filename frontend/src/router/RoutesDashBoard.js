@@ -12,42 +12,27 @@ export default [
         path: '/dashboard/years',
         name: 'DBYearsView',
         component: () => import('@/views/dashboard/YearsView.vue')
+      },
+      {
+        path: '/dashboard/genders',
+        name: 'DBGendersView',
+        component: () => import('@/views/dashboard/GendersView.vue')
+      },
+      {
+        path: '/dashboard/countries',
+        name: 'DBCountriesView',
+        component: () => import('@/views/dashboard/CountriesView.vue')
+      },
+      {
+        path: '/dashboard/indicators',
+        name: 'DBIndicatorsView',
+        component: () => import('@/views/dashboard/IndicatorsView.vue')
+      },
+      {
+        path: '/dashboard/states',
+        name: 'DBStatesView',
+        component: () => import('@/views/dashboard/StatesView.vue')
       }
-    //   {
-    //     path: '/2019-2024/postales',
-    //     name: '20192024PostalesComp',
-    //     component: () => import('@/views/20192024/PostCardsView.vue')
-    //   },
-    //   {
-    //     path: '/2019-2024/materiales-didacticos',
-    //     name: '20192024MaterialesDidacticosComp',
-    //     component: () => import('@/views/20192024/MaterialesDidacticosView.vue')
-    //   },
-    //   {
-    //     path: '/2019-2024/consejos-regionales',
-    //     name: '20192024ConsejosRegionalesComp',
-    //     component: () => import('@/views/20192024/ConsejosRegionalesView.vue')
-    //   },
-    //   {
-    //     path: '/2019-2024/consejo-estatal',
-    //     name: '20192024ConsejoEstatalComp',
-    //     component: () => import('@/views/20192024/ConsejoEstatalView.vue')
-    //   },
-    //   {
-    //     path: '/2019-2024/documentales',
-    //     name: '20192024DocumentalesComp',
-    //     component: () => import('@/views/20192024/DocumentalesView.vue')
-    //   },
-    //   {
-    //     path: '/2019-2024/libros',
-    //     name: '20192024LibrosComp',
-    //     component: () => import('@/views/20192024/LibrosView.vue')
-    //   },
-    //   {
-    //     path: '/2019-2024/mid',
-    //     name: '20192024MidComp',
-    //     component: () => import('../views/20192024/MidView.vue')
-    //   }
     ]
   }
 //   ,

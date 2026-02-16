@@ -1,15 +1,14 @@
 <?php
-// require_once 'services/YearsService.php';
-require_once __DIR__ . '/../services/YearsService.php';
+require_once __DIR__ . '/../services/IndicatorsService.php';
 
-class YearsController extends BaseController {
+class IndicatorsController extends BaseController {
   public static function get() {
     self::handle(function () {
       
       $type = Request::query('type');
       
       return match ($type) {
-        'getdata'    => YearsService::getYears(),
+        'getdata'    => IndicatorsService::getIndicators(),
         default      => throw new ValidationException([
           'type' => 'Invalid type parameter'
         ])
@@ -24,7 +23,7 @@ class YearsController extends BaseController {
       $body = Request::body();
 
       return match ($type) {
-        'crud' => YearsService::setCRUD($body),
+        'crud' => IndicatorsService::setCRUD($body),
         // 'crud' => $body,
         default      => throw new ValidationException([
           'type' => 'Invalid type parameter'

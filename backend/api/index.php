@@ -15,9 +15,12 @@ Cors::handle();
 
 $router = new Router();
 // require_once 'routes/auth.routes.php';
-// require_once 'routes/indicators.routes.php';
 require_once 'routes/map.routes.php';
 require_once 'routes/years.routes.php';
+require_once 'routes/genders.routes.php';
+require_once 'routes/countries.routes.php';
+require_once 'routes/indicators.routes.php';
+require_once 'routes/states.routes.php';
 
 $router->dispatch();
 

@@ -43,11 +43,11 @@
                 <br>
                 <v-form ref="form_item" @submit="onSubmit">
                   <v-row>
-                      <v-col cols="12" md="12" class="pa-1">
-                        <v-text-field v-model="forms.name" :rules="rules.txt_year"  @keyup.enter="submit({task: 'send_item'})"
-                          counter maxlength="4" type="text" label="Fecha:*" color="#246257">
-                        </v-text-field>
-                      </v-col>
+                    <v-col cols="12" md="12" class="pa-1">
+                      <v-text-field v-model="forms.name" :rules="rules.txt_250"
+                        counter maxlength="250" type="text" label="Indicador:*" color="#246257">
+                      </v-text-field>
+                    </v-col>
                   </v-row>
                 </v-form>
               </v-card-text>
@@ -71,7 +71,7 @@ import crudMixin from '@/mixins/crudMixin'
 
 export default {
   // 1️⃣ Identificación
-  name: 'DBYearsView',
+  name: 'DBIndicatorsView',
   components: {}, // Importación de componentes hijos
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -85,19 +85,19 @@ export default {
   data () {
     return {
       entityConfig: {
-        endpoint: 'years',
+        endpoint: 'indicators',
         messages: {
-          saved: '¡Año guardado correctamente!',
-          updated: '¡Año actualizado correctamente!',
+          saved: '¡Indicador guardado correctamente!',
+          updated: '¡Indicador actualizado correctamente!',
           status: '¡Estatus actualizado correctamente!'
         }
       },
-      title: 'Años',
+      title: 'Indicadores',
       dataTable: {
         search: '',
         headers: [
           { text: 'ID', value: 'id', class: 'bg-dark white--text', width: '10%' },
-          { text: 'Año', value: 'name', class: 'bg-dark white--text' },
+          { text: 'Indicadores', value: 'name', class: 'bg-dark white--text' },
           { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' },
           { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
         ],
@@ -109,15 +109,18 @@ export default {
       },
       forms: {
         name: '',
+        team: 1,
+        map: 1,
         status: true
       },
       params: {
         id: '0'
       },
       rules: {
-        txt_year: [
+        txt_250: [
           v => !!v || 'Se requiere el campo',
-          v => /^\d{4}$/.test(v) || 'Debe ingresar un año válido de 4 dígitos'
+          v => (v && v.length <= 250) || 'El nombre debe tener menos de 250 caracteres',
+          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,250}$/.test(v)) || 'El campo no debe contener carácteres especiales'
         ]
       }
     }
@@ -134,20 +137,24 @@ export default {
   // 5️⃣ Métodos
   methods: {
     ...mapActions([
-      'setSleep'
+      'setSleep',
+      'truncateText'
     ]),
 
-    async getYears () {
+    async getIndicators () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}years?type=getdata`
+        const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getdata`
         const response = await axios.get(url)
-        // console.log(response.data)
+        // console.log(response.data.result)
         if (response.data.success) {
           this.dataTable.items = response.data.result
         }
       } catch (error) {
-        console.log(error.response.data)
-        console.log(error)
+        // console.log(error.response.data)
+        // console.log(error)
+        this.$store.dispatch('error', {
+          message: error.response?.data.message || error.message || error || 'Error en la operación'
+        })
       }
     },
     async reset (value) {
@@ -156,7 +163,7 @@ export default {
         new_item: async () => {
           this.params.id = 0
           this.dialog_item.actived = true
-          this.dialog_item.title = 'Nueva Fecha:'
+          this.dialog_item.title = 'Nuevo Indicador:'
 
           await this.setSleep(100)
           this.$refs.form_item.reset()
@@ -173,8 +180,8 @@ export default {
 
           this.params.id = item.id
           this.dialog_item.actived = true
-          this.dialog_item.title = 'Año: ' + item.name
-          // this.dialog_item.title = 'Año: ' + this.truncateText(item.name)
+          const truncatedName = await this.truncateText({ text: item.name, maxLength: 45 })
+          this.dialog_item.title = 'Indicador: ' + truncatedName
         },
         close_item: async () => {
           if (this.$refs.form_item) {
@@ -219,7 +226,7 @@ export default {
     this.dialog_loader.message = 'Cargando datos...'
     this.dialog_loader.actived = true
 
-    await this.getYears()
+    await this.getIndicators()
 
     this.dialog_loader.message = ''
     this.dialog_loader.actived = false

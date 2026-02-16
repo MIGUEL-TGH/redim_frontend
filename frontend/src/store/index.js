@@ -35,7 +35,7 @@ export default new Vuex.Store({
         console.log(error)
       }
     },
-    async truncateText (text, maxLength) {
+    async truncateText (context, { text, maxLength }) {
       if (text.length > maxLength) {
         return text.substring(0, maxLength) + '...'
       }
@@ -67,4 +67,12 @@ export default new Vuex.Store({
   modules: {
     DB: storeDashBoard
   }
+  // actions: {
+  //   async truncateText (text, maxLength) {
+  //     if (text.length > maxLength) {
+  //       return text.substring(0, maxLength) + '...'
+  //     }
+  //     return text
+  //   }
+  // }
 })

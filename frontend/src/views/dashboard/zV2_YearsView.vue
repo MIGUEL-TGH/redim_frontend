@@ -67,7 +67,6 @@
 <script>
 import axios from 'axios'
 import { mapState, mapActions } from 'vuex'
-import crudMixin from '@/mixins/crudMixin'
 
 export default {
   // 1️⃣ Identificación
@@ -78,26 +77,18 @@ export default {
 
   // 2️⃣ Propiedades de entrada
   props: {},
-  mixins: [crudMixin],
+  mixins: {},
   extends: {},
 
   // 3️⃣ Datos reactivas
   data () {
     return {
-      entityConfig: {
-        endpoint: 'years',
-        messages: {
-          saved: '¡Año guardado correctamente!',
-          updated: '¡Año actualizado correctamente!',
-          status: '¡Estatus actualizado correctamente!'
-        }
-      },
       title: 'Años',
       dataTable: {
         search: '',
         headers: [
           { text: 'ID', value: 'id', class: 'bg-dark white--text', width: '10%' },
-          { text: 'Año', value: 'name', class: 'bg-dark white--text' },
+          { text: 'Años', value: 'name', class: 'bg-dark white--text' },
           { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' },
           { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
         ],
@@ -111,14 +102,14 @@ export default {
         name: '',
         status: true
       },
-      params: {
-        id: '0'
-      },
       rules: {
         txt_year: [
           v => !!v || 'Se requiere el campo',
           v => /^\d{4}$/.test(v) || 'Debe ingresar un año válido de 4 dígitos'
         ]
+      },
+      params: {
+        id: '0'
       }
     }
   },
@@ -136,13 +127,131 @@ export default {
     ...mapActions([
       'setSleep'
     ]),
+    // SRP (Single Responsibility Principle) -----------------------------------------------------------------------
+    async buildPayload (action) {
+      const payload = {
+        task: null,
+        params: {}
+      }
+
+      const TASKS = {
+        INSERT: 'insert',
+        UPDATE: 'update',
+        STATUS: 'status'
+      }
+
+      switch (action.task) {
+        case 'send_item':
+          payload.params = { ...this.forms }
+
+          if (this.params.id === 0) {
+            payload.task = TASKS.INSERT
+          } else {
+            payload.task = TASKS.UPDATE
+            payload.params.id = this.params.id
+          }
+
+          payload.params.status = 1
+          break
+
+        case 'status_item':
+          payload.task = TASKS.STATUS
+          payload.params = {
+            id: action.id,
+            status: action.status ? 1 : 0
+          }
+          break
+
+        default:
+          throw new Error('Acción no soportada en buildPayload')
+      }
+
+      return payload
+    },
+    async sendRequest (payload) {
+      const url = `${process.env.VUE_APP_API_SERVER}years?type=crud`
+      const response = await axios.post(url, payload)
+
+      if (response.data.status !== 200) {
+        throw new Error(response.data.message || 'Error en servidor')
+      }
+
+      return response.data.result
+    },
+    applyDomChange (result) {
+      const actions = {
+        saved_item: () => {
+          this.dataTable.items.unshift({
+            ...this.forms,
+            id: result.id
+          })
+
+          this.$store.dispatch('success', {
+            message: '¡Registro guardado correctamente!'
+          })
+        },
+
+        updated_item: () => {
+          const index = this.dataTable.items.findIndex(
+            item => item.id === result.id
+          )
+
+          if (index !== -1) {
+            Object.assign(this.dataTable.items[index], this.forms)
+          }
+
+          this.$store.dispatch('success', {
+            message: '¡Registro actualizado correctamente!'
+          })
+        },
+
+        status_updated: () => {
+          const index = this.dataTable.items.findIndex(
+            item => item.id === result.id
+          )
+
+          if (index !== -1) {
+            this.dataTable.items[index].status = result.status
+          }
+
+          this.$store.dispatch('success', {
+            message: '¡Estatus actualizado correctamente!'
+          })
+        }
+      }
+
+      actions[result.task]?.()
+    },
+    async CRUD_ELEMENT (action) {
+      try {
+        this.dialog_loader.message = 'Procesando...'
+        this.dialog_loader.actived = true
+
+        const payload = await this.buildPayload(action)
+        const result = await this.sendRequest(payload)
+
+        this.applyDomChange(result)
+
+        this.reset({ task: 'close_item' })
+        // console.log(result)
+      } catch (error) {
+        this.$store.dispatch('error', {
+          message: error.message || 'Error en la operación'
+        })
+      } finally {
+        this.dialog_loader.message = ''
+        this.dialog_loader.actived = false
+      }
+    },
+    // -------------------------------------------------------------------------------------------------------------
 
     async getYears () {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}years?type=getdata`
+        // console.log(url)
         const response = await axios.get(url)
-        // console.log(response.data)
-        if (response.data.success) {
+        // console.log(response.data.result)
+        if (response.data.status === 200) {
           this.dataTable.items = response.data.result
         }
       } catch (error) {
@@ -192,17 +301,10 @@ export default {
           if (!this.$refs.form_item.validate()) {
             return this.$store.dispatch('error', { message: 'validar datos por favor' })
           }
-
-          const result = await this.executeCrud(action)
-          if (result.success) {
-            this.reset({ task: 'close_item' })
-          }
+          this.CRUD_ELEMENT(action)
         },
         status_item: async () => {
-          const result = await this.executeCrud(action)
-          if (result.success) {
-            this.reset({ task: 'close_item' })
-          }
+          await this.CRUD_ELEMENT(action)
         }
       }
       // SUBMIT[action.task] ? SUBMIT[action.task]() : console.log('¡Submit not found!')

@@ -44,8 +44,8 @@
                 <v-form ref="form_item" @submit="onSubmit">
                   <v-row>
                       <v-col cols="12" md="12" class="pa-1">
-                        <v-text-field v-model="forms.name" :rules="rules.txt_year"  @keyup.enter="submit({task: 'send_item'})"
-                          counter maxlength="4" type="text" label="Fecha:*" color="#246257">
+                        <v-text-field v-model="forms.name" :rules="rules.txt_50"  @keyup.enter="submit({task: 'send_item'})"
+                          counter maxlength="50" type="text" label="Género:*" color="#246257">
                         </v-text-field>
                       </v-col>
                   </v-row>
@@ -71,7 +71,7 @@ import crudMixin from '@/mixins/crudMixin'
 
 export default {
   // 1️⃣ Identificación
-  name: 'DBYearsView',
+  name: 'DBGendersView',
   components: {}, // Importación de componentes hijos
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -85,19 +85,19 @@ export default {
   data () {
     return {
       entityConfig: {
-        endpoint: 'years',
+        endpoint: 'genders',
         messages: {
-          saved: '¡Año guardado correctamente!',
-          updated: '¡Año actualizado correctamente!',
+          saved: '¡Género guardado correctamente!',
+          updated: '¡Género actualizado correctamente!',
           status: '¡Estatus actualizado correctamente!'
         }
       },
-      title: 'Años',
+      title: 'Géneros',
       dataTable: {
         search: '',
         headers: [
           { text: 'ID', value: 'id', class: 'bg-dark white--text', width: '10%' },
-          { text: 'Año', value: 'name', class: 'bg-dark white--text' },
+          { text: 'Género', value: 'name', class: 'bg-dark white--text' },
           { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' },
           { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
         ],
@@ -115,9 +115,10 @@ export default {
         id: '0'
       },
       rules: {
-        txt_year: [
+        txt_50: [
           v => !!v || 'Se requiere el campo',
-          v => /^\d{4}$/.test(v) || 'Debe ingresar un año válido de 4 dígitos'
+          v => (v && v.length <= 50) || 'El nombre debe tener menos de 50 caracteres',
+          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,50}$/.test(v)) || 'El campo no debe contener carácteres especiales'
         ]
       }
     }
@@ -137,17 +138,20 @@ export default {
       'setSleep'
     ]),
 
-    async getYears () {
+    async getGenders () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}years?type=getdata`
+        const url = `${process.env.VUE_APP_API_SERVER}genders?type=getdata`
         const response = await axios.get(url)
         // console.log(response.data)
         if (response.data.success) {
           this.dataTable.items = response.data.result
         }
       } catch (error) {
-        console.log(error.response.data)
-        console.log(error)
+        // console.log(error.response.data)
+        // console.log(error)
+        this.$store.dispatch('error', {
+          message: error.response?.data.message || error.message || error || 'Error en la operación'
+        })
       }
     },
     async reset (value) {
@@ -156,7 +160,7 @@ export default {
         new_item: async () => {
           this.params.id = 0
           this.dialog_item.actived = true
-          this.dialog_item.title = 'Nueva Fecha:'
+          this.dialog_item.title = 'Nuevo Género:'
 
           await this.setSleep(100)
           this.$refs.form_item.reset()
@@ -173,7 +177,7 @@ export default {
 
           this.params.id = item.id
           this.dialog_item.actived = true
-          this.dialog_item.title = 'Año: ' + item.name
+          this.dialog_item.title = 'Género: ' + item.name
           // this.dialog_item.title = 'Año: ' + this.truncateText(item.name)
         },
         close_item: async () => {
@@ -219,7 +223,7 @@ export default {
     this.dialog_loader.message = 'Cargando datos...'
     this.dialog_loader.actived = true
 
-    await this.getYears()
+    await this.getGenders()
 
     this.dialog_loader.message = ''
     this.dialog_loader.actived = false

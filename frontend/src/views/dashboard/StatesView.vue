@@ -42,12 +42,27 @@
               <v-card-text style="max-height: 500px;">
                 <br>
                 <v-form ref="form_item" @submit="onSubmit">
-                  <v-row>
-                      <v-col cols="12" md="12" class="pa-1">
-                        <v-text-field v-model="forms.name" :rules="rules.txt_year"  @keyup.enter="submit({task: 'send_item'})"
-                          counter maxlength="4" type="text" label="Fecha:*" color="#246257">
-                        </v-text-field>
-                      </v-col>
+                  <v-row no-gutters>
+                    <v-col cols="12" md="12" class="pa-1">
+                      <v-autocomplete :items="countries" v-model="forms.country_id" :rules="rules.required" label="Países:*"
+                        item-text="name" item-value="id" dense outlined color="#246257">
+                      </v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" md="12" class="pa-1">
+                      <v-text-field v-model="forms.name" :rules="rules.txt_50"
+                        counter maxlength="50" type="text" label="Estado:*" color="#246257">
+                      </v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="12" class="pa-1">
+                      <v-text-field v-model="forms.demonym" :rules="rules.txt_50"
+                        counter maxlength="50" type="text" label="Gentilicio:*" color="#246257">
+                      </v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="12" class="pa-1">
+                      <v-text-field v-model="forms.iso_code" :rules="rules.txt_3"
+                        counter maxlength="3" type="text" label="Código ISO:*" color="#246257">
+                      </v-text-field>
+                    </v-col>
                   </v-row>
                 </v-form>
               </v-card-text>
@@ -71,7 +86,7 @@ import crudMixin from '@/mixins/crudMixin'
 
 export default {
   // 1️⃣ Identificación
-  name: 'DBYearsView',
+  name: 'DBStatesView',
   components: {}, // Importación de componentes hijos
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -85,39 +100,53 @@ export default {
   data () {
     return {
       entityConfig: {
-        endpoint: 'years',
+        endpoint: 'states',
         messages: {
-          saved: '¡Año guardado correctamente!',
-          updated: '¡Año actualizado correctamente!',
+          saved: '¡Estado guardado correctamente!',
+          updated: '¡Estado actualizado correctamente!',
           status: '¡Estatus actualizado correctamente!'
         }
       },
-      title: 'Años',
+      title: 'Estados',
       dataTable: {
         search: '',
         headers: [
           { text: 'ID', value: 'id', class: 'bg-dark white--text', width: '10%' },
-          { text: 'Año', value: 'name', class: 'bg-dark white--text' },
+          { text: 'País', value: 'country_name', class: 'bg-dark white--text' },
+          { text: 'Estado', value: 'name', class: 'bg-dark white--text' },
+          { text: 'Código ISO', value: 'iso_code', class: 'bg-dark white--text' },
+          { text: 'Gentilicio', value: 'demonym', class: 'bg-dark white--text' },
           { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' },
           { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
         ],
         items: []
       },
+      countries: [],
       dialog_item: {
         title: '',
         actived: false
       },
       forms: {
+        country_id: null,
         name: '',
+        demonym: '',
+        iso_code: '',
         status: true
       },
       params: {
         id: '0'
       },
       rules: {
-        txt_year: [
+        required: [v => !!v || 'Campo obligatorio'],
+        txt_50: [
           v => !!v || 'Se requiere el campo',
-          v => /^\d{4}$/.test(v) || 'Debe ingresar un año válido de 4 dígitos'
+          v => (v && v.length <= 50) || 'El nombre debe tener menos de 50 caracteres',
+          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,50}$/.test(v)) || 'El campo no debe contener carácteres especiales'
+        ],
+        txt_3: [
+          v => !!v || 'Se requiere el campo',
+          v => (v && v.length <= 3) || 'El código ISO debe tener menos de 3 caracteres',
+          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,3}$/.test(v)) || 'El campo no debe contener carácteres especiales'
         ]
       }
     }
@@ -134,20 +163,40 @@ export default {
   // 5️⃣ Métodos
   methods: {
     ...mapActions([
-      'setSleep'
+      'setSleep',
+      'truncateText'
     ]),
 
-    async getYears () {
+    async getStatus () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}years?type=getdata`
+        const url = `${process.env.VUE_APP_API_SERVER}states?type=getdata`
         const response = await axios.get(url)
-        // console.log(response.data)
+        // console.log(response.data.result)
         if (response.data.success) {
           this.dataTable.items = response.data.result
         }
       } catch (error) {
-        console.log(error.response.data)
-        console.log(error)
+        // console.log(error.response.data)
+        // console.log(error)
+        this.$store.dispatch('error', {
+          message: error.response?.data.message || error.message || error || 'Error en la operación'
+        })
+      }
+    },
+    async getCountries () {
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}states?type=getcountries`
+        const response = await axios.get(url)
+        // console.log(response.data.result)
+        if (response.data.success) {
+          this.countries = response.data.result
+        }
+      } catch (error) {
+        // console.log(error.response.data)
+        // console.log(error)
+        this.$store.dispatch('error', {
+          message: error.response?.data.message || error.message || error || 'Error en la operación'
+        })
       }
     },
     async reset (value) {
@@ -156,7 +205,7 @@ export default {
         new_item: async () => {
           this.params.id = 0
           this.dialog_item.actived = true
-          this.dialog_item.title = 'Nueva Fecha:'
+          this.dialog_item.title = 'Nuevo Estado:'
 
           await this.setSleep(100)
           this.$refs.form_item.reset()
@@ -173,8 +222,8 @@ export default {
 
           this.params.id = item.id
           this.dialog_item.actived = true
-          this.dialog_item.title = 'Año: ' + item.name
-          // this.dialog_item.title = 'Año: ' + this.truncateText(item.name)
+          const truncatedName = await this.truncateText({ text: item.name, maxLength: 45 })
+          this.dialog_item.title = 'Estado: ' + truncatedName
         },
         close_item: async () => {
           if (this.$refs.form_item) {
@@ -195,6 +244,7 @@ export default {
 
           const result = await this.executeCrud(action)
           if (result.success) {
+            await this.setSleep(500)
             this.reset({ task: 'close_item' })
           }
         },
@@ -219,7 +269,8 @@ export default {
     this.dialog_loader.message = 'Cargando datos...'
     this.dialog_loader.actived = true
 
-    await this.getYears()
+    await this.getStatus()
+    await this.getCountries()
 
     this.dialog_loader.message = ''
     this.dialog_loader.actived = false

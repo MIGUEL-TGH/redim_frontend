@@ -2,20 +2,6 @@
 // falta aplicar SRP (Single Responsibility Principle)
 require_once "ConnectionBD.php";
 class BaseModel {
-  // Nuevos -------------------------------------------------------------------------------
-  // protected static function execute(string $sql, array $params = []): PDOStatement {
-  //     $stmt = ConnectionBD::CNN()->prepare($sql);
-  //     $stmt->execute($params);
-  //     return $stmt;
-  // }
-  // protected static function fetchAll(string $sql, array $params = []): array {
-  //     return self::execute($sql, $params)->fetchAll(PDO::FETCH_ASSOC);
-  // }
-  // protected static function fetchOne(string $sql, array $params = []): ?array {
-  //     $result = self::execute($sql, $params)->fetch(PDO::FETCH_ASSOC);
-  //     return $result ?: null;
-  // }
-  // Anteriores -------------------------------------------------------------------------------
   public static function query($sql, $params = [], $fetch = 'all') {
     $stmt = ConnectionBD::CNN()->prepare($sql);
     $stmt->execute($params);
@@ -143,7 +129,5 @@ class BaseModel {
       );
     }
   }
-  // -------------------------------------------------------------------------------
-
 }
 ?>

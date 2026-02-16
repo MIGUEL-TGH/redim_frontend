@@ -3,36 +3,15 @@
 declare(strict_types=1); // Modo estricto de tipos
 require_once "models/BaseModel.php";
 
-class YearsService {
-  private const TABLE = 'years';
+class IndicatorsService {
+  private const TABLE = 'indicators';
   //--------------------private access-------------------------------------------
   private static function validate(array $data): void {
     if (in_array($data['task'], ['insert','update'], true)) {
-      if (!preg_match("/^\d{4}$/", $data['params']['name'])) {
-        throw new ValidationException([], 'Formato YYYY inválido');
+      if (!preg_match("/^[\p{L}\d\s._,-]{1,250}$/u", $data['params']['name'])) {
+        throw new ValidationException(['type' => 'Invalid type parameter'], 'Formato inválido en el nombre del indicador');
       }
     }
-  }
-
-  private static function getById(int $id): array {
-    $sql = "
-      SELECT id, name, status
-        FROM " . self::TABLE . "
-        ORDER BY name DESC
-      WHERE id = ?
-    ";
-
-    $item = BaseModel::query($sql, [$id], 'one');
-
-    if (!$item) {
-      throw new NotFoundException('Item not found');
-    }
-
-    return [
-      'id' => (int) $item['id'],
-      'name' => $item['name'],
-      'status' => (bool) $item['status'],
-    ];
   }
 
   private static function insert(array $params): array {
@@ -44,8 +23,7 @@ class YearsService {
 
     return [
       'task' => 'saved_item',
-      // 'id' => $insert['id']
-      'item' => self::getById((int)$insert['id'])
+      'id' => $insert['id']
     ];
   }
 
@@ -54,8 +32,7 @@ class YearsService {
 
     return [
       'task' => 'updated_item',
-      // 'id' => $params['id']
-      'item' => self::getById((int)$params['id'])
+      'id' => $params['id']
     ];
   }
 
@@ -78,12 +55,12 @@ class YearsService {
   }
 
   //--------------------public access--------------------------------------------
-  public static function getYears(): array {
+  public static function getIndicators(): array {
     try {
       $sql = "
-        SELECT id, name, status
+        SELECT id, name, team, map, status
         FROM " . self::TABLE . "
-        ORDER BY name DESC
+        ORDER BY id ASC
       ";
 
       $items = BaseModel::query($sql, [], 'all');
@@ -96,6 +73,8 @@ class YearsService {
         fn($item) => [
           'id' => (int) $item['id'],
           'name' => $item['name'],
+          'team' => $item['team'],
+          'map' => $item['map'],
           'status' => (bool) $item['status'],
         ],
         $items
