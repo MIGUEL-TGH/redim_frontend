@@ -44,7 +44,7 @@
                 <v-form ref="form_item" @submit="onSubmit">
                   <v-row>
                     <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.name" :rules="rules.txt_250"
+                      <v-text-field v-model="forms.name" :rules="rules.txt_250" @keyup.enter="submit({task: 'send_item'})"
                         counter maxlength="250" type="text" label="Indicador:*" color="#246257">
                       </v-text-field>
                     </v-col>

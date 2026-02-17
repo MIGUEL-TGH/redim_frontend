@@ -174,7 +174,6 @@ export default {
           this.params.id = item.id
           this.dialog_item.actived = true
           this.dialog_item.title = 'Año: ' + item.name
-          // this.dialog_item.title = 'Año: ' + this.truncateText(item.name)
         },
         close_item: async () => {
           if (this.$refs.form_item) {
@@ -205,7 +204,6 @@ export default {
           }
         }
       }
-      // SUBMIT[action.task] ? SUBMIT[action.task]() : console.log('¡Submit not found!')
       SUBMIT[action.task]?.()
     },
     onSubmit (e) {
