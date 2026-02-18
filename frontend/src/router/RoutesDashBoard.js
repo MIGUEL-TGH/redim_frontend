@@ -32,6 +32,21 @@ export default [
         path: '/dashboard/states',
         name: 'DBStatesView',
         component: () => import('@/views/dashboard/StatesView.vue')
+      },
+      {
+        path: '/dashboard/centers',
+        name: 'DBCentersView',
+        component: () => import('@/views/dashboard/CentersView.vue')
+      },
+      {
+        path: '/dashboard/indicator_categories',
+        name: 'DBIndicatorCategoriesView',
+        component: () => import('@/views/dashboard/IndicatorCategoriesView.vue')
+      },
+      {
+        path: '/dashboard/indicator_category_details',
+        name: 'DBIndicatorCategoryDetailsView',
+        component: () => import('@/views/dashboard/IndicatorCategoryDetailsView.vue')
       }
     ]
   }

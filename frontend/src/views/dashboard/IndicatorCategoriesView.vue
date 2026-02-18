@@ -44,23 +44,23 @@
                 <v-form ref="form_item" @submit="onSubmit">
                   <v-row no-gutters>
                     <v-col cols="12" md="12" class="pa-1">
-                      <v-autocomplete :items="countries" v-model="forms.country_id" :rules="rules.required" label="Países:*"
-                        item-text="name" item-value="id" dense outlined color="#246257">
+                      <v-autocomplete :items="indicators" v-model="forms.indicator_id" :rules="rules.required"
+                        item-text="name" item-value="id" dense outlined color="#246257" label="Indicador:*">
                       </v-autocomplete>
                     </v-col>
                     <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.name" :rules="rules.txt_50"
-                        counter maxlength="50" type="text" label="Estado:*" color="#246257">
+                      <v-autocomplete :items="slt_categories" v-model="forms.parent_id"
+                        item-text="name" item-value="id" dense outlined color="#246257" label="Categoría Padre:*">
+                      </v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" md="12" class="pa-1">
+                      <v-text-field v-model="forms.name" :rules="rules.txt_category"
+                        counter maxlength="255" type="text" dense outlined color="#246257" label="Categoría Hijo:*">
                       </v-text-field>
                     </v-col>
                     <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.demonym" :rules="rules.txt_50"
-                        counter maxlength="50" type="text" label="Gentilicio:*" color="#246257">
-                      </v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.iso_code" :rules="rules.txt_3"
-                        counter maxlength="3" type="text" label="Código ISO:*" color="#246257">
+                      <v-text-field v-model="forms.level" :rules="rules.txt_2"
+                        counter maxlength="2" type="text" dense outlined color="#246257" label="Nivel Jerárquico:*">
                       </v-text-field>
                     </v-col>
                   </v-row>
@@ -86,7 +86,7 @@ import crudMixin from '@/mixins/crudMixin'
 
 export default {
   // 1️⃣ Identificación
-  name: 'DBStatesView',
+  name: 'DBIndicatorCategoriesView',
   components: {}, // Importación de componentes hijos
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -100,37 +100,59 @@ export default {
   data () {
     return {
       entityConfig: {
-        endpoint: 'states',
+        endpoint: 'indicator_categories',
         messages: {
-          saved: '¡Estado guardado correctamente!',
-          updated: '¡Estado actualizado correctamente!',
+          saved: '¡Categorías de indicadores guardado correctamente!',
+          updated: '¡Categorías de indicadores actualizado correctamente!',
           status: '¡Estatus actualizado correctamente!'
         }
       },
-      title: 'Estados',
+      title: 'Categorías de indicadores',
       dataTable: {
         search: '',
         headers: [
           { text: 'ID', value: 'id', class: 'bg-dark white--text', width: '10%' },
-          { text: 'País', value: 'country_name', class: 'bg-dark white--text' },
-          { text: 'Estado', value: 'name', class: 'bg-dark white--text' },
-          { text: 'Código ISO', value: 'iso_code', class: 'bg-dark white--text' },
-          { text: 'Gentilicio', value: 'demonym', class: 'bg-dark white--text' },
+          { text: 'Indicador', value: 'indicator_name', class: 'bg-dark white--text' },
+          { text: 'Categoría padre', value: 'parent_name', class: 'bg-dark white--text' },
+          { text: 'Categoría hijo', value: 'name', class: 'bg-dark white--text' },
+          { text: 'nivel', value: 'level', class: 'bg-dark white--text' },
           { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' },
           { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
         ],
         items: []
       },
-      countries: [],
+      indicators: [],
+      slt_categories: [
+        // {
+        //   id: 1,
+        //   indicator_id: 1,
+        //   indicator_name: 'Aborto',
+        //   level: 0,
+        //   name: 'Aborto',
+        //   parent_id: 0,
+        //   parent_name: null,
+        //   status: true
+        // },
+        // {
+        //   id: 2,
+        //   indicator_id: 2,
+        //   indicator_name: 'Abuso de confianza y falsedad',
+        //   level: 0,
+        //   name: 'Abuso de confianza',
+        //   parent_id: 0,
+        //   parent_name: null,
+        //   status: true
+        // }
+      ],
       dialog_item: {
         title: '',
         actived: false
       },
       forms: {
-        country_id: null,
+        indicator_id: null,
+        parent_id: null,
         name: '',
-        demonym: '',
-        iso_code: '',
+        level: '',
         status: true
       },
       params: {
@@ -138,15 +160,15 @@ export default {
       },
       rules: {
         required: [v => !!v || 'Campo obligatorio'],
-        txt_50: [
+        txt_category: [
           v => !!v || 'Se requiere el campo',
-          v => (v && v.length <= 50) || 'El nombre debe tener menos de 50 caracteres',
-          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,50}$/.test(v)) || 'El campo no debe contener carácteres especiales'
+          v => (v && v.length <= 255) || 'El nombre debe tener menos de 255 caracteres',
+          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,255}$/.test(v)) || 'El campo no debe contener carácteres especiales'
         ],
-        txt_3: [
+        txt_2: [
           v => !!v || 'Se requiere el campo',
-          v => (v && v.length <= 3) || 'El código ISO debe tener menos de 3 caracteres',
-          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,3}$/.test(v)) || 'El campo no debe contener carácteres especiales'
+          v => /^\d+$/.test(v) || 'Solo se permiten números',
+          v => (Number(v) >= 0 && Number(v) <= 99) || 'El valor debe estar entre 0 y 99'
         ]
       }
     }
@@ -167,33 +189,42 @@ export default {
       'truncateText'
     ]),
 
-    async getStatus () {
+    async filterCategories (items) {
+      const categories = items
+        .filter(item => item.status === true)
+        .map(({ id, name }) => ({ id, name }))
+
+      return categories
+    },
+    async getIndicators () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}states?type=getdata`
+        const url = `${process.env.VUE_APP_API_SERVER}indicator_categories?type=getindicators`
         const response = await axios.get(url)
         // console.log(response.data.result)
         if (response.data.success) {
-          this.dataTable.items = response.data.result
+          this.indicators = response.data.result
         }
       } catch (error) {
-        // console.log(error.response.data)
         // console.log(error)
+        // console.log(error.response.data)
         this.$store.dispatch('error', {
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })
       }
     },
-    async getCountries () {
+    async getIndicatorCategories () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}countries?type=getactive`
+        const url = `${process.env.VUE_APP_API_SERVER}indicator_categories?type=getdata`
         const response = await axios.get(url)
         // console.log(response.data.result)
         if (response.data.success) {
-          this.countries = response.data.result
+          this.dataTable.items = response.data.result
+          const newCategories = await this.filterCategories(response.data.result)
+          this.slt_categories = newCategories
         }
       } catch (error) {
-        // console.log(error.response.data)
         // console.log(error)
+        // console.log(error.response.data)
         this.$store.dispatch('error', {
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })
@@ -205,7 +236,10 @@ export default {
         new_item: async () => {
           this.params.id = 0
           this.dialog_item.actived = true
-          this.dialog_item.title = 'Nuevo Estado:'
+          this.dialog_item.title = 'Nueva categoría:'
+
+          const newCategories = await this.filterCategories(this.dataTable.items)
+          this.slt_categories = newCategories
 
           await this.setSleep(100)
           this.$refs.form_item.reset()
@@ -244,7 +278,7 @@ export default {
 
           const result = await this.executeCrud(action)
           if (result.success) {
-            await this.setSleep(500)
+            await this.setSleep(250)
             this.reset({ task: 'close_item' })
           }
         },
@@ -269,8 +303,8 @@ export default {
     this.dialog_loader.message = 'Cargando datos...'
     this.dialog_loader.actived = true
 
-    await this.getStatus()
-    await this.getCountries()
+    await this.getIndicatorCategories()
+    await this.getIndicators()
 
     this.dialog_loader.message = ''
     this.dialog_loader.actived = false

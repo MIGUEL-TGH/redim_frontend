@@ -44,23 +44,18 @@
                 <v-form ref="form_item" @submit="onSubmit">
                   <v-row no-gutters>
                     <v-col cols="12" md="12" class="pa-1">
-                      <v-autocomplete :items="countries" v-model="forms.country_id" :rules="rules.required" label="Países:*"
-                        item-text="name" item-value="id" dense outlined color="#246257">
+                      <v-autocomplete :items="states" v-model="forms.state_id" :rules="rules.required"
+                        item-text="name" item-value="id" dense outlined color="#246257" label="Estados:*">
                       </v-autocomplete>
                     </v-col>
                     <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.name" :rules="rules.txt_50"
-                        counter maxlength="50" type="text" label="Estado:*" color="#246257">
+                      <v-text-field v-model="forms.name" :rules="rules.txt_250"
+                        counter maxlength="250" type="text" dense outlined color="#246257" label="Centro:*">
                       </v-text-field>
                     </v-col>
                     <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.demonym" :rules="rules.txt_50"
-                        counter maxlength="50" type="text" label="Gentilicio:*" color="#246257">
-                      </v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.iso_code" :rules="rules.txt_3"
-                        counter maxlength="3" type="text" label="Código ISO:*" color="#246257">
+                      <v-text-field v-model="forms.locate" :rules="rules.txt_location"
+                        counter maxlength="50" type="text" dense outlined color="#246257" label="Ubicación:*">
                       </v-text-field>
                     </v-col>
                   </v-row>
@@ -86,7 +81,7 @@ import crudMixin from '@/mixins/crudMixin'
 
 export default {
   // 1️⃣ Identificación
-  name: 'DBStatesView',
+  name: 'DBCentersView',
   components: {}, // Importación de componentes hijos
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -100,37 +95,35 @@ export default {
   data () {
     return {
       entityConfig: {
-        endpoint: 'states',
+        endpoint: 'centers',
         messages: {
-          saved: '¡Estado guardado correctamente!',
-          updated: '¡Estado actualizado correctamente!',
+          saved: '¡Centros guardado correctamente!',
+          updated: '¡Centros actualizado correctamente!',
           status: '¡Estatus actualizado correctamente!'
         }
       },
-      title: 'Estados',
+      title: 'Centros',
       dataTable: {
         search: '',
         headers: [
           { text: 'ID', value: 'id', class: 'bg-dark white--text', width: '10%' },
-          { text: 'País', value: 'country_name', class: 'bg-dark white--text' },
-          { text: 'Estado', value: 'name', class: 'bg-dark white--text' },
-          { text: 'Código ISO', value: 'iso_code', class: 'bg-dark white--text' },
-          { text: 'Gentilicio', value: 'demonym', class: 'bg-dark white--text' },
+          { text: 'Estado', value: 'state_name', class: 'bg-dark white--text' },
+          { text: 'Centro', value: 'name', class: 'bg-dark white--text' },
+          { text: 'Ubicación', value: 'locate', class: 'bg-dark white--text' },
           { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' },
           { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
         ],
         items: []
       },
-      countries: [],
+      states: [],
       dialog_item: {
         title: '',
         actived: false
       },
       forms: {
-        country_id: null,
+        state_id: null,
         name: '',
-        demonym: '',
-        iso_code: '',
+        locate: '',
         status: true
       },
       params: {
@@ -138,15 +131,14 @@ export default {
       },
       rules: {
         required: [v => !!v || 'Campo obligatorio'],
-        txt_50: [
+        txt_250: [
           v => !!v || 'Se requiere el campo',
-          v => (v && v.length <= 50) || 'El nombre debe tener menos de 50 caracteres',
-          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,50}$/.test(v)) || 'El campo no debe contener carácteres especiales'
+          v => (v && v.length <= 250) || 'El nombre debe tener menos de 250 caracteres',
+          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,250}$/.test(v)) || 'El campo no debe contener carácteres especiales'
         ],
-        txt_3: [
-          v => !!v || 'Se requiere el campo',
-          v => (v && v.length <= 3) || 'El código ISO debe tener menos de 3 caracteres',
-          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,3}$/.test(v)) || 'El campo no debe contener carácteres especiales'
+        txt_location: [
+          v => !v || (v && v.length <= 50) || 'La ubicación debe tener menos de 50 caracteres',
+          v => !v || (/^-?\d{1,3}\.\d+,-?\d{1,3}\.\d+$/.test(v)) || 'El campo no cumple con el formato de coordenadas (longitud, latitud)'
         ]
       }
     }
@@ -167,29 +159,29 @@ export default {
       'truncateText'
     ]),
 
-    async getStatus () {
+    async getCenters () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}states?type=getdata`
+        const url = `${process.env.VUE_APP_API_SERVER}centers?type=getdata`
         const response = await axios.get(url)
         // console.log(response.data.result)
         if (response.data.success) {
           this.dataTable.items = response.data.result
         }
       } catch (error) {
-        // console.log(error.response.data)
         // console.log(error)
+        // console.log(error.response.data)
         this.$store.dispatch('error', {
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })
       }
     },
-    async getCountries () {
+    async getStates () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}countries?type=getactive`
+        const url = `${process.env.VUE_APP_API_SERVER}centers?type=getstates`
         const response = await axios.get(url)
         // console.log(response.data.result)
         if (response.data.success) {
-          this.countries = response.data.result
+          this.states = response.data.result
         }
       } catch (error) {
         // console.log(error.response.data)
@@ -205,7 +197,7 @@ export default {
         new_item: async () => {
           this.params.id = 0
           this.dialog_item.actived = true
-          this.dialog_item.title = 'Nuevo Estado:'
+          this.dialog_item.title = 'Nuevo Centro:'
 
           await this.setSleep(100)
           this.$refs.form_item.reset()
@@ -244,7 +236,7 @@ export default {
 
           const result = await this.executeCrud(action)
           if (result.success) {
-            await this.setSleep(500)
+            await this.setSleep(250)
             this.reset({ task: 'close_item' })
           }
         },
@@ -269,8 +261,8 @@ export default {
     this.dialog_loader.message = 'Cargando datos...'
     this.dialog_loader.actived = true
 
-    await this.getStatus()
-    await this.getCountries()
+    await this.getCenters()
+    await this.getStates()
 
     this.dialog_loader.message = ''
     this.dialog_loader.actived = false

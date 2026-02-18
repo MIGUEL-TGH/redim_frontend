@@ -12,26 +12,25 @@ export default {
         this.dialog_loader.actived = true
 
         const payload = this.buildPayload(action)
-        // console.log(payload)
-        // {task: 'insert', params: {…}}
-        // params: {name: 'hola como estas', status: true}
-        // task:"insert"
+
+        const inDeveloper = false
+        if (inDeveloper) {
+          console.log(payload)
+          // {task: 'insert', params: {…}}
+          return {
+            success: true
+          }
+        }
+
         const result = await this.sendRequest(payload)
-        // console.log(result) // {task: 'status_updated', id: 26, status: 1} o {task: 'saved_item', id: 27}
-
         await this.applyDomChange(result)
-
         return {
           success: true,
           data: result
         }
-
-        // return {
-        //   success: true
-        // }
       } catch (error) {
-        // console.log(error.response?.data.message || error.message || error)
-        // console.log(error)
+        console.log(error.response?.data.message || error.message || error)
+        console.log(error)
         this.$store.dispatch('error', {
           // message: error.message || 'Error en la operación'
           message: error.response?.data.message || error.message || error || 'Error en la operación'
@@ -98,10 +97,8 @@ export default {
       Request HTTP genérico
     ====================================================== */
     async sendRequest (payload) {
-      // console.log(payload)
       const url = `${process.env.VUE_APP_API_SERVER}${this.entityConfig.endpoint}?type=crud`
       const response = await axios.post(url, payload)
-      // console.log(response.data)
       if (response.data.status !== 200) {
         throw new Error(response.data.message)
       }
@@ -116,10 +113,7 @@ export default {
       const actions = {
 
         saved_item: () => {
-          // this.dataTable.items.unshift({
-          //   ...this.forms,
-          //   id: result.id
-          // })
+          // this.dataTable.items.unshift({ ...this.forms, id: result.id })
           this.dataTable.items.unshift(result.item)
           this.$store.dispatch('success', {
             message: this.entityConfig.messages.saved
