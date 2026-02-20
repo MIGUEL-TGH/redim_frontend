@@ -9,19 +9,11 @@
         <br>
         <v-form ref="form_query" @submit="onSubmit">
           <v-row style="padding: 0px 0px 0px 0px !important;" justify="center">
-            <v-col cols="12" md="5" class="pa-1">
+            <v-col cols="12" md="12" class="pa-1">
               <v-autocomplete :items="slt_indicators" v-model="params.indicator_id" :rules="rules.required" @change="getCategories"
                 item-text="name" item-value="id" dense filled outlined color="#246257" label="Indicador:*">
               </v-autocomplete>
             </v-col>
-            <!-- <v-col cols="12" md="5" class="pa-1">
-              <v-autocomplete :items="slt_categories_1" v-model="params.category_id" :rules="rules.required"
-                item-text="name" item-value="id" dense filled outlined color="#246257" label="Categoría:*">
-              </v-autocomplete>
-            </v-col>
-            <v-col cols="12" md="1" class="pa-1" style="display: flex; justify-content: center;">
-              <v-btn class="mx-1 text-white" color="#246257" elevation="5">Buscar</v-btn>
-            </v-col> -->
           </v-row>
         </v-form>
         <v-divider class="mx-4 pa-0 ma-1"></v-divider>
@@ -107,21 +99,20 @@
                </v-toolbar>
 
                <v-card-text style="max-height: 500px;">
+                  {{ params.category_id }}
                   <br>
-                   <div v-if="slt_categories.length">
-                    <!-- <v-treeview selectable v-model="params.category_id" :items="slt_categories" item-text="title" item-key="id" class="tree-compact" open-all>
-                    </v-treeview> -->
+                  <div v-if="slt_categories.length"
+                    class="pa-3 elevation-1 rounded-lg grey lighten-5" style="border: 1px solid #E0E0E0;">
                     <v-treeview v-model="params.category_id" :items="slt_categories" item-text="title" item-key="id"
                       class="tree-compact" activatable open-all open-on-click>
                     </v-treeview>
-
                   </div>
                </v-card-text>
                <v-divider class="mx-4 pa-0 ma-1"></v-divider>
                <v-card-actions>
                   <v-spacer></v-spacer>
-                  <!-- <v-btn @click="dialog_categories.actived = false" elevation="5" color="#9B162E" class="text-white" small> cancelar </v-btn> - #9B162E #861E34  #AF1731 - -->
-                  <!-- <v-btn @click="Permisos_CRUD" elevation="5" color="#246257" class="text-white" small> guardar </v-btn> - #246257 - -->
+                  <v-btn @click="reset({task:'close_query'})" elevation="5" color="#9B162E" class="text-white" small> cancelar </v-btn>
+                  <v-btn @click="getCategoryDataById()" elevation="5" color="#246257" class="text-white" small> buscar </v-btn>
                </v-card-actions>
             </v-card>
          </v-dialog>
@@ -236,10 +227,8 @@ export default {
     // -------------------------------------------------------------------------------------------------------
     async getIndicators () {
       try {
-        // const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getactive`
         const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getwithdata`
         const response = await axios.get(url)
-        // console.log(response.data.result)
         if (response.data.success) {
           this.slt_indicators = response.data.result
             .map(({ id, name }) => ({ id, name }))
@@ -255,31 +244,21 @@ export default {
     },
     async getCategories () {
       try {
-        // console.log(this.frmData.indicator_id)
         const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
         const response = await axios.post(url, this.params.indicator_id)
-        // console.log('getCategories() --> ', response.data.result)
+        console.log(this.params.indicator_id)
         if (response.data.success) {
-        //   this.frmData.category_id = []
           this.slt_categories = []
 
           if (response.data.total === 1 && !response.data.result[0].children.length) { // Sin nodos
-            // this.frmData.category_id = [response.data.result[0].id]
             console.log('Categoría sin nodos hijos:', response.data.result[0])
             return
           }
 
           console.log('Categorías con nodos hijos:', response.data.result)
           this.slt_categories = response.data.result
-          // this.dialog_categories.title = 'Categorías para: ' + this.slt_indicators.find(ind => ind.id === this.params.indicator_id)?.name
-          this.dialog_categories.title = 'Categorías:'
+          this.dialog_categories.title = 'Categoría:'
           this.dialog_categories.actived = true
-
-        //   await this.setSleep(100)
-        //   const LeafIds = await this.getAllLeafIds(this.categories)
-        //   // console.log('LeafIds-->', LeafIds)
-        //   this.frmData.category_id = LeafIds
-        //   //   this.frmDisabled.category = false
         }
       } catch (error) {
         console.log(error)
@@ -288,24 +267,24 @@ export default {
         })
       }
     },
-    // async getCategories () {
-    //   try {
-    //     const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getactive`
-    //     const response = await axios.get(url)
-    //     // console.log(response.data.result)
-    //     if (response.data.success) {
-    //       this.slt_indicators = response.data.result
-    //         .map(({ id, name }) => ({ id, name }))
-    //       console.log(this.slt_indicators)
-    //     }
-    //   } catch (error) {
-    //     // console.log(error)
-    //     // console.log(error.response.data)
-    //     this.$store.dispatch('error', {
-    //       message: error.response?.data.message || error.message || error || 'Error en la operación'
-    //     })
-    //   }
-    // },
+    async getCategoryDataById () {
+      try {
+        console.log(this.params.category_id)
+
+        // const url = `${process.env.VUE_APP_API_SERVER}indicator_category_details?type=getactivebyid`
+        // const response = await axios.post(url, { category_id: this.params.category_id })
+        // console.log(response.data.result)
+        // if (response.data.success) {
+        //   this.indicators = response.data.result
+        // }
+      } catch (error) {
+        // console.log(error)
+        // console.log(error.response.data)
+        this.$store.dispatch('error', {
+          message: error.response?.data.message || error.message || error || 'Error en la operación'
+        })
+      }
+    },
     // -------------------------------------------------------------------------------------------------------
     async getAllData () {
       try {
@@ -477,6 +456,12 @@ export default {
             this.$refs.form_item.reset()
           }
           this.dialog_item.actived = false
+        },
+        close_query: async () => {
+          if (this.$refs.form_query) {
+            this.$refs.form_query.reset()
+          }
+          this.dialog_categories.actived = false
         }
       }
       RESET_[value.task] ? RESET_[value.task]() : console.log('¡Reset not found!')
@@ -516,7 +501,7 @@ export default {
     this.dialog_loader.message = 'Cargando datos...'
     this.dialog_loader.actived = true
     await this.getIndicators()
-    // await this.getAllData()
+    await this.getAllData()
     // await this.getYears()
     // await this.getGenders()
     // await this.getCountries()
@@ -539,4 +524,85 @@ export default {
 </script>
 <style scoped>
   /* Personalizar estilos aquí */
+  /* .v-input {
+    font-size: 14px;
+  }
+  .v-label {
+    font-size: 25px !important;
+  } */
+  .chip-select {
+    font-size: 12px;
+    padding: 0 5px;
+    margin: 0 0px !important;
+  }
+  .span-select {
+    font-size: 11px;
+    padding: 0 5px !important;
+  }
+  /* --------------------------------treeview------------------------------------------------ */
+  /* Label tipo v-text-field */
+  .tree-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 4px;
+  }
+
+  /* Contenedor general */
+  .tree-compact {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  /* Cada nodo */
+  .tree-compact ::v-deep .v-treeview-node__root {
+    min-height: 20px !important;
+    padding: 0 4px !important;
+  }
+
+  /* Texto del nodo */
+  .tree-compact ::v-deep .v-treeview-node__label {
+    font-size: 12px;
+    line-height: 1.2 !important;
+  }
+
+  /* --------------------------------Checkbox------------------------------------------------ */
+  /* Checkbox */
+  .tree-compact ::v-deep .v-input--selection-controls {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Iconos (expand + checkbox) */
+  /* .tree-compact ::v-deep .v-icon {
+    font-size: 20px !important;
+  } */
+
+  .tree-compact ::v-deep .v-treeview-node__checkbox {
+    width: 10px !important;
+    /* font-size: 25px !important; */
+    transform: scale(0.85) !important;
+  }
+
+  /* -------------------------------------------------------------------------------- */
+  /* Botón del icono expand/collapse */
+  .tree-compact ::v-deep .v-treeview-node__toggle {
+    width: 25px;
+    height: 25px;
+  }
+
+  /* Icono expand/collapse */
+  .tree-compact ::v-deep .v-treeview-node__toggle .v-icon {
+    font-size: 20px !important;
+  }
+
+  /* Estado activo (seleccionado / focus) */
+  .tree-compact ::v-deep .v-treeview-node__toggle.v-btn--active {
+    border-radius: 50%;
+  }
+
 </style>

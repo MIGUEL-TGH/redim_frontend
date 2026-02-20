@@ -710,7 +710,7 @@ export default {
   },
   beforeMount () {},
   mounted () {
-    // this.initMap()
+    this.initMap()
   },
   beforeUpdate () {},
   updated () {},
