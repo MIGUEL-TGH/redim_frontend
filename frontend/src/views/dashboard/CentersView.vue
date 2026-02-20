@@ -177,7 +177,7 @@ export default {
     },
     async getStates () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}centers?type=getstates`
+        const url = `${process.env.VUE_APP_API_SERVER}states?type=getactive`
         const response = await axios.get(url)
         // console.log(response.data.result)
         if (response.data.success) {

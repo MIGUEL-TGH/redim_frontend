@@ -45,7 +45,7 @@
                   <v-row>
                       <v-col cols="12" md="12" class="pa-1">
                         <v-text-field v-model="forms.name" :rules="rules.txt_50"  @keyup.enter="submit({task: 'send_item'})"
-                          counter maxlength="50" type="text" label="Género:*" color="#246257">
+                          counter maxlength="50" type="text" label="Sexo:*" color="#246257">
                         </v-text-field>
                       </v-col>
                   </v-row>
@@ -87,17 +87,17 @@ export default {
       entityConfig: {
         endpoint: 'genders',
         messages: {
-          saved: '¡Género guardado correctamente!',
-          updated: '¡Género actualizado correctamente!',
+          saved: '¡Sexo guardado correctamente!',
+          updated: '¡Sexo actualizado correctamente!',
           status: '¡Estatus actualizado correctamente!'
         }
       },
-      title: 'Géneros',
+      title: 'Sexos',
       dataTable: {
         search: '',
         headers: [
           { text: 'ID', value: 'id', class: 'bg-dark white--text', width: '10%' },
-          { text: 'Género', value: 'name', class: 'bg-dark white--text' },
+          { text: 'Sexo', value: 'name', class: 'bg-dark white--text' },
           { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' },
           { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
         ],
@@ -160,7 +160,7 @@ export default {
         new_item: async () => {
           this.params.id = 0
           this.dialog_item.actived = true
-          this.dialog_item.title = 'Nuevo Género:'
+          this.dialog_item.title = 'Nuevo Sexo:'
 
           await this.setSleep(100)
           this.$refs.form_item.reset()
@@ -177,7 +177,7 @@ export default {
 
           this.params.id = item.id
           this.dialog_item.actived = true
-          this.dialog_item.title = 'Género: ' + item.name
+          this.dialog_item.title = 'Sexo: ' + item.name
           // this.dialog_item.title = 'Año: ' + this.truncateText(item.name)
         },
         close_item: async () => {

@@ -50,7 +50,7 @@
                     </v-col>
                     <v-col cols="12" md="12" class="pa-1">
                       <v-autocomplete :items="slt_categories" v-model="forms.parent_id"
-                        item-text="name" item-value="id" dense outlined color="#246257" label="Categoría Padre:*">
+                        item-text="name" item-value="id" dense outlined color="#246257" label="Categoría Padre:">
                       </v-autocomplete>
                     </v-col>
                     <v-col cols="12" md="12" class="pa-1">
@@ -198,7 +198,7 @@ export default {
     },
     async getIndicators () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}indicator_categories?type=getindicators`
+        const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getactive`
         const response = await axios.get(url)
         // console.log(response.data.result)
         if (response.data.success) {
@@ -308,6 +308,21 @@ export default {
 
     this.dialog_loader.message = ''
     this.dialog_loader.actived = false
+    // params:
+    //   id:1
+    //   indicator_id:1
+    //   level:"2"
+    //   name:"Abort000000"
+    //   parent_id:0
+    //   status:false
+
+    // params:
+    //   id:1
+    //   indicator_id:1
+    //   level:1
+    //   name:"Abort000000"
+    //   parent_id:0
+    //   status:false
   },
   beforeMount () {},
   mounted () {},

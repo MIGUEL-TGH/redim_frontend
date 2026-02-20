@@ -12,6 +12,7 @@ export default {
         this.dialog_loader.actived = true
 
         const payload = this.buildPayload(action)
+        // console.log(payload)
 
         const inDeveloper = false
         if (inDeveloper) {
@@ -23,6 +24,8 @@ export default {
         }
 
         const result = await this.sendRequest(payload)
+        // console.log('result API REST:', result)
+
         await this.applyDomChange(result)
         return {
           success: true,

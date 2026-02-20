@@ -18,11 +18,11 @@
     <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped style="padding: 10px !important;" color="#B2B2B1"> <!-- #B0B0B0-->
       <!-- Navegar por el mapa -->
       <v-form ref="form_item" style="padding-top: 5px;">
-        <v-select v-model="frmData.indicator_id" item-value="id" item-text="title" :items="indicators" :rules="[v => !!v || 'Campo obligatorio']"
+        <v-select v-model="frmData.indicator_id" item-value="id" item-text="name" :items="indicators" :rules="[v => !!v || 'Campo obligatorio']"
           dense filled background-color="#fafafa" color="#246257" @change="getCategories" label="Indicador*:">
           <template v-slot:selection="{ item, index }">
               <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                <span>{{ truncateText(item.title, 30) }}</span>
+                <span>{{ truncateText(item.name, 30) }}</span>
               </v-chip>
             </template>
         </v-select>
@@ -98,7 +98,8 @@
 
 <script>
 import LoaderComp from '@/components/LoaderComp.vue'
-import viewNotificationsComp from '@/components/viewNotifications.vue'
+import viewNotificationsComp from '@/components/dashboard/viewNotifications.vue'
+// import viewNotificationsComp from '@/components/viewNotifications.vue'
 
 import '@/assets/css/style_maps.css'
 import '@/assets/css/style_notifications.css'
@@ -554,9 +555,10 @@ export default {
     },
     async getCategories () {
       try {
+        // console.log(this.frmData.indicator_id)
         const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
         const response = await axios.post(url, this.frmData.indicator_id)
-        // console.log('getCategories() --> ', response.data.result)
+        console.log('getCategories() --> ', response.data.result)
         if (response.data.status === 200) {
           this.frmData.category_id = []
           this.categories = []
@@ -576,14 +578,17 @@ export default {
         }
       } catch (error) {
         console.log(error)
+        this.$store.dispatch('error', {
+          message: error.response?.data.message || error.message || error || 'Error en la operación'
+        })
       }
     },
     async getIndicators () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}map?type=indicators`
+        const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getwithdata`
         const response = await axios.get(url)
-        // console.log(response.data.result)
-        if (response.data.status === 200) {
+        // console.log(response.data)
+        if (response.data.success) {
           this.indicators = response.data.result
           // this.frmData.indicator_id = this.indicators[1].id
         }
@@ -650,18 +655,18 @@ export default {
       }
       sendData.category_id = categoryIds
 
-      return console.log(sendData)
-      // try {
-      //   const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
-      //   const response = await axios.post(url, sendData)
-      //   console.log(response.data.result)
-      //   // if (response.data.status === 200) {
-      //   //   console.log(response.data.result)
-      //   // }
-      // } catch (error) {
-      //   // console.log(error)
-      //   console.log(error.response.data)
-      // }
+      // return console.log(sendData)
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
+        const response = await axios.post(url, sendData)
+        console.log(response.data.result)
+        // if (response.data.status === 200) {
+        //   console.log(response.data.result)
+        // }
+      } catch (error) {
+        // console.log(error)
+        console.log(error.response.data)
+      }
     },
     async reset () {
       this.$refs.form_checker.reset()
@@ -705,7 +710,7 @@ export default {
   },
   beforeMount () {},
   mounted () {
-    this.initMap()
+    // this.initMap()
   },
   beforeUpdate () {},
   updated () {},
