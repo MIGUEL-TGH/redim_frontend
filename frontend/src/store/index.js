@@ -13,12 +13,12 @@ export default new Vuex.Store({
   mutations: {
     // -------------------------- notifications -----------------------------------------
     PUSH (state, payload) {
-      const maxLength = 3
+      const maxLength = 2
       if (state.notifications.length >= maxLength) {
         // cola --> FIFO (First In, First Out) eliminar primero en entrar
         // pila --> LIFO (Last In, First Out) eliminar ultimo en entrar
         // state.notifications.shift()      // FIFO
-        // state.notifications.splice(0, 1) // FIFO
+        state.notifications.splice(0, 1) // FIFO
       }
       state.notifications.push(payload)
     },

@@ -16,6 +16,25 @@
             </v-col>
           </v-row>
         </v-form>
+        {{params.category_id}}
+        <!-- <v-btn @click="getCategories()" elevation="5" color="#246257" class="text-white" small> consultar </v-btn> -->
+        <h6 v-if="slt_categories.length" class="d-flex justify-center align-center">Categorías:</h6>
+
+        <div class="pa-1 elevation-10 rounded-lg grey lighten-5" style="max-height: 500px;" v-if="slt_categories.length">
+          <v-row class="pa-2">
+            <v-col cols="12" md="1" class="pa-1 d-flex justify-center align-center">
+              <v-btn @click="getCategoryDataById()" elevation="5" color="#246257" class="text-white" small> buscar </v-btn>
+            </v-col>
+            <v-col cols="12" md="11" class="pa-1">
+              <div style="border: 1px solid #E0E0E0;"> <!-- class="pa-3 elevation-1 rounded-lg grey lighten-5" -->
+                <v-treeview :active.sync="params.category_id" :items="slt_categories" item-text="title" item-key="id"
+                  class="tree-compact" activatable open-all open-on-click>
+                </v-treeview>
+              </div>
+            </v-col>
+          </v-row>
+        </div>
+
         <v-divider class="mx-4 pa-0 ma-1"></v-divider>
         <v-row style="padding: 0px 15px 15px 15px;">
             <v-col cols="12" md="4" class="pa-0">
@@ -24,7 +43,10 @@
             <v-col cols="12" md="8" class="pa-0">
               <v-text-field type="text" label="Buscar:" v-model="dataTable.search" append-icon="mdi-magnify" color="#246257" single-line hide-details>
                 <template v-slot:append-outer>
-                  <v-btn class="mr-2 text-white" color="#246257" elevation="5" small @click="reset({task:'new_item'})">Nuevo</v-btn>
+                  <v-btn class="mr-2 text-white" color="#246257" elevation="5" small
+                    @click="reset({task:'new_item'})" :disabled="params.btn_disabled">
+                    Nuevo
+                  </v-btn>
                 </template>
               </v-text-field>
             </v-col>
@@ -89,34 +111,6 @@
               </v-card-actions>
           </v-card>
         </v-dialog>
-
-        <v-dialog v-model="dialog_categories.actived" scrollable max-width="500px" persistent>
-            <v-card>
-               <v-toolbar color="#246257" dark style="height: 43px !important;">
-                  <div style="height: 43px !important; padding: 0 16 0 0px;">
-                     {{dialog_categories.title}}
-                  </div>
-               </v-toolbar>
-
-               <v-card-text style="max-height: 500px;">
-                  {{ params.category_id }}
-                  <br>
-                  <div v-if="slt_categories.length"
-                    class="pa-3 elevation-1 rounded-lg grey lighten-5" style="border: 1px solid #E0E0E0;">
-                    <v-treeview v-model="params.category_id" :items="slt_categories" item-text="title" item-key="id"
-                      class="tree-compact" activatable open-all open-on-click>
-                    </v-treeview>
-                  </div>
-               </v-card-text>
-               <v-divider class="mx-4 pa-0 ma-1"></v-divider>
-               <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn @click="reset({task:'close_query'})" elevation="5" color="#9B162E" class="text-white" small> cancelar </v-btn>
-                  <v-btn @click="getCategoryDataById()" elevation="5" color="#246257" class="text-white" small> buscar </v-btn>
-               </v-card-actions>
-            </v-card>
-         </v-dialog>
-
       </template>
 
     </v-container>
@@ -154,10 +148,14 @@ export default {
         search: '',
         headers: [
           { text: 'ID', value: 'id', class: 'bg-dark white--text', width: '10%' },
-          { text: 'Indicador', value: 'indicator_name', class: 'bg-dark white--text' },
-          { text: 'Categoría padre', value: 'parent_name', class: 'bg-dark white--text' },
-          { text: 'Categoría hijo', value: 'name', class: 'bg-dark white--text' },
-          { text: 'nivel', value: 'level', class: 'bg-dark white--text' },
+          { text: 'Categoría', value: 'category_name', class: 'bg-dark white--text' },
+          { text: 'Sexo', value: 'gender_name', class: 'bg-dark white--text' },
+          { text: 'Año', value: 'year_name', class: 'bg-dark white--text' },
+          { text: 'Población internada', value: 'PI', class: 'bg-dark white--text' },
+          { text: 'Población señalada', value: 'PS', class: 'bg-dark white--text' },
+          { text: 'Estado', value: 'state_name', class: 'bg-dark white--text' },
+          { text: 'Centro', value: 'center_name', class: 'bg-dark white--text' },
+
           { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' },
           { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
         ],
@@ -172,13 +170,9 @@ export default {
         title: '',
         actived: false
       },
-      dialog_categories: {
-        title: '',
-        actived: false,
-        items: [],
-        txt_search: ''
-      },
       forms: {
+        category_id: null,
+        // ------------------------------
         indicator_id: null,
         parent_id: null,
         name: '',
@@ -188,11 +182,12 @@ export default {
       params: {
         id: '0',
         indicator_id: null,
-        // category_id: null,
         category_id: [],
-
+        category_name: '',
+        // ------------------------------
         country_id: null,
-        state_id: null
+        state_id: null,
+        btn_disabled: true
       },
       rules: {
         required: [v => !!v || 'Campo obligatorio'],
@@ -225,14 +220,43 @@ export default {
       'truncateText'
     ]),
     // -------------------------------------------------------------------------------------------------------
+    getAllLeafIds (nodes, result = []) {
+      nodes.forEach(node => {
+        if (node.children && node.children.length) {
+          this.getAllLeafIds(node.children, result)
+        } else {
+          result.push(node.id)
+        }
+      })
+      return result
+    },
+    findNodeById (tree, id) {
+      for (const node of tree) {
+        // 1️⃣ Si el nodo actual es el que buscamos
+        if (node.id === id) {
+          return node
+        }
+
+        // 2️⃣ Si tiene hijos, buscamos dentro de ellos
+        if (node.children && node.children.length) {
+          const found = this.findNodeById(node.children, id)
+          if (found) {
+            return found
+          }
+        }
+      }
+
+      return null
+    },
+    // -------------------------------------------------------------------------------------------------------
     async getIndicators () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getwithdata`
+        const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getwithcategories`
         const response = await axios.get(url)
         if (response.data.success) {
           this.slt_indicators = response.data.result
             .map(({ id, name }) => ({ id, name }))
-          console.log(this.slt_indicators)
+          // console.log(this.slt_indicators)
         }
       } catch (error) {
         // console.log(error)
@@ -244,45 +268,82 @@ export default {
     },
     async getCategories () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
-        const response = await axios.post(url, this.params.indicator_id)
-        console.log(this.params.indicator_id)
-        if (response.data.success) {
-          this.slt_categories = []
+        this.slt_categories = []
+        this.params.category_id = []
 
-          if (response.data.total === 1 && !response.data.result[0].children.length) { // Sin nodos
-            console.log('Categoría sin nodos hijos:', response.data.result[0])
+        const url = `${process.env.VUE_APP_API_SERVER}indicator_categories?type=getactivenode`
+        const response = await axios.post(url, this.params.indicator_id)
+
+        // console.log('indicator_id: ', this.params.indicator_id, 'categories: ', response.data.result)
+        if (response.data.success && response.data.total > 1) {
+          this.slt_categories = response.data.result
+          return
+        }
+
+        if (response.data.success && response.data.total === 1) {
+          const node = response.data.result[0]
+          // console.log(node)
+          if (node.children.length) {
+            this.slt_categories = response.data.result
             return
           }
 
-          console.log('Categorías con nodos hijos:', response.data.result)
-          this.slt_categories = response.data.result
-          this.dialog_categories.title = 'Categoría:'
-          this.dialog_categories.actived = true
+          this.params.category_id = [node.id]
+          console.log(this.params.category_id)
+          this.getCategoryDataById()
         }
       } catch (error) {
         console.log(error)
         this.$store.dispatch('error', {
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })
+      } finally {
+        // console.log('finally')
+        // this.params.category_id = []
+        this.params.btn_disabled = true
       }
     },
     async getCategoryDataById () {
-      try {
-        console.log(this.params.category_id)
+      if (!this.params.category_id.length) {
+        this.$store.dispatch('warning', {
+          message: 'Favor de seleccionar alguna de las categorías'
+        })
+        this.params.btn_disabled = true
+        return
+      }
 
-        // const url = `${process.env.VUE_APP_API_SERVER}indicator_category_details?type=getactivebyid`
-        // const response = await axios.post(url, { category_id: this.params.category_id })
-        // console.log(response.data.result)
-        // if (response.data.success) {
-        //   this.indicators = response.data.result
-        // }
+      this.forms.category_id = null
+
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}indicator_category_details?type=getdatabyid`
+        const response = await axios.post(url, { category_id: this.params.category_id[0] })
+        // console.log(response.data)
+        if (response.data.success) {
+          this.dataTable.items = response.data.result
+
+          const categoryID = this.params.category_id[0]
+          this.forms.category_id = categoryID
+
+          if (this.slt_categories.length) {
+            const result = this.findNodeById(this.slt_categories, categoryID)
+            console.log(result)
+            // if (result) {
+            //   console.log(result.title)
+            // }
+          }
+
+          // const find  = state.notifications.generals.find(element => {return element.id == value.id});
+        }
       } catch (error) {
         // console.log(error)
         // console.log(error.response.data)
-        this.$store.dispatch('error', {
+        this.$store.dispatch('warning', {
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })
+
+        this.dataTable.items = []
+      } finally {
+        this.params.btn_disabled = false
       }
     },
     // -------------------------------------------------------------------------------------------------------
@@ -430,8 +491,8 @@ export default {
           this.dialog_item.actived = true
           this.dialog_item.title = 'Nueva información:'
 
-          const newCategories = await this.filterCategories(this.dataTable.items)
-          this.slt_categories = newCategories
+          // const newCategories = await this.filterCategories(this.dataTable.items)
+          // this.slt_categories = newCategories
 
           await this.setSleep(100)
           this.$refs.form_item.reset()
@@ -456,12 +517,6 @@ export default {
             this.$refs.form_item.reset()
           }
           this.dialog_item.actived = false
-        },
-        close_query: async () => {
-          if (this.$refs.form_query) {
-            this.$refs.form_query.reset()
-          }
-          this.dialog_categories.actived = false
         }
       }
       RESET_[value.task] ? RESET_[value.task]() : console.log('¡Reset not found!')
@@ -501,7 +556,7 @@ export default {
     this.dialog_loader.message = 'Cargando datos...'
     this.dialog_loader.actived = true
     await this.getIndicators()
-    await this.getAllData()
+    // await this.getAllData()
     // await this.getYears()
     // await this.getGenders()
     // await this.getCountries()
