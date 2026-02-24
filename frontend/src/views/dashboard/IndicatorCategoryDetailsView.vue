@@ -16,7 +16,11 @@
             </v-col>
           </v-row>
         </v-form>
-        {{params.category_id}}
+
+        params category_id: {{params.category_id}} <br>
+        forms category_id: {{forms.category_id}} <br>
+        params category_name: {{params.category_name}} <br>
+
         <!-- <v-btn @click="getCategories()" elevation="5" color="#246257" class="text-white" small> consultar </v-btn> -->
         <h6 v-if="slt_categories.length" class="d-flex justify-center align-center">Categorías:</h6>
 
@@ -78,27 +82,38 @@
               <v-card-text style="max-height: 500px;">
                 <br>
                 <v-form ref="form_item" @submit="onSubmit">
+                  <h5>Categoría: {{ params.category_name }}</h5>
                   <v-row no-gutters>
-                    <!-- <v-col cols="12" md="12" class="pa-1">
-                      <v-autocomplete :items="indicators" v-model="forms.indicator_id" :rules="rules.required"
-                        item-text="name" item-value="id" dense outlined color="#246257" label="Indicador:*">
-                      </v-autocomplete>
-                    </v-col> -->
-                    <!-- <v-col cols="12" md="12" class="pa-1">
-                      <v-autocomplete :items="slt_categories" v-model="forms.parent_id"
-                        item-text="name" item-value="id" dense outlined color="#246257" label="Categoría Padre:*">
+                    <v-col cols="12" md="12" class="pa-1">
+                      <v-autocomplete :items="slt_states" v-model="forms.state_id" :rules="rules.required" @change="getCenters"
+                        item-text="name" item-value="id" dense outlined color="#246257" label="Estado:*">
                       </v-autocomplete>
                     </v-col>
                     <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.name" :rules="rules.txt_category"
-                        counter maxlength="255" type="text" dense outlined color="#246257" label="Categoría Hijo:*">
+                      <v-autocomplete :items="slt_centers" v-model="forms.center_id"
+                        item-text="name" item-value="id" dense outlined color="#246257" label="Centro:">
+                      </v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" md="6" class="pa-1">
+                      <v-autocomplete :items="slt_genders" v-model="forms.gender_id" :rules="rules.required"
+                        item-text="name" item-value="id" dense outlined color="#246257" label="Séxo:*">
+                      </v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" md="6" class="pa-1">
+                      <v-autocomplete :items="slt_years" v-model="forms.year_id" :rules="rules.required"
+                        item-text="name" item-value="id" dense outlined color="#246257" label="Año:*">
+                      </v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" md="6" class="pa-1">
+                      <v-text-field v-model="forms.name" :rules="rules.txt_4"
+                        counter maxlength="4" type="text" dense outlined color="#246257" label="Población Internada:*">
                       </v-text-field>
                     </v-col>
-                    <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.level" :rules="rules.txt_2"
-                        counter maxlength="2" type="text" dense outlined color="#246257" label="Nivel Jerárquico:*">
+                    <v-col cols="12" md="6" class="pa-1">
+                      <v-text-field v-model="forms.level" :rules="rules.txt_4"
+                        counter maxlength="4" type="text" dense outlined color="#246257" label="Población Señalada:*">
                       </v-text-field>
-                    </v-col> -->
+                    </v-col>
                   </v-row>
                 </v-form>
               </v-card-text>
@@ -163,15 +178,21 @@ export default {
       },
       slt_indicators: [],
       slt_categories: [],
-      slt_years: [],
       slt_states: [],
-      slt_center: [],
+      slt_centers: [],
+      slt_genders: [],
+      slt_years: [],
+      // ---------------------------------
       dialog_item: {
         title: '',
         actived: false
       },
       forms: {
         category_id: null,
+        state_id: null,
+        center_id: null,
+        gender_id: null,
+        year_id: null,
         // ------------------------------
         indicator_id: null,
         parent_id: null,
@@ -196,10 +217,10 @@ export default {
           v => (v && v.length <= 255) || 'El nombre debe tener menos de 255 caracteres',
           v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,255}$/.test(v)) || 'El campo no debe contener carácteres especiales'
         ],
-        txt_2: [
+        txt_4: [
           v => !!v || 'Se requiere el campo',
           v => /^\d+$/.test(v) || 'Solo se permiten números',
-          v => (Number(v) >= 0 && Number(v) <= 99) || 'El valor debe estar entre 0 y 99'
+          v => (Number(v) >= 0 && Number(v) <= 9999) || 'El valor debe estar entre 0 y 9999'
         ]
       }
     }
@@ -269,7 +290,10 @@ export default {
     async getCategories () {
       try {
         this.slt_categories = []
+        this.dataTable.items = []
         this.params.category_id = []
+        this.params.category_name = ''
+        this.forms.category_id = null
 
         const url = `${process.env.VUE_APP_API_SERVER}indicator_categories?type=getactivenode`
         const response = await axios.post(url, this.params.indicator_id)
@@ -282,14 +306,13 @@ export default {
 
         if (response.data.success && response.data.total === 1) {
           const node = response.data.result[0]
-          // console.log(node)
           if (node.children.length) {
             this.slt_categories = response.data.result
             return
           }
-
+          // console.log('node: ', node)
           this.params.category_id = [node.id]
-          console.log(this.params.category_id)
+          this.params.category_name = node.title
           this.getCategoryDataById()
         }
       } catch (error) {
@@ -298,8 +321,6 @@ export default {
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })
       } finally {
-        // console.log('finally')
-        // this.params.category_id = []
         this.params.btn_disabled = true
       }
     },
@@ -312,12 +333,10 @@ export default {
         return
       }
 
-      this.forms.category_id = null
-
       try {
         const url = `${process.env.VUE_APP_API_SERVER}indicator_category_details?type=getdatabyid`
         const response = await axios.post(url, { category_id: this.params.category_id[0] })
-        // console.log(response.data)
+        // console.log('data category: ', response.data)
         if (response.data.success) {
           this.dataTable.items = response.data.result
 
@@ -325,14 +344,11 @@ export default {
           this.forms.category_id = categoryID
 
           if (this.slt_categories.length) {
-            const result = this.findNodeById(this.slt_categories, categoryID)
-            console.log(result)
-            // if (result) {
-            //   console.log(result.title)
-            // }
+            const node = this.findNodeById(this.slt_categories, categoryID)
+            if (node) {
+              this.params.category_name = node.title
+            }
           }
-
-          // const find  = state.notifications.generals.find(element => {return element.id == value.id});
         }
       } catch (error) {
         // console.log(error)
@@ -347,54 +363,6 @@ export default {
       }
     },
     // -------------------------------------------------------------------------------------------------------
-    async getAllData () {
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}indicator_category_details?type=getalldata`
-        const response = await axios.get(url)
-        console.log(response.data.result)
-        // if (response.data.success) {
-        //   this.indicators = response.data.result
-        // }
-      } catch (error) {
-        // console.log(error)
-        // console.log(error.response.data)
-        this.$store.dispatch('error', {
-          message: error.response?.data.message || error.message || error || 'Error en la operación'
-        })
-      }
-    },
-    async getYears () {
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}years?type=getactive`
-        const response = await axios.get(url)
-        console.log(response.data.result)
-        // if (response.data.success) {
-        //   this.indicators = response.data.result
-        // }
-      } catch (error) {
-        // console.log(error)
-        // console.log(error.response.data)
-        this.$store.dispatch('error', {
-          message: error.response?.data.message || error.message || error || 'Error en la operación'
-        })
-      }
-    },
-    async getGenders () {
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}genders?type=getactive`
-        const response = await axios.get(url)
-        console.log(response.data.result)
-        // if (response.data.success) {
-        //   this.indicators = response.data.result
-        // }
-      } catch (error) {
-        // console.log(error)
-        // console.log(error.response.data)
-        this.$store.dispatch('error', {
-          message: error.response?.data.message || error.message || error || 'Error en la operación'
-        })
-      }
-    },
     async getCountries () {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}countries?type=getactive`
@@ -413,19 +381,18 @@ export default {
     },
     async getStates () {
       try {
-        if (!this.params.country_id) {
-          return this.$store.dispatch('warning', { message: 'Seleccione un país por favor' })
-        }
-        console.log('ID del país:', this.params.country_id)
-        // const id = this.params.country_id
-        // const id = 3
-        // const url = `${process.env.VUE_APP_API_SERVER}states?type=getactivebyid`
-        // const response = await axios.post(url, { country_id: this.params.country_id })
-        // const response = await axios.post(url, { country_id: id })
-        // console.log(response.data.result)
-        // if (response.data.success) {
-        //   this.indicators = response.data.result
+        // if (!this.params.country_id) {
+        //   return this.$store.dispatch('warning', { message: 'Seleccione un país por favor' })
         // }
+        // console.log('ID del país:', this.params.country_id)
+
+        const id = 1
+        const url = `${process.env.VUE_APP_API_SERVER}states?type=getactivebyid`
+        const response = await axios.post(url, { country_id: id })
+        // console.log(response.data.result)
+        if (response.data.success) {
+          this.slt_states = response.data.result
+        }
       } catch (error) {
         // console.log(error)
         // console.log(error.response.data)
@@ -436,15 +403,64 @@ export default {
     },
     async getCenters () {
       try {
-        // if (!this.params.state_id) {
+        // if (!this.forms.center_id) {
         //   return this.$store.dispatch('warning', { message: 'Seleccione un estado por favor' })
         // }
-        // console.log('ID del estado: ', this.params.state_id)
-        // const id = this.params.state_id
-        const id = 1
+        // console.log('ID del estado: ', this.forms.state_id)
+
+        const id = this.forms.state_id
         const url = `${process.env.VUE_APP_API_SERVER}centers?type=getactivebyid`
-        // const response = await axios.post(url, { state_id: this.params.state_id })
         const response = await axios.post(url, { state_id: id })
+        // console.log(response.data.result)
+        if (response.data.success) {
+          this.slt_centers = response.data.result
+        }
+      } catch (error) {
+        // console.log(error)
+        // console.log(error.response.data)
+        this.$store.dispatch('error', {
+          message: error.response?.data.message || error.message || error || 'Error en la operación'
+        })
+      }
+    },
+    async getGenders () {
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}genders?type=getactive`
+        const response = await axios.get(url)
+        // console.log(response.data.result)
+        if (response.data.success) {
+          this.slt_genders = response.data.result
+        }
+      } catch (error) {
+        // console.log(error)
+        // console.log(error.response.data)
+        this.$store.dispatch('error', {
+          message: error.response?.data.message || error.message || error || 'Error en la operación'
+        })
+      }
+    },
+    async getYears () {
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}years?type=getactive`
+        const response = await axios.get(url)
+        // console.log(response.data.result)
+        if (response.data.success) {
+          this.slt_years = response.data.result
+        }
+      } catch (error) {
+        // console.log(error)
+        // console.log(error.response.data)
+        this.$store.dispatch('error', {
+          message: error.response?.data.message || error.message || error || 'Error en la operación'
+        })
+      }
+    },
+
+    // -------------------------------------------------------------------------------------------------------
+    async getAllData () {
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}indicator_category_details?type=getalldata`
+        const response = await axios.get(url)
         console.log(response.data.result)
         // if (response.data.success) {
         //   this.indicators = response.data.result
@@ -457,6 +473,7 @@ export default {
         })
       }
     },
+
     // -------------------------------------------------------------------------------------------------------
     async filterCategories (items) {
       const categories = items
@@ -465,24 +482,6 @@ export default {
 
       return categories
     },
-    // async getIndicatorCategories () {
-    //   try {
-    //     const url = `${process.env.VUE_APP_API_SERVER}indicator_categories?type=getdata`
-    //     const response = await axios.get(url)
-    //     // console.log(response.data.result)
-    //     if (response.data.success) {
-    //       this.dataTable.items = response.data.result
-    //       const newCategories = await this.filterCategories(response.data.result)
-    //       this.slt_categories = newCategories
-    //     }
-    //   } catch (error) {
-    //     // console.log(error)
-    //     // console.log(error.response.data)
-    //     this.$store.dispatch('error', {
-    //       message: error.response?.data.message || error.message || error || 'Error en la operación'
-    //     })
-    //   }
-    // },
     async reset (value) {
       // console.log('reset -->' ,value)
       const RESET_ = {
@@ -490,9 +489,6 @@ export default {
           this.params.id = 0
           this.dialog_item.actived = true
           this.dialog_item.title = 'Nueva información:'
-
-          // const newCategories = await this.filterCategories(this.dataTable.items)
-          // this.slt_categories = newCategories
 
           await this.setSleep(100)
           this.$refs.form_item.reset()
@@ -529,11 +525,11 @@ export default {
             return this.$store.dispatch('error', { message: 'validar datos por favor' })
           }
 
-          const result = await this.executeCrud(action)
-          if (result.success) {
-            await this.setSleep(250)
-            this.reset({ task: 'close_item' })
-          }
+          // const result = await this.executeCrud(action)
+          // if (result.success) {
+          //   await this.setSleep(250)
+          //   this.reset({ task: 'close_item' })
+          // }
         },
         status_item: async () => {
           const result = await this.executeCrud(action)
@@ -555,12 +551,14 @@ export default {
   async created () {
     this.dialog_loader.message = 'Cargando datos...'
     this.dialog_loader.actived = true
+
     await this.getIndicators()
+    await this.getStates()
+    await this.getGenders()
+    await this.getYears()
+
     // await this.getAllData()
-    // await this.getYears()
-    // await this.getGenders()
     // await this.getCountries()
-    // await this.getStates()
     // await this.getCenters()
 
     this.dialog_loader.message = ''
