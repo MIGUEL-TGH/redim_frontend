@@ -105,12 +105,12 @@
                       </v-autocomplete>
                     </v-col>
                     <v-col cols="12" md="6" class="pa-1">
-                      <v-text-field v-model="forms.name" :rules="rules.txt_4"
+                      <v-text-field v-model="forms.PI" :rules="rules.txt_4"
                         counter maxlength="4" type="text" dense outlined color="#246257" label="Población Internada:*">
                       </v-text-field>
                     </v-col>
                     <v-col cols="12" md="6" class="pa-1">
-                      <v-text-field v-model="forms.level" :rules="rules.txt_4"
+                      <v-text-field v-model="forms.PS" :rules="rules.txt_4"
                         counter maxlength="4" type="text" dense outlined color="#246257" label="Población Señalada:*">
                       </v-text-field>
                     </v-col>
@@ -193,11 +193,8 @@ export default {
         center_id: null,
         gender_id: null,
         year_id: null,
-        // ------------------------------
-        indicator_id: null,
-        parent_id: null,
-        name: '',
-        level: '',
+        PI: '',
+        PS: '',
         status: true
       },
       params: {
@@ -500,19 +497,23 @@ export default {
             if (Object.prototype.hasOwnProperty.call(this.forms, key)) {
               this.forms[key] = itemValue
             }
-            // console.log('key: ' + key, ' ----- value: ' + itemValue)
+            // console.log('key: ' + key, ' - value: ' + itemValue)
           })
+
+          await this.setSleep(250)
 
           this.params.id = item.id
           this.dialog_item.actived = true
-          const truncatedName = await this.truncateText({ text: item.name, maxLength: 45 })
-          this.dialog_item.title = 'Info: ' + truncatedName
+          this.dialog_item.title = 'Info:'
+
+          console.log(this.forms)
         },
         close_item: async () => {
           if (this.$refs.form_item) {
             this.$refs.form_item.reset()
           }
           this.dialog_item.actived = false
+          // console.log(this.forms)
         }
       }
       RESET_[value.task] ? RESET_[value.task]() : console.log('¡Reset not found!')
@@ -524,12 +525,12 @@ export default {
           if (!this.$refs.form_item.validate()) {
             return this.$store.dispatch('error', { message: 'validar datos por favor' })
           }
-
-          // const result = await this.executeCrud(action)
-          // if (result.success) {
-          //   await this.setSleep(250)
-          //   this.reset({ task: 'close_item' })
-          // }
+          const result = await this.executeCrud(action)
+          // console.log('send_item', result)
+          if (result.success) {
+            await this.setSleep(250)
+            this.reset({ task: 'close_item' })
+          }
         },
         status_item: async () => {
           const result = await this.executeCrud(action)

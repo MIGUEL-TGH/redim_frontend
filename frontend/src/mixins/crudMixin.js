@@ -17,7 +17,6 @@ export default {
         const inDeveloper = false
         if (inDeveloper) {
           console.log(payload)
-          // {task: 'insert', params: {…}}
           return {
             success: true
           }

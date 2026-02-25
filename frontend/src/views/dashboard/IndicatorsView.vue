@@ -120,7 +120,7 @@ export default {
         txt_250: [
           v => !!v || 'Se requiere el campo',
           v => (v && v.length <= 250) || 'El nombre debe tener menos de 250 caracteres',
-          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,250}$/.test(v)) || 'El campo no debe contener carácteres especiales'
+          v => !v || (/^[-\w\s_.,/():;%&áéíóúÁÉÍÓÚñÑ]{1,250}$/.test(v)) || 'El campo no debe contener carácteres especiales'
         ]
       }
     }

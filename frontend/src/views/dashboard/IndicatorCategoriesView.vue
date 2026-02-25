@@ -163,7 +163,7 @@ export default {
         txt_category: [
           v => !!v || 'Se requiere el campo',
           v => (v && v.length <= 255) || 'El nombre debe tener menos de 255 caracteres',
-          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,255}$/.test(v)) || 'El campo no debe contener carácteres especiales'
+          v => !v || (/^[-\w\s_.,/():;%&áéíóúÁÉÍÓÚñÑ]{1,255}$/.test(v)) || 'El campo no debe contener carácteres especiales'
         ],
         txt_2: [
           v => !!v || 'Se requiere el campo',
