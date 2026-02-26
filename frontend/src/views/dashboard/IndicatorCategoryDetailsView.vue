@@ -215,7 +215,7 @@ export default {
           v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,255}$/.test(v)) || 'El campo no debe contener carácteres especiales'
         ],
         txt_4: [
-          v => !!v || 'Se requiere el campo',
+          v => (v !== null && v !== '') || 'Se requiere el campo',
           v => /^\d+$/.test(v) || 'Solo se permiten números',
           v => (Number(v) >= 0 && Number(v) <= 9999) || 'El valor debe estar entre 0 y 9999'
         ]
@@ -499,14 +499,14 @@ export default {
             }
             // console.log('key: ' + key, ' - value: ' + itemValue)
           })
-
+          // console.log('item:', item)
           await this.setSleep(250)
 
           this.params.id = item.id
           this.dialog_item.actived = true
           this.dialog_item.title = 'Info:'
 
-          console.log(this.forms)
+          // console.log('forms:', this.forms)
         },
         close_item: async () => {
           if (this.$refs.form_item) {
