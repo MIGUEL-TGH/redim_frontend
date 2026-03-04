@@ -1,11 +1,10 @@
 <template>
   <div>
-    <!-- <style src="@/assets/css/style_maps.css"></style> -->
-    <v-app-bar app dark elevation="10" color="#ec1e4c" clipped-left>
+    <v-app-bar app dark elevation="10" clipped-left class="app-bar-gradient">
       <v-app-bar-nav-icon @click.stop="drawer_left_map=!drawer_left_map"></v-app-bar-nav-icon>
         REDIM
       <v-spacer></v-spacer>
-        <img src="@/assets/logos/redim_logo.png" style="width: 100%; max-width: 60px; height: auto;">
+        <!-- <img src="@/assets/logos/redim_logo.png" style="width: 100%; max-width: 60px; height: auto;"> -->
     </v-app-bar>
     <!-- <v-col cols="12">
       <label class="tree-label">Categoría</label>
@@ -14,82 +13,103 @@
       >
       </v-treeview>
     </v-col> -->
-    <div id="viewDiv" ref="mapView"></div>
-    <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped style="padding: 10px !important;" color="#B2B2B1"> <!-- #B0B0B0-->
-      <!-- Navegar por el mapa -->
-      <v-form ref="form_item" style="padding-top: 5px;">
-        <v-select v-model="frmData.indicator_id" item-value="id" item-text="name" :items="indicators" :rules="[v => !!v || 'Campo obligatorio']"
-          dense filled background-color="#fafafa" color="#246257" @change="getCategories" label="Indicador*:">
-          <template v-slot:selection="{ item, index }">
-              <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                <span>{{ truncateText(item.name, 30) }}</span>
-              </v-chip>
-            </template>
-        </v-select>
 
-        <!-- <v-select v-model="frmData.category_id" :items="categories" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isCategoryDisabled"
-          :disabled="frmDisabled.category"
-          dense filled background-color="#fafafa" color="#246257" label="Categoría*:">
-            <template v-slot:selection="{ item, index }">
-              <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                <span>{{ truncateText(item.title, 20) }}</span>
-              </v-chip>
-              <span v-if="index === 1" class="grey--text span-select">
-                (+{{ frmData.category_id.length - 1 }} más)
-              </span>
-            </template>
-        </v-select> -->
+    <!-- <div id="viewDiv" ref="mapView"></div>
+    <div id="InfoMap" class="esri-widget"></div> -->
 
-        <v-select v-model="frmData.state_id" :items="states" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isStateDisabled"
-          dense filled background-color="#fafafa" color="#246257" label="Entidad Federativa*:">
-            <template v-slot:selection="{ item, index }">
-              <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                <span>{{ truncateText(item.title, 20) }}</span>
-              </v-chip>
-              <span v-if="index === 1" class="grey--text span-select">
-                (+{{ frmData.state_id.length - 1 }} más)
-              </span>
-            </template>
-        </v-select>
+    <div class="map-wrapper">
+      <div id="viewDiv" ref="mapView"></div>
 
-        <v-select v-model="frmData.year_id" :items="years" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isYearDisabled"
-          dense filled background-color="#fafafa" color="#246257" label="Año*:">
-          <template v-slot:selection="{ item, index }">
-            <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-              <span>{{ truncateText(item.title, 20) }}</span>
-            </v-chip>
-            <span v-if="index === 1" class="grey--text span-select">
-              (+{{ frmData.year_id.length - 1 }} más)
-            </span>
-          </template>
-        </v-select>
+      <!-- TARJETA PROYECTO (abajo derecha) -->
+      <div class="map-card map-card-left">
+        <!-- <img src="@/assets/logos/proyecto.png" class="logo-project"> -->
+          <img src="@/assets/logos/logos2.png" class="logo-project">
+      </div>
 
-        <v-select v-model="frmData.gender_id" :items="genders" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isGenderDisabled"
-          dense filled background-color="#fafafa" color="#246257" label="Sexo*:">
-            <template v-slot:selection="{ item, index }">
-              <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                <span>{{ truncateText(item.title, 20) }}</span>
-              </v-chip>
-              <span v-if="index === 1" class="grey--text span-select">
-                (+{{ frmData.gender_id.length - 1 }} más)
-              </span>
-            </template>
-        </v-select>
-
-        <div v-if="categories.length">
-          <label class="tree-label">Categoría</label>
-          <v-treeview selectable v-model="frmData.category_id" :items="categories" item-text="title" item-key="id"
-            class="tree-compact" open-all selected-color="white"
-          >
-          </v-treeview>
-          <!-- <br>
-          {{ frmData.category_id }} -->
-          <br>
+      <!-- TARJETA INSTITUCIONAL (abajo izquierda) -->
+      <div class="map-card map-card-right">
+          <div class="card-logos">
+          <!-- <img src="@/assets/logos/eu.png" class="logo-eu">
+          <img src="@/assets/logos/redim.png" class="logo-redim">
+          <img src="@/assets/logos/cam.png" class="logo-cam"> -->
+          <img src="@/assets/logos/union_europea.png" class="logo-eu">
+          <img src="@/assets/logos/redim_background.png" class="logo-redim">
+          <img src="@/assets/logos/cam.jpg" class="logo-cam">
         </div>
+      </div>
+    </div>
 
-        <v-btn color="#246257" elevation="5" @click="submit" block class="white--text">consultar</v-btn>
-      </v-form>
+    <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped style="padding: 10px !important;" color="#B2B2B1">
+    <!-- <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped class="drawer-gradient" > -->
+      <div class="drawer-content">
+        <!-- Navegar por el mapa -->
+        <v-form ref="form_item" style="padding-top: 5px;">
+          <v-select v-model="frmData.indicator_id" item-value="id" item-text="name" :items="indicators" :rules="[v => !!v || 'Campo obligatorio']"
+            dense filled background-color="#fafafa" color="#246257" @change="getCategories" label="Indicador*:">
+            <template v-slot:selection="{ item, index }">
+                <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                  <span>{{ truncateText(item.name, 30) }}</span>
+                </v-chip>
+              </template>
+          </v-select>
+
+          <v-select v-model="frmData.state_id" :items="states" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isStateDisabled"
+            dense filled background-color="#fafafa" color="#246257" label="Entidad Federativa*:">
+              <template v-slot:selection="{ item, index }">
+                <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                  <span>{{ truncateText(item.title, 20) }}</span>
+                </v-chip>
+                <span v-if="index === 1" class="grey--text span-select">
+                  (+{{ frmData.state_id.length - 1 }} más)
+                </span>
+              </template>
+          </v-select>
+
+          <v-select v-model="frmData.year_id" :items="years" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isYearDisabled"
+            dense filled background-color="#fafafa" color="#246257" label="Año*:">
+            <template v-slot:selection="{ item, index }">
+              <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                <span>{{ truncateText(item.title, 20) }}</span>
+              </v-chip>
+              <span v-if="index === 1" class="grey--text span-select">
+                (+{{ frmData.year_id.length - 1 }} más)
+              </span>
+            </template>
+          </v-select>
+
+          <v-select v-model="frmData.gender_id" :items="genders" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isGenderDisabled"
+            dense filled background-color="#fafafa" color="#246257" label="Sexo*:">
+              <template v-slot:selection="{ item, index }">
+                <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                  <span>{{ truncateText(item.title, 20) }}</span>
+                </v-chip>
+                <span v-if="index === 1" class="grey--text span-select">
+                  (+{{ frmData.gender_id.length - 1 }} más)
+                </span>
+              </template>
+          </v-select>
+
+          <div v-if="categories.length">
+            <label class="tree-label">Categoría</label>
+            <v-treeview selectable v-model="frmData.category_id" :items="categories" item-text="title" item-key="id"
+              class="tree-compact" open-all selected-color="white"
+            >
+            </v-treeview>
+            <!-- <br>
+            {{ frmData.category_id }} -->
+            <br>
+          </div>
+
+          <!-- <v-btn color="#246257" elevation="5" @click="submit" block class="white--text">consultar</v-btn> -->
+          <v-btn color="#342a83" elevation="5" @click="submit" block class="white--text">consultar</v-btn>
+        </v-form>
+      </div>
+
     </v-navigation-drawer>
+
+    <!-- <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped style="padding: 10px !important;" color="#B2B2B1">
+      redmi
+    </v-navigation-drawer> -->
 
     <loader-comp />
     <view-notifications-comp ref="notifier"/>
@@ -107,6 +127,7 @@ import '@/assets/css/style_notifications.css'
 import '@arcgis/core/assets/esri/themes/light/main.css'
 import Map from '@arcgis/core/Map'
 import MapView from '@arcgis/core/views/MapView'
+import Expand from '@arcgis/core/widgets/Expand'
 import * as reactiveUtils from '@arcgis/core/core/reactiveUtils'
 // import Graphic from '@arcgis/core/Graphic'
 // import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
@@ -367,6 +388,40 @@ export default {
       // console.log('layerOptions -->', layerOptions)
       const geojsonLayer = new GeoJSONLayer(layerOptions)
       this.map.add(geojsonLayer)
+    },
+    async AddGeoJSONLayerV1 (item) { // Resaltar capa
+      // console.log('AddGeoJSONLayer() -->', item)
+      const layerOptions = {
+        renderer: {
+          type: 'simple',
+          symbol: {
+            type: 'simple-fill',
+            color: item.color,
+            outline: {
+              width: 1.2,
+              color: 'gray' // black
+            }
+          }
+        },
+        title: 'GeoJSON Layer',
+        zIndex: 10 // Asegura que esté debajo de los gráficos
+      }
+
+      if (item.type === 'rendered') {
+        layerOptions.url = URL.createObjectURL(
+          new Blob([JSON.stringify(item.data)], { type: 'application/json' })
+        )
+      } else if (item.type === 'files') {
+        layerOptions.url = item.url
+        layerOptions.renderer.symbol.outline = {
+          width: 1,
+          color: 'black' // gray
+        }
+      }
+
+      // console.log('layerOptions -->', layerOptions)
+      const geojsonLayer = new GeoJSONLayer(layerOptions)
+      this.map.add(geojsonLayer)
 
       // --------------------------------------------------------------------------------
       // 2. Variables de control para hover
@@ -408,6 +463,7 @@ export default {
         if (objectId === currentObjectId) return
 
         currentObjectId = objectId
+        console.log(currentObjectId)
 
         // Limpiar highlight anterior
         if (highlightHandle) highlightHandle.remove()
@@ -423,7 +479,7 @@ export default {
       // 5. Registrar evento con throttle (CLAVE de rendimiento)
       this.view.on(
         'pointer-move',
-        this.throttle(pointerMoveHandler, 60) // ~16 FPS
+        this.throttle(pointerMoveHandler, 50) // ~16 FPS
       )
     },
     async initMap () {
@@ -438,10 +494,26 @@ export default {
         // center: [-98.18635039767328, 19.054906905810686], // Estadio Olímpico Zaragoza
         // zoom: 7
         center: [-102.37592182483502, 24.097127823504444],
-        zoom: 5
+        zoom: 5,
+
+        highlightOptions: {
+          color: '#f44545', // 🔴 color del highlight
+          haloColor: '#f44545', // 🔴 borde exterior
+          haloOpacity: 1, // 0.9
+          fillOpacity: 1 // 0.3
+        }
       })
 
       await this.view.when() // Esperar a que la vista esté lista antes de agregar el componente
+
+      this.WatchExpand = new Expand({
+        view: this.view,
+        content: document.getElementById('InfoMap'),
+        group: 'top-right',
+        visible: false,
+        focusTrapDisabled: true
+      })
+      this.view.ui.add(this.WatchExpand, 'top-right')
 
       this.stopWatchHandle = reactiveUtils.watch(
         () => this.view.updating, // 🔹 propiedad reactiva
@@ -688,10 +760,10 @@ export default {
     // this.dialog_loader.actived = true
     // this.dialog_loader.message = 'Por favor espere...'
     // --------------------------------------------------------------------------------
-    this.getIndicators()
-    this.getStates()
-    this.getYears()
-    this.getGenders()
+    // this.getIndicators()
+    // this.getStates()
+    // this.getYears()
+    // this.getGenders()
     // --------------------------------------------------------------------------------
     // this.getCategories()
 
@@ -804,6 +876,133 @@ export default {
   /* Estado activo (seleccionado / focus) */
   .tree-compact ::v-deep .v-treeview-node__toggle.v-btn--active {
     border-radius: 50%;
+  }
+
+  /* -------------------------------------------------------------------------------- */
+  .app-bar-gradient {
+    background: linear-gradient(
+      to right,
+      #2e91ce 0%,
+      #342a83 25%,
+      #6a3d8f 50%,
+      #b62b86 75%,
+      #ed712c 100%
+    ) !important;
+    /* background: linear-gradient(
+      90deg,
+      #2e91ce 0%,
+      #342a83 20%,
+      #6a3d8f 40%,
+      #b62b86 70%,
+      #ed712c 100%
+    ); */
+  }
+
+  .drawer-gradient {
+    /* position: relative;
+    overflow: hidden; */
+
+    background: linear-gradient(
+      to bottom,
+      #b62b86 0%,
+      #e30c7e 100%
+    ) !important;
+
+    color: white;
+  }
+  .drawer-gradient::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+  }
+
+  /* Más contraste en dark mode */
+  .theme--dark .drawer-gradient::before {
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  .drawer-content {
+    position: relative;
+    z-index: 1;
+    padding: 10px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  /* -------------------------------------------------------------------------------- */
+  .map-wrapper {
+    position: relative;
+    width: 100%;
+    height: 93vh;
+  }
+
+  #viewDiv {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ===============================
+    TARJETAS
+  ================================ */
+
+  .map-card {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(6px);
+    border-radius: 18px;
+    padding: 16px 24px;
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.15),
+      0 2px 6px rgba(0, 0, 0, 0.08);
+
+    z-index: 10;
+
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* Hover elegante */
+  .map-card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 12px 28px rgba(0, 0, 0, 0.2),
+      0 4px 10px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Posiciones */
+  .map-card-left {
+    bottom: 20px;
+    left: 20px;
+  }
+
+  .map-card-right {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  /* ===============================
+    LOGOS
+  ================================ */
+
+  .card-logos {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .card-logos img {
+    height: 45px;
+    object-fit: contain;
+  }
+
+  /* Ajustes específicos si se requiere */
+  .logo-eu { height: 50px; }
+  .logo-redim { height: 40px; }
+  .logo-cam { height: 45px; }
+
+  .logo-project {
+    height: 60px;
   }
 
 </style>
