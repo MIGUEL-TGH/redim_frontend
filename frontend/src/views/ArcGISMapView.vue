@@ -19,6 +19,7 @@
 
     <div class="map-wrapper">
       <div id="viewDiv" ref="mapView"></div>
+      <!-- <div id="InfoMap" class="esri-widget"></div> -->
 
       <!-- TARJETA PROYECTO (abajo derecha) -->
       <div class="map-card map-card-left">
@@ -37,6 +38,11 @@
           <img src="@/assets/logos/cam.jpg" class="logo-cam">
         </div>
       </div>
+
+      <!-- PANEL ESTADÍSTICO -->
+      <div class="stats-panel">
+        <stack-cards />
+      </div>
     </div>
 
     <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped style="padding: 10px !important;" color="#B2B2B1">
@@ -45,7 +51,7 @@
         <!-- Navegar por el mapa -->
         <v-form ref="form_item" style="padding-top: 5px;">
           <v-select v-model="frmData.indicator_id" item-value="id" item-text="name" :items="indicators" :rules="[v => !!v || 'Campo obligatorio']"
-            dense filled background-color="#fafafa" color="#246257" @change="getCategories" label="Indicador*:">
+            dense filled background-color="#fafafa" color="#246257" @change="getCategories" label="Población*:">
             <template v-slot:selection="{ item, index }">
                 <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
                   <span>{{ truncateText(item.name, 30) }}</span>
@@ -90,7 +96,7 @@
           </v-select>
 
           <div v-if="categories.length">
-            <label class="tree-label">Categoría</label>
+            <label class="tree-label">Tipo de delito</label>
             <v-treeview selectable v-model="frmData.category_id" :items="categories" item-text="title" item-key="id"
               class="tree-compact" open-all selected-color="white"
             >
@@ -119,7 +125,7 @@
 <script>
 import LoaderComp from '@/components/LoaderComp.vue'
 import viewNotificationsComp from '@/components/dashboard/viewNotifications.vue'
-// import viewNotificationsComp from '@/components/viewNotifications.vue'
+import StackCards from '@/components/StackCards.vue'
 
 import '@/assets/css/style_maps.css'
 import '@/assets/css/style_notifications.css'
@@ -127,8 +133,8 @@ import '@/assets/css/style_notifications.css'
 import '@arcgis/core/assets/esri/themes/light/main.css'
 import Map from '@arcgis/core/Map'
 import MapView from '@arcgis/core/views/MapView'
-import Expand from '@arcgis/core/widgets/Expand'
-import * as reactiveUtils from '@arcgis/core/core/reactiveUtils'
+// import Expand from '@arcgis/core/widgets/Expand'
+// import * as reactiveUtils from '@arcgis/core/core/reactiveUtils'
 // import Graphic from '@arcgis/core/Graphic'
 // import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
 // import Point from '@arcgis/core/geometry/Point'
@@ -142,7 +148,8 @@ export default {
   name: 'ArcGISMap',
   components: { // Importación de componentes hijos
     LoaderComp,
-    viewNotificationsComp
+    viewNotificationsComp,
+    StackCards
   },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -156,7 +163,7 @@ export default {
   data () {
     return {
       // map
-      vector: [
+      vectors: [
         'streets-navigation-vector',
         'streets',
         'topo-vector',
@@ -166,7 +173,19 @@ export default {
         'oceans',
         'national-geographic',
         'terrain',
-        'satellite'
+
+        'light-gray-vector',
+        'gray-vector',
+        'streets-vector',
+        'navigation-vector',
+        'osm',
+        'arcgis-light-gray',
+        'arcgis-dark-gray',
+        'arcgis-topographic',
+        'arcgis-imagery',
+        'arcgis-navigation',
+        'arcgis-streets',
+        'arcgis-oceans'
       ],
       view: undefined,
       map: undefined,
@@ -356,7 +375,7 @@ export default {
       }
     },
     async AddGeoJSONLayer (item) {
-      // console.log('AddGeoJSONLayer() -->', item)
+      console.log('AddGeoJSONLayer() -->', item)
       const layerOptions = {
         renderer: {
           type: 'simple',
@@ -369,6 +388,17 @@ export default {
             }
           }
         },
+        // renderer: {
+        //   type: 'simple',
+        //   symbol: {
+        //     type: 'simple-fill',
+        //     color: [0, 0, 0, 0], // 🔥 transparente
+        //     outline: {
+        //       color: '#BFB8AE',
+        //       width: 1.2
+        //     }
+        //   }
+        // },
         title: 'GeoJSON Layer',
         zIndex: 10 // Asegura que esté debajo de los gráficos
       }
@@ -482,8 +512,8 @@ export default {
         this.throttle(pointerMoveHandler, 50) // ~16 FPS
       )
     },
-    async initMap () {
-      // console.log('initMap()')
+
+    async _initMap () {
       this.map = new Map({
         basemap: this.vector[0] // 'streets-navigation-vector'
       })
@@ -491,10 +521,12 @@ export default {
       this.view = new MapView({
         container: this.$refs.mapView,
         map: this.map,
-        // center: [-98.18635039767328, 19.054906905810686], // Estadio Olímpico Zaragoza
-        // zoom: 7
         center: [-102.37592182483502, 24.097127823504444],
-        zoom: 5,
+        zoom: 4.4,
+        // scale: 9000000, // ajusta hasta que quede perfecto visualmente
+        constraints: {
+          snapToZoom: false // permite zoom decimal
+        },
 
         highlightOptions: {
           color: '#f44545', // 🔴 color del highlight
@@ -504,31 +536,86 @@ export default {
         }
       })
 
+      // await this.view.when() // Esperar a que la vista esté lista antes de agregar el componente
+
+      // this.WatchExpand = new Expand({
+      //   view: this.view,
+      //   content: document.getElementById('InfoMap'),
+      //   group: 'top-right',
+      //   visible: false,
+      //   focusTrapDisabled: true
+      // })
+      // this.view.ui.add(this.WatchExpand, 'top-right')
+      // console.log('initMap() END')
+      // this.stopWatchHandle = reactiveUtils.watch(
+      //   () => this.view.updating, // 🔹 propiedad reactiva
+      //   async (updating) => {
+      //     if (!updating) {
+      //       await this.setSleep(1500) // 🔸 espera un poco para asegurar que todo terminó de renderizar
+      //       this.dialog_loader.actived = false
+      //     }
+      //   }
+      // )
+    },
+
+    async initMap () {
+      console.log('initMap()')
+      this.map = new Map({
+        // basemap: this.vectors[0] // 'streets-navigation-vector'
+        basemap: 'gray-vector'
+        // basemap: null
+      })
+
+      this.view = new MapView({
+        container: this.$refs.mapView,
+        map: this.map,
+        center: [-102.37592182483502, 24.097127823504444],
+        zoom: 4.4,
+        // scale: 9000000, // ajusta hasta que quede perfecto visualmente
+        constraints: {
+          snapToZoom: false // permite zoom decimal
+        },
+
+        highlightOptions: {
+          color: '#f44545', // 🔴 color del highlight
+          haloColor: '#f44545', // 🔴 borde exterior
+          haloOpacity: 1, // 0.9
+          fillOpacity: 1 // 0.3
+        }
+
+        // background: {
+        //   type: 'color',
+        //   color: '#CFC6BA'
+        // }
+      })
+
       await this.view.when() // Esperar a que la vista esté lista antes de agregar el componente
 
-      this.WatchExpand = new Expand({
-        view: this.view,
-        content: document.getElementById('InfoMap'),
-        group: 'top-right',
-        visible: false,
-        focusTrapDisabled: true
-      })
-      this.view.ui.add(this.WatchExpand, 'top-right')
-
-      this.stopWatchHandle = reactiveUtils.watch(
-        () => this.view.updating, // 🔹 propiedad reactiva
-        async (updating) => {
-          if (!updating) {
-            await this.setSleep(1500) // 🔸 espera un poco para asegurar que todo terminó de renderizar
-            this.dialog_loader.actived = false
-          }
-        }
-      )
+      // this.WatchExpand = new Expand({
+      //   view: this.view,
+      //   content: document.getElementById('InfoMap'),
+      //   group: 'top-right',
+      //   visible: false,
+      //   focusTrapDisabled: true
+      // })
+      // this.view.ui.add(this.WatchExpand, 'top-right')
+      // console.log('initMap() END')
+      // this.stopWatchHandle = reactiveUtils.watch(
+      //   () => this.view.updating, // 🔹 propiedad reactiva
+      //   async (updating) => {
+      //     if (!updating) {
+      //       await this.setSleep(1500) // 🔸 espera un poco para asegurar que todo terminó de renderizar
+      //       this.dialog_loader.actived = false
+      //     }
+      //   }
+      // )
 
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+      // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     },
+
     // data
     truncateText (text, maxLength) {
       if (text.length > maxLength) {
@@ -797,6 +884,9 @@ export default {
 </script>
 
 <style scoped>
+  /* #mapView {
+    background-color: #CFC6BA;
+  } */
   /* .v-input {
     font-size: 14px;
   }
@@ -888,14 +978,6 @@ export default {
       #b62b86 75%,
       #ed712c 100%
     ) !important;
-    /* background: linear-gradient(
-      90deg,
-      #2e91ce 0%,
-      #342a83 20%,
-      #6a3d8f 40%,
-      #b62b86 70%,
-      #ed712c 100%
-    ); */
   }
 
   .drawer-gradient {
@@ -922,7 +1004,6 @@ export default {
   .theme--dark .drawer-gradient::before {
     background: rgba(0, 0, 0, 0.25);
   }
-
   .drawer-content {
     position: relative;
     z-index: 1;
@@ -946,7 +1027,6 @@ export default {
   /* ===============================
     TARJETAS
   ================================ */
-
   .map-card {
     position: absolute;
     background: rgba(255, 255, 255, 0.95);
@@ -996,13 +1076,23 @@ export default {
     object-fit: contain;
   }
 
-  /* Ajustes específicos si se requiere */
-  .logo-eu { height: 50px; }
+  .logo-eu { height: 60px; }
   .logo-redim { height: 40px; }
   .logo-cam { height: 45px; }
 
-  .logo-project {
-    height: 60px;
+  .logo-project { height: 60px;}
+
+  /* -------------------------------------------------------------------------------- */
+   .stats-panel {
+    /* position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 320px;
+    z-index: 10; */
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 50; /* 20 */
   }
 
 </style>
