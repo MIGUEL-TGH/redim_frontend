@@ -1,32 +1,28 @@
 <template>
   <div class="stack-wrapper">
     <div class="stack-container">
-      <div
-        v-for="(card, index) in cards"
-        :key="index"
-        class="stack-item"
-        :class="{ 'is-active': activeIndex === index }"
-        :style="getItemStyle(index)"
-      >
+      <div v-for="(card, index) in cards" :key="index" class="stack-item" :class="{ 'is-active': activeIndex === index }" :style="getItemStyle(index)">
+        <!-- :class="{ 'un-active': activeIndex != index }" -->
+         <!-- :class="{ 'un-active': activeIndex !== index && index !== 0 }" -->
         <div
           class="stack-header"
-          :class="{ 'un-active': activeIndex != index }"
+          :class="{ 'un-active': shouldApplyUnactive(index) }"
           :style="{ background: card.gradient }"
           @click="toggle(index)"
         >
-          <span class="stack-title">{{ card.title }}</span>
+            <span class="stack-title">{{ card.title }}</span>
 
-          <div class="icon-pill">
-            <v-icon small :color="card.baseColor">
-              {{ activeIndex === index ? 'mdi-minus' : 'mdi-plus' }}
-            </v-icon>
-          </div>
+            <div class="icon-pill">
+              <v-icon small :color="card.baseColor">
+                {{ activeIndex === index ? 'mdi-minus' : 'mdi-plus' }}
+              </v-icon>
+            </div>
         </div>
 
         <v-expand-transition>
           <div v-show="activeIndex === index" class="stack-content">
             <slot :name="card.id">
-              <div class="fake-content">
+              <div class="fake-content" style="padding: 15px;">
                 <p>Estadísticas para {{ card.title }}</p>
                 <div class="simple-bar" style="width: 80%"></div>
                 <div class="simple-bar" style="width: 60%"></div>
@@ -39,44 +35,6 @@
     </div>
   </div>
 </template>
-
-<!-- <template>
-  <div class="stack-wrapper">
-    <div class="stack-container">
-      <div
-        v-for="(card, index) in cards"
-        :key="index"
-        class="stack-item"
-        :class="{ 'is-active': activeIndex === index }"
-        :style="getItemStyle(index)"
-      >
-        <div
-          class="stack-header"
-          :style="{ background: card.gradient }"
-          @click="toggle(index)"
-        >
-          <span class="stack-title">{{ card.title }}</span>
-
-          <div class="icon-pill">
-            <v-icon small :style="{ color: card.baseColor }">
-              {{ activeIndex === index ? 'mdi-minus' : 'mdi-plus' }}
-            </v-icon>
-          </div>
-        </div>
-
-        <v-expand-transition>
-          <div v-show="activeIndex === index" class="stack-content">
-            <slot :name="card.id">
-              <div class="fake-content">
-                <p class="text-caption">Información detallada de {{ card.title }}</p>
-              </div>
-            </slot>
-          </div>
-        </v-expand-transition>
-      </div>
-    </div>
-  </div>
-</template> -->
 
 <script>
 
@@ -133,6 +91,7 @@ export default {
   // 5️⃣ Métodos
   methods: {
     toggle (index) {
+      // console.log(index)
       this.activeIndex = this.activeIndex === index ? null : index
     },
     getItemStyle (index) {
@@ -141,12 +100,20 @@ export default {
 
       return {
         zIndex: this.cards.length - index,
+
         // Si es la primera, no lleva margen.
         // Si la anterior está abierta, tampoco debería encimarse tanto.
         marginTop: isFirst ? '0px' : `${this.overlapMargin}px`,
+
         // Añadimos una transición suave para el margen
         transition: 'margin 0.4s ease, transform 0.3s ease'
       }
+    },
+    shouldApplyUnactive (index) {
+      // No aplicar si es el primero
+      if (index === 0) return false
+      // Aplicar solo si no es el activo
+      return this.activeIndex !== index
     }
   },
 
@@ -168,10 +135,11 @@ export default {
 /* Contenedor posicionado en el mapa (ArcGIS) */
 .stack-wrapper {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 10px;
+  right: 10px;
   z-index: 1000; /* Asegurar que esté sobre el mapa */
-  width: 320px;
+  /* width: 320px; */
+  width: 400px;
   font-family: 'Roboto', sans-serif;
 }
 
@@ -192,11 +160,14 @@ export default {
 .stack-item.is-active {
   box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   margin-bottom: 10px;
-  margin-top: 0 !important; /* Evita que se vea encimada cuando está abierta */
+  /* margin-top: 5px !important;*/  /* Evita que se vea encimada cuando está abierta */
+  margin-top: 0 !important;
+  /* margin-top: -25px !important; */
 }
 
 .stack-header {
-  height: 40px;
+  /* height: 50px; */
+  height: 70px;
   padding: 0 20px;
   display: flex;
   justify-content: space-between;
@@ -229,7 +200,7 @@ export default {
 
 .stack-content {
   background: white;
-  padding: 15px;
+  /* padding: 15px; */
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
 }
