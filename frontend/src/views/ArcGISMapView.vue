@@ -21,16 +21,7 @@
       <div id="viewDiv" ref="mapView"></div>
       <!-- <div id="InfoMap" class="esri-widget"></div> -->
 
-      <!-- TARJETA INSTITUCIONAL (abajo izquierda) -->
-      <div class="map-card map-card-left">
-        <!-- <img src="@/assets/logos/proyecto.png" class="logo-project"> -->
-          <img src="@/assets/logos/LOGOTIPO-COLOR.png" class="logo-project">
-      </div>
-
-      <!-- TARJETA PROYECTO (abajo derecha) -->
-      <div class="map-card map-card-right">
-        <img src="@/assets/logos/NiñezPrimero-Placa.png" class="logo-dependences">
-      </div>
+      <logos-cards />
 
       <!-- PANEL ESTADÍSTICO -->
       <div class="stats-panel">
@@ -118,7 +109,8 @@
 <script>
 import LoaderComp from '@/components/LoaderComp.vue'
 import viewNotificationsComp from '@/components/dashboard/viewNotifications.vue'
-import StackCards from '@/components/StackCards.vue'
+import StackCards from '@/components/map/StackCards.vue'
+import LogosCards from '@/components/map/LogosCards.vue'
 
 import '@/assets/css/style_maps.css'
 import '@/assets/css/style_notifications.css'
@@ -142,7 +134,8 @@ export default {
   components: { // Importación de componentes hijos
     LoaderComp,
     viewNotificationsComp,
-    StackCards
+    StackCards,
+    LogosCards
   },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -368,7 +361,7 @@ export default {
       }
     },
     async AddGeoJSONLayer (item) {
-      console.log('AddGeoJSONLayer() -->', item)
+      // console.log('AddGeoJSONLayer() -->', item)
       const layerOptions = {
         renderer: {
           type: 'simple',
@@ -552,7 +545,7 @@ export default {
     },
 
     async initMap () {
-      console.log('initMap()')
+      // console.log('initMap()')
       this.map = new Map({
         // basemap: this.vectors[0] // 'streets-navigation-vector'
         basemap: 'gray-vector'
@@ -605,7 +598,7 @@ export default {
 
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
-      await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+      // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     },
 
@@ -1017,59 +1010,6 @@ export default {
     height: 100%;
   }
 
-  /* ===============================
-    TARJETAS
-  ================================ */
-  /* .map-card {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(6px);
-    border-radius: 18px;
-    padding: 16px   24px;
-    box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.15),
-      0 2px 6px rgba(0, 0, 0, 0.08);
-
-    z-index: 10;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  } */
-
-  .map-card {
-    position: absolute;
-    padding: 0px   0px;
-    z-index: 10;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  /* Hover elegante */
-  .map-card:hover {
-    transform: translateY(-3px);
-    /* background: rgba(255, 255, 255, 0.95); */
-    /* backdrop-filter: blur(6px); */
-    /* border-radius: 18px; */
-    /* box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.15),
-      0 2px 6px rgba(0, 0, 0, 0.08); */
-  }
-
-  /* Posiciones */
-  .map-card-left {
-    bottom: 20px;
-    left: 20px;
-  }
-
-  .map-card-right {
-    bottom: 0px;
-    right: 0px;
-  }
-
-  /* ===============================
-    LOGOS
-  ================================ */
-
-  .logo-project { height: 150px;}
-  .logo-dependences { height: 100px; }
-
   /* -------------------------------------------------------------------------------- */
    .stats-panel {
     position: absolute;
@@ -1078,5 +1018,7 @@ export default {
     /* width: 320px; */
     z-index: 50; /* 20 */
   }
+
+  /* -------------------------------------------------------------------------------- */
 
 </style>

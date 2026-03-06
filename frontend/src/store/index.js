@@ -5,6 +5,9 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    url: null,
+    urlParams: null,
+
     notifications: [],
     dialog_loader: { actived: false, message: '' }
   },
@@ -28,6 +31,7 @@ export default new Vuex.Store({
     // -------------------------------------------------------------------
   },
   actions: {
+    // -------------------------------------------------------------------
     async setSleep (context, ms) {
       try {
         return new Promise(resolve => setTimeout(resolve, ms))
@@ -41,6 +45,11 @@ export default new Vuex.Store({
       }
       return text
     },
+    async getParams ({ state }, event) {
+      state.url = new URL(window.location)
+      state.urlParams = await new URLSearchParams(state.url.search)
+    },
+
     // -------------------------- notifications -----------------------------------------
     notify ({ commit }, { message, type = 'info', duration = 3000, icon = '' }) {
       const id = Date.now() + Math.random()
