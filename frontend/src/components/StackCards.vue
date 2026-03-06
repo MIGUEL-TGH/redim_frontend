@@ -136,7 +136,7 @@ export default {
 .stack-wrapper {
   position: absolute;
   top: 10px;
-  right: 10px;
+  right: 0px;
   z-index: 1000; /* Asegurar que esté sobre el mapa */
   /* width: 320px; */
   width: 400px;
@@ -154,6 +154,10 @@ export default {
   box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   background: white;
+}
+
+.stack-item:hover {
+  transform: translateX(-20px);
 }
 
 /* Cuando una tarjeta está activa, le damos un poco más de sombra */

@@ -21,22 +21,15 @@
       <div id="viewDiv" ref="mapView"></div>
       <!-- <div id="InfoMap" class="esri-widget"></div> -->
 
-      <!-- TARJETA PROYECTO (abajo derecha) -->
+      <!-- TARJETA INSTITUCIONAL (abajo izquierda) -->
       <div class="map-card map-card-left">
         <!-- <img src="@/assets/logos/proyecto.png" class="logo-project"> -->
-          <img src="@/assets/logos/logos2.png" class="logo-project">
+          <img src="@/assets/logos/LOGOTIPO-COLOR.png" class="logo-project">
       </div>
 
-      <!-- TARJETA INSTITUCIONAL (abajo izquierda) -->
+      <!-- TARJETA PROYECTO (abajo derecha) -->
       <div class="map-card map-card-right">
-          <div class="card-logos">
-          <!-- <img src="@/assets/logos/eu.png" class="logo-eu">
-          <img src="@/assets/logos/redim.png" class="logo-redim">
-          <img src="@/assets/logos/cam.png" class="logo-cam"> -->
-          <img src="@/assets/logos/union_europea.png" class="logo-eu">
-          <img src="@/assets/logos/redim_background.png" class="logo-redim">
-          <img src="@/assets/logos/cam.jpg" class="logo-cam">
-        </div>
+        <img src="@/assets/logos/NiñezPrimero-Placa.png" class="logo-dependences">
       </div>
 
       <!-- PANEL ESTADÍSTICO -->
@@ -1027,27 +1020,36 @@ export default {
   /* ===============================
     TARJETAS
   ================================ */
-  .map-card {
+  /* .map-card {
     position: absolute;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(6px);
     border-radius: 18px;
-    padding: 16px 24px;
+    padding: 16px   24px;
     box-shadow:
       0 8px 24px rgba(0, 0, 0, 0.15),
       0 2px 6px rgba(0, 0, 0, 0.08);
 
     z-index: 10;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  } */
 
+  .map-card {
+    position: absolute;
+    padding: 0px   0px;
+    z-index: 10;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
   /* Hover elegante */
   .map-card:hover {
     transform: translateY(-3px);
-    box-shadow:
-      0 12px 28px rgba(0, 0, 0, 0.2),
-      0 4px 10px rgba(0, 0, 0, 0.12);
+    /* background: rgba(255, 255, 255, 0.95); */
+    /* backdrop-filter: blur(6px); */
+    /* border-radius: 18px; */
+    /* box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.15),
+      0 2px 6px rgba(0, 0, 0, 0.08); */
   }
 
   /* Posiciones */
@@ -1057,41 +1059,23 @@ export default {
   }
 
   .map-card-right {
-    bottom: 20px;
-    right: 20px;
+    bottom: 0px;
+    right: 0px;
   }
 
   /* ===============================
     LOGOS
   ================================ */
 
-  .card-logos {
-    display: flex;
-    align-items: center;
-    gap: 28px;
-  }
-
-  .card-logos img {
-    height: 45px;
-    object-fit: contain;
-  }
-
-  .logo-eu { height: 60px; }
-  .logo-redim { height: 40px; }
-  .logo-cam { height: 45px; }
-
-  .logo-project { height: 60px;}
+  .logo-project { height: 150px;}
+  .logo-dependences { height: 100px; }
 
   /* -------------------------------------------------------------------------------- */
    .stats-panel {
-    /* position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 320px;
-    z-index: 10; */
     position: absolute;
     top: 20px;
     right: 20px;
+    /* width: 320px; */
     z-index: 50; /* 20 */
   }
 
