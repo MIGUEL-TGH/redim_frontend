@@ -34,7 +34,8 @@ export default {
   },
   computed: {
     notifications () {
-      return this.$store.state.notifications
+      // return this.$store.state.notifications
+      return this.$store.state.storeNotif.notifications
     }
   },
 
@@ -43,7 +44,10 @@ export default {
 
   // 5️⃣ Métodos
   methods: {
-    ...mapMutations({
+    // ...mapMutations({
+    //   removeNotify: 'REMOVE'
+    // })
+    ...mapMutations('storeNotif', {
       removeNotify: 'REMOVE'
     })
   },
