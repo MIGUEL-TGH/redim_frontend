@@ -17,11 +17,12 @@
           <v-list-item-title class="text-h6">Panel Redim</v-list-item-title>
           <v-list-item-subtitle>Menú Principal</v-list-item-subtitle>
         </v-list-item-content>
-      </v-list-item>
+      </v-list-item> -->
 
-      <v-divider></v-divider> -->
+      <!-- <v-divider></v-divider> -->
 
       <v-list dense nav>
+        <!-- <v-list-item v-for="item in allowedMenu" :key="item.module" :to="item.route" link> -->
         <v-list-item v-for="item in allowedMenu" :key="item.module" :to="item.route" link>
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
@@ -31,6 +32,44 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+
+      <!-- <template v-slot:append>
+        <div class="pa-4">
+          <v-divider class="mb-3"></v-divider>
+          <div class="text-caption text-center mb-1 grey--text text--darken-2">
+            Cierre por inactividad en: <strong>{{ formattedIdleTime }}</strong>
+          </div>
+          <v-progress-linear :value="idleProgress" :color="currentIdleTime < 60 ? 'red' : 'primary'" height="8" rounded striped ></v-progress-linear>
+        </div>
+      </template> -->
+
+      <template v-slot:append>
+        <div class="pa-4">
+          <v-divider class="mb-3"></v-divider>
+
+          <div class="text-caption text-center mb-1 grey--text text--darken-2">
+            Cierre por inactividad en: <strong>{{ formattedIdleTime }}</strong>
+          </div>
+          <v-progress-linear :value="idleProgress" :color="currentIdleTime < 60 ? 'red' : 'primary'" height="8" rounded striped class="mb-4"></v-progress-linear>
+
+          <div class="text-caption mb-1 grey--text text--darken-2" style="font-size: 0.70rem !important; line-height: 1.2;">
+            <div class="d-flex justify-space-between">
+              <span>Inicio: <strong>{{ tokenStartTimeFormatted }}</strong></span>
+              <span>Fin: <strong>{{ tokenEndTimeFormatted }}</strong></span>
+            </div>
+            <div class="text-center mt-1">
+              Expira en: <strong>{{ formattedTokenRemaining }}</strong>
+            </div>
+          </div>
+
+          <v-progress-linear :value="tokenProgress" :color="tokenTimeRemaining < 120 ? 'orange' : 'teal'" height="8" rounded striped></v-progress-linear>
+
+          <div class="text-center mt-1 text-caption grey--text text--lighten-1" v-if="isRefreshingToken">
+            <em>Renovando token...</em>
+          </div>
+
+        </div>
+      </template>
 
     </v-navigation-drawer>
 
@@ -49,13 +88,14 @@
   </div>
 </template>
 <script>
+import { jwtDecode } from 'jwt-decode'
+
 import { /* mapState, */ mapActions } from 'vuex'
 
 import LoaderComp from '@/components/LoaderComp.vue'
 import viewNotificationsComp from '@/components/dashboard/viewNotifications.vue'
 
 import '@/assets/css/bootstrap.min.css'
-// import '@/assets/css/style_dashboard.css'
 import '@/assets/css/style_dashboard.css'
 import '@/assets/css/style_notifications.css'
 
@@ -80,14 +120,29 @@ export default {
       drawer_left_map: true,
       // Mapeo maestro de todas las rutas posibles del sistema
       masterMenu: [
-        { title: 'Inicio', icon: 'mdi-view-dashboard', route: '/dashboard/', module: 'welcome' }, // Puedes ajustar este módulo
-        { title: 'Indicadores', icon: 'mdi-chart-bar', route: '/dashboard/indicators', module: 'indicators' },
-        { title: 'Centros', icon: 'mdi-domain', route: '/dashboard/centers', module: 'centers' },
-        { title: 'Estados', icon: 'mdi-map-marker', route: '/dashboard/states', module: 'states' },
+        { title: 'Inicio', icon: 'mdi-view-dashboard', route: '/dashboard/', module: 'welcome' },
+        { title: 'Población', icon: 'mdi-account-group', route: '/dashboard/indicators', module: 'indicators' },
+        { title: 'Tipo de Delito', icon: 'mdi-shield-alert', route: '/dashboard/indicator_categories', module: 'indicator_categories' },
+        { title: 'Info Tipo de Delito', icon: 'mdi-chart-box', route: '/dashboard/indicator_category_details', module: 'indicator_category_details' },
+        { title: 'Centros', icon: 'mdi-office-building', route: '/dashboard/centers', module: 'centers' },
+        { title: 'Estados', icon: 'mdi-map', route: '/dashboard/states', module: 'states' },
         { title: 'Países', icon: 'mdi-earth', route: '/dashboard/countries', module: 'countries' },
-        { title: 'Géneros', icon: 'mdi-gender-male-female', route: '/dashboard/genders', module: 'genders' },
-        { title: 'Años', icon: 'mdi-calendar', route: '/dashboard/years', module: 'years' }
-      ]
+        { title: 'Sexo', icon: 'mdi-gender-male-female', route: '/dashboard/genders', module: 'genders' },
+        { title: 'Años', icon: 'mdi-calendar-range', route: '/dashboard/years', module: 'years' }
+      ],
+
+      // Variables para inactividad
+      maxIdleTime: 600, // 10 minutos en segundos
+      currentIdleTime: 600, // 600
+      idleInterval: null,
+      // Eventos del DOM que consideramos "actividad"
+      activityEvents: ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'],
+
+      // Variables para el ciclo de vida del Token
+      tokenIat: 0, // Hora de creación en segundos
+      tokenExp: 0, // Hora de expiración en segundos
+      currentAbsoluteTime: Math.floor(Date.now() / 1000), // Reloj global
+      isRefreshingToken: false // Bandera para evitar peticiones múltiples
     }
   },
   computed: {
@@ -95,11 +150,74 @@ export default {
       return this.masterMenu.filter(item =>
         item.module === 'welcome' || this.$store.getters['storeDB/hasModuleAccess'](item.module)
       )
+    },
+
+    // --- COMPUTADAS DE INACTIVIDAD ---
+    // Porcentaje para la barra de progreso de Vuetify
+    idleProgress () {
+      return (this.currentIdleTime / this.maxIdleTime) * 100
+    },
+    // Formatea los segundos a un formato visual amigable "MM:SS"
+    formattedIdleTime () {
+      const minutes = Math.floor(this.currentIdleTime / 60)
+      const seconds = this.currentIdleTime % 60
+      return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+    },
+
+    // --- NUEVAS: COMPUTADAS DEL TOKEN ---
+    tokenTotalLifespan () {
+      return this.tokenExp - this.tokenIat // Total de segundos que vive el token (ej. 3600)
+    },
+    tokenTimeElapsed () {
+      const elapsed = this.currentAbsoluteTime - this.tokenIat
+      return elapsed > 0 ? elapsed : 0
+    },
+    tokenTimeRemaining () {
+      const remaining = this.tokenExp - this.currentAbsoluteTime
+      return remaining > 0 ? remaining : 0
+    },
+    tokenProgress () {
+      if (this.tokenTotalLifespan <= 0) return 0
+      // Porcentaje de uso: va de 0% al 100%
+      return (this.tokenTimeElapsed / this.tokenTotalLifespan) * 100
+    },
+    formattedTokenRemaining () {
+      const minutes = Math.floor(this.tokenTimeRemaining / 60)
+      const seconds = this.tokenTimeRemaining % 60
+      return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+    },
+    tokenStartTimeFormatted () {
+      if (!this.tokenIat) return '--:--'
+      const date = new Date(this.tokenIat * 1000)
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    },
+    tokenEndTimeFormatted () {
+      if (!this.tokenExp) return '--:--'
+      const date = new Date(this.tokenExp * 1000)
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
+
   },
 
   // 4️⃣ Observadores
-  watch: {},
+  watch: {
+    '$store.state.storeDB.token': {
+      immediate: true,
+      handler (newToken) {
+        if (newToken) {
+          try {
+            const decoded = jwtDecode(newToken)
+            this.tokenIat = decoded.iat
+            this.tokenExp = decoded.exp
+            this.isRefreshingToken = false // Se apaga la bandera al recibir el nuevo token
+            this.currentAbsoluteTime = Math.floor(Date.now() / 1000) // Sincronizamos
+          } catch (e) {
+            console.error('Error decodificando token en el watcher', e)
+          }
+        }
+      }
+    }
+  },
 
   // 5️⃣ Métodos
   methods: {
@@ -108,9 +226,135 @@ export default {
     ]),
     logout () {
       // Llamamos a la acción con su namespace
-      this.$store.dispatch('dashboard/logout')
+      this.$store.dispatch('storeDB/logout')
       this.$router.push('/administrator')
+    },
+
+    // Reinicia el contador cada vez que el usuario hace algo
+    resetIdleTimer () {
+      this.currentIdleTime = this.maxIdleTime
+    },
+    // Inicia la "escucha" de actividad y el contador regresivo
+    // startIdleTracking () {
+    //   // Registrar eventos en la ventana principal
+    //   this.activityEvents.forEach(event => {
+    //     window.addEventListener(event, this.resetIdleTimer)
+    //   })
+
+    //   // Bucle que se ejecuta cada 1 segundo (1000 ms)
+    //   this.idleInterval = setInterval(() => {
+    //     this.currentIdleTime -= 1
+
+    //     // Si el tiempo llega a cero, expulsamos al usuario
+    //     if (this.currentIdleTime <= 0) {
+    //       this.handleAutoLogout()
+    //     }
+    //   }, 1000)
+    // },
+    // Limpieza de memoria (muy importante en SPAs)
+    // stopIdleTracking () {
+    //   this.activityEvents.forEach(event => {
+    //     window.removeEventListener(event, this.resetIdleTimer)
+    //   })
+    //   clearInterval(this.idleInterval)
+    // },
+    // Ejecuta el cierre de sesión por inactividad
+    // handleAutoLogout () {
+    //   this.stopIdleTracking() // Detenemos el reloj
+
+    //   // Notificamos al usuario
+    //   this.$store.dispatch('storeNotif/warning', {
+    //     message: 'Tu sesión se ha cerrado automáticamente por inactividad.'
+    //   })
+
+    //   // Usamos tu método existente o despachamos directo a storeDB
+    //   this.$store.dispatch('storeDB/logout')
+    //   this.$router.push('/administrator').catch(() => {})
+    // },
+
+    // startIdleTracking () {
+    //   // Registrar eventos de actividad
+    //   this.activityEvents.forEach(event => {
+    //     window.addEventListener(event, this.resetIdleTimer)
+    //   })
+
+    //   // Bucle maestro cada 1 segundo
+    //   this.idleInterval = setInterval(() => {
+    //     // 1. Lógica de inactividad física del usuario
+    //     this.currentIdleTime -= 1
+    //     if (this.currentIdleTime <= 0) {
+    //       this.handleAutoLogout()
+    //       return // Detenemos aquí si ya lo expulsamos
+    //     }
+
+    //     // 2. Lógica de renovación silenciosa del Token JWT
+    //     const token = this.$store.state.storeDB.token
+    //     if (token) {
+    //       try {
+    //         const decoded = jwtDecode(token)
+    //         const currentTime = Math.floor(Date.now() / 1000) // Tiempo en segundos
+    //         const timeLeft = decoded.exp - currentTime
+    //         // console.log(timeLeft)
+    //         // Si faltan exactamente 120 segundos (2 minutos) para que expire el token...
+    //         // Y el usuario está activo (es decir, el reloj de idle time tiene buen tiempo)
+    //         if (timeLeft === 120 && this.currentIdleTime > 120) {
+    //           this.$store.dispatch('storeDB/silentRefresh')
+    //         }
+    //       } catch (error) {
+    //         console.error('Error leyendo expiración del token', error)
+    //       }
+    //     }
+    //   }, 1000)
+    // },
+    // --------------------------------------------------------------------------------------------------------
+    // resetIdleTimer () {
+    //   this.currentIdleTime = this.maxIdleTime
+    // },
+
+    startIdleTracking () {
+      this.activityEvents.forEach(event => {
+        window.addEventListener(event, this.resetIdleTimer)
+      })
+
+      this.idleInterval = setInterval(() => {
+        // 1. Reloj de Inactividad
+        this.currentIdleTime -= 1
+        if (this.currentIdleTime <= 0) {
+          this.handleAutoLogout()
+          return
+        }
+
+        // 2. Actualizar el reloj global del Token
+        this.currentAbsoluteTime = Math.floor(Date.now() / 1000)
+
+        // 3. Evaluar Renovación (A los 120 segundos o menos)
+        // Usamos <= 120 y la bandera isRefreshingToken para no disparar 50 peticiones
+        // mientras el servidor de PHP nos responde.
+        if (this.tokenTimeRemaining <= 120 && this.currentIdleTime > 120 && !this.isRefreshingToken) {
+          this.isRefreshingToken = true
+          this.$store.dispatch('storeDB/silentRefresh').catch(() => {
+            this.isRefreshingToken = false // Si falla, liberamos la bandera
+          })
+        }
+      }, 1000)
+    },
+
+    stopIdleTracking () {
+      this.activityEvents.forEach(event => {
+        window.removeEventListener(event, this.resetIdleTimer)
+      })
+      clearInterval(this.idleInterval)
+    },
+
+    handleAutoLogout () {
+      this.stopIdleTracking()
+      this.$store.dispatch('storeNotif/warning', {
+        message: 'Tu sesión se ha cerrado automáticamente por inactividad.'
+      })
+      this.$store.dispatch('storeDB/logout')
+      this.$router.push('/administrator').catch(() => {})
     }
+
   },
 
   // 6️⃣ Ciclo de vida
@@ -146,10 +390,16 @@ export default {
     // })
   },
   beforeMount () {},
-  mounted () {},
+  mounted () {
+    // Iniciar el rastreo en cuanto el Dashboard se renderiza
+    this.startIdleTracking()
+  },
   beforeUpdate () {},
   updated () {},
-  beforeDestroy () {},
+  beforeDestroy () {
+    // Si el usuario sale del dashboard por su cuenta, apagamos el reloj
+    this.stopIdleTracking()
+  },
   destroyed () {}
 
   // 7️⃣ Hooks específicos (como de rutas, etc.)

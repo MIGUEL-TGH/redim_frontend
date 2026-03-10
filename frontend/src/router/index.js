@@ -24,10 +24,12 @@ const routes = [
     component: () => import('../views/LoginView.vue')
   },
   // --------------------------------------------------------------------------------
+  // RUTA 404 (COMODÍN) - DEBE IR SIEMPRE AL FINAL
+  // --------------------------------------------------------------------------------
   {
-    path: '/about',
-    name: 'about',
-    component: () => import('../views/AboutView.vue')
+    path: '*',
+    name: 'NotFound',
+    component: () => import('../views/NotFoundView.vue')
   }
 ]
 
@@ -39,24 +41,30 @@ const router = new VueRouter({
 
 // Guardián de navegación global
 router.beforeEach((to, from, next) => {
-  // Usamos el namespace del módulo (asumiendo que lo registraste como 'dashboard')
+  // 1. Obtenemos el estado de autenticación usando el namespace correcto 'storeDB'
   const isAuthenticated = store.getters['storeDB/isAuthenticated']
 
-  // Si la ruta requiere autenticación y no está logueado
+  // 2. Si el usuario ya está logueado e intenta ir al login (/administrator)
+  if (to.path === '/administrator' && isAuthenticated) {
+    next('/dashboard/') // Lo redirigimos al inicio de su panel
+    return // Detenemos la ejecución de este ciclo
+  }
+
+  // 3. Si la ruta requiere autenticación y NO está logueado
   if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
-    next('/administrator') // Lo mandamos a tu LoginView
+    next('/administrator')
   } else {
-    // Protección a nivel de submódulo
+    // 4. Protección a nivel de submódulo (si aplica)
     if (to.meta && to.meta.moduleName) {
       const hasAccess = store.getters['storeDB/hasModuleAccess'](to.meta.moduleName)
       if (hasAccess) {
         next()
       } else {
-        // Si no tiene permiso para ese módulo, lo regresamos al inicio del dashboard
-        next('/dashboard')
+        // Si no tiene permiso para ese módulo, lo regresamos a la raíz del dashboard
+        next('/dashboard/')
       }
     } else {
-      next()
+      next() // Permitir el paso para cualquier otra ruta pública
     }
   }
 })

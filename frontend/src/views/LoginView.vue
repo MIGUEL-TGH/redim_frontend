@@ -100,7 +100,7 @@ export default {
         }
       } catch (error) {
         // Error de red, caída del servidor, etc.
-        console.error('Error en LoginView:', error)
+        // console.error('Error en LoginView:', error)
         this.showError('Credenciales incorrectas o error de red')
       } finally {
         this.loading = false
@@ -113,7 +113,7 @@ export default {
       // alert(message)
 
       // Llamada a tu sistema de notificaciones globales
-      this.$store.dispatch('warning', {
+      this.$store.dispatch('storeNotif/warning', {
         message: message
       })
     }
@@ -122,9 +122,9 @@ export default {
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
   async created () {
-    console.log('INIT')
-    await this.setSleep(2500)
-    console.log('setSleep started')
+    // console.log('INIT')
+    // await this.setSleep(2500)
+    // console.log('setSleep started')
     // this.$store.dispatch('storeNotif/success', {
     //   message: 'Error desde dashboard/years'
     // })

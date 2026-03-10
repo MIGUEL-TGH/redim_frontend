@@ -11,6 +11,8 @@ const getInitialState = () => {
   if (token) {
     try {
       const decoded = jwtDecode(token)
+      // console.log('ecoded', decoded)
+
       // Validar si el token ya expiró
       const currentTime = Date.now() / 1000
       if (decoded.exp < currentTime) {
@@ -59,14 +61,14 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}auth/login` // Ajusta tu URL
         const response = await axios.post(url, credentials)
-        // console.log(response)
+
         if (response.data.success) {
           const { token, user } = response.data.result
           const decodedToken = jwtDecode(token)
+          // console.log(decodedToken)
           const permissions = decodedToken.data.permissions
 
           localStorage.setItem('token', token)
-          // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
           axios.defaults.headers.common.Authorization = `Bearer ${token}`
 
           commit('SET_AUTH', { token, user, permissions })
@@ -74,19 +76,44 @@ export default {
         }
         return false
       } catch (error) {
-        console.error('Error en login:', error)
+        // console.error('Error en login:', error)
         // console.log('Error expuesto')
-        // this.$store.dispatch('storeNotif/warning', {
-        //   message: 'Detectando errores'
-        // })
-        throw error
+        // throw error
       }
     },
     logout ({ commit }) {
       localStorage.removeItem('token')
-      // delete axios.defaults.headers.common['Authorization']
       delete axios.defaults.headers.common.Authorization
       commit('LOGOUT')
+    },
+    async silentRefresh ({ commit, state }) {
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}auth/refresh`
+        // Enviamos la petición. Axios automáticamente inyectará el token actual gracias a nuestro defaults.headers
+        const response = await axios.post(url, {})
+        // console.log(response.data)
+        if (response.data.success) {
+          const { token, user } = response.data.result
+
+          const decodedToken = jwtDecode(token)
+          // console.log(decodedToken)
+          const permissions = decodedToken.data.permissions
+
+          // Sobrescribimos el token viejo con el nuevo
+          localStorage.setItem('token', token)
+          axios.defaults.headers.common.Authorization = `Bearer ${token}`
+
+          commit('SET_AUTH', { token, user, permissions })
+          console.log('Token renovado silenciosamente en segundo plano.')
+          return true
+        }
+      } catch (error) {
+        console.error('Fallo la renovación silenciosa', error)
+        // Si falla (ej. el backend rechazó el token viejo), limpiamos la sesión
+        commit('LOGOUT')
+        localStorage.removeItem('token')
+        delete axios.defaults.headers.common.Authorization
+      }
     }
   },
   modules: { }
