@@ -1,0 +1,34 @@
+1. Instalar Python (si no lo tienes)
+
+   https://www.python.org/downloads/
+      ☑ Add Python to PATH
+      Después abre CMD y verifica: python --version
+      Verificar: python --version
+
+2. Instalar las librerías necesarias
+   En CMD ejecuta:   
+      python -m pip install --upgrade pip
+      python -m pip install pandas openpyxl
+
+   Esto instalará:
+      pandas → manipulación de datos
+      openpyxl → lectura de Excel .xlsx
+
+3. Verificar que sí se instaló
+
+   En CMD ejecuta: 
+      python -m pip list
+      Y busca en la lista: openpyxl, pandas, numpy
+
+4. Colocar los archivos en la misma carpeta
+   C:\excel_sql
+   │
+   ├── script.py
+   ├── 1.-cnsipee_ejer_func.xlsx
+   └── 2.-tables_db.xlsx
+
+
+5. Ejecutar el script en la direccion de los archivos
+
+   Ejemplo: C:\excel_sql>python script.py
+   Se genera el archivo output.sql
