@@ -23,12 +23,13 @@
 4. Colocar los archivos en la misma carpeta
    C:\excel_sql
    │
-   ├── script.py
-   ├── 1.-cnsipee_ejer_func.xlsx
-   └── 2.-tables_db.xlsx
+   ├── 1.-master.xlsx
+   ├── 2.-template.xlsx
+   ├── 3.-tables_db.xlsx
+   └── 4.-script.py
 
 
 5. Ejecutar el script en la direccion de los archivos
 
-   Ejemplo: C:\excel_sql>python script.py
+   Ejemplo: C:\excel_sql>python 4.-script.py
    Se genera el archivo output.sql
