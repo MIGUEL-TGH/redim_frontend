@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="dialog_loader.actived" scrollable persistent width="300">
-    <v-card color="#EC1E4C" dark> <!--#3069b3 -->
+    <v-card color="#6a3d8f" dark> <!--#3069b3 #EC1E4C-->
       <v-card-text class="centered">
         <!-- Por favor espere -->
          <div v-html="dialog_loader.message" class="text-white"></div>

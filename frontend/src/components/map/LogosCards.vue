@@ -2,13 +2,22 @@
   <div>
     <!-- TARJETA INSTITUCIONAL (abajo izquierda) -->
     <div class="map-card map-card-left">
-      <img src="@/assets/logos/LOGOTIPO-COLOR.png" class="logo-project">
+      <img src="@/assets/logos/LOGOTIPO-COLOR.png" class="logo-project" alt="Logo Proyecto">
     </div>
 
     <!-- TARJETA PROYECTO (abajo derecha) -->
     <div class="map-card map-card-right">
-      <img src="@/assets/logos/NiñezPrimero-Placa.png" class="logo-dependences">
+      <img src="@/assets/logos/NiñezPrimero-Placa.png" class="logo-dependences" alt="Logo Instituciones">
     </div>
+
+    <!-- <div class="map-card map-card-left">
+      <img src="@/assets/logos/LOGOTIPO-COLOR.png" class="logo-project" alt="Logo Institucional">
+    </div>
+
+    <div class="map-card map-card-right">
+      <img src="@/assets/logos/NiñezPrimero-Placa.png" class="logo-dependences" alt="Logo Proyecto">
+    </div> -->
+
   </div>
 </template>
 
@@ -102,7 +111,46 @@ export default {
   /* ===============================
     LOGOS
   ================================ */
+  /* .logo-project { height: 150px;}
+  .logo-dependences { height: 100px; } */
+  /* ===============================
+    LOGOS BASE (Escritorio / Laptops)
+  ================================ */
+  /* Se agrega object-fit y max-width como medida de seguridad */
+  .logo-project {
+    height: 150px;
+    max-width: 45vw;
+    object-fit: contain;
+    transition: height 0.3s ease;
+  }
 
-  .logo-project { height: 150px;}
-  .logo-dependences { height: 100px; }
+  .logo-dependences {
+    height: 100px;
+    max-width: 45vw;
+    object-fit: contain;
+    transition: height 0.3s ease;
+  }
+
+  /* ===============================
+    MEDIA QUERIES (Responsividad)
+  ================================ */
+
+  /* Tablets y Laptops pequeñas (Vuetify 'sm' y 'md' - hasta 960px) */
+  @media (max-width: 960px) {
+    .logo-project { height: 100px; }
+    .logo-dependences { height: 70px; }
+
+    .map-card-left { bottom: 15px; left: 15px; }
+    .map-card-right { bottom: 5px; right: 5px; }
+  }
+
+  /* Teléfonos Móviles (Vuetify 'xs' - hasta 600px) */
+  @media (max-width: 600px) {
+    .logo-project { height: 60px; }
+    .logo-dependences { height: 45px; }
+
+    .map-card-left { bottom: 10px; left: 10px; }
+    /* Le damos un poco más de margen al logo derecho en móviles para que respire */
+    .map-card-right { bottom: 10px; right: 10px; }
+  }
 </style>

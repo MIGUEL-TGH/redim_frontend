@@ -22,6 +22,7 @@
         <v-expand-transition>
           <div v-show="activeIndex === index" class="stack-content">
             <slot :name="card.id">
+              <!-- {{ card.id }} -->
               <div class="fake-content" style="padding: 15px;">
                 <p>Estadísticas para {{ card.title }}</p>
                 <div class="simple-bar" style="width: 80%"></div>
@@ -131,94 +132,117 @@ export default {
   // beforeRouteEnter() {}, etc.
 }
 </script>
+
 <style scoped>
-/* Contenedor posicionado en el mapa (ArcGIS) */
-.stack-wrapper {
-  position: absolute;
-  top: 10px;
-  right: 0px;
-  z-index: 1000; /* Asegurar que esté sobre el mapa */
-  /* width: 320px; */
-  width: 400px;
-  font-family: 'Roboto', sans-serif;
-}
+  /* ===============================  CONTENEDOR PRINCIPAL  =============================== */
+  /* Contenedor posicionado en el mapa (ArcGIS) */
+  .stack-wrapper {
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+  }
+  .stack-container {
+    display: flex;
+    flex-direction: column;
+  }
 
-.stack-container {
-  display: flex;
-  flex-direction: column;
-}
+  /* ===============================  TARJETAS  =============================== */
+  .stack-item {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+  }
+  /* Hover solo para pantallas que soportan puntero (Escritorio/Laptops) */
+  @media (hover: hover) and (pointer: fine) {
+    .stack-item:hover {
+      transform: translateX(-15px); /* Un poco más sutil */
+    }
+  }
+  /* Cuando una tarjeta está activa, le damos un poco más de sombra */
+  .stack-item.is-active {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    margin-bottom: 10px;
+    /* margin-top: 5px !important;*/  /* Evita que se vea encimada cuando está abierta */
+    margin-top: 0 !important;
+    /* margin-top: -25px !important; */
+  }
 
-.stack-item {
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  background: white;
-}
+  /* ===============================  CABECERAS  =============================== */
+  .stack-header {
+    /* height: 50px; */
+    height: 70px;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    color: white;
+  }
+  .stack-header.un-active {
+    height: 70px;
+    padding-top: 30px;
+  }
+  .stack-title {
+    font-weight: bold;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Si el texto es muy largo en móviles, pone "..." */
+  }
+  .icon-pill {
+    background: white;
+    width: 32px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-shrink: 0; /* Evita que el botón se aplaste si el título es largo */
+  }
+  .stack-content {
+    background: white;
+    /* padding: 15px; */
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
 
-.stack-item:hover {
-  transform: translateX(-20px);
-}
+  /* ===============================  ESTILOS INTERNOS DE EJEMPLO  =============================== */
+  /* Estilos de ejemplo para el contenido interno */
+  .fake-content {
+    color: #444;
+  }
+  .simple-bar {
+    height: 12px;
+    background: #ff5252;
+    margin: 10px 0;
+    border-radius: 6px;
+    opacity: 0.8;
+  }
 
-/* Cuando una tarjeta está activa, le damos un poco más de sombra */
-.stack-item.is-active {
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  margin-bottom: 10px;
-  /* margin-top: 5px !important;*/  /* Evita que se vea encimada cuando está abierta */
-  margin-top: 0 !important;
-  /* margin-top: -25px !important; */
-}
+  /* ===============================  MEDIA QUERIES (Responsividad)  =============================== */
+  /* Teléfonos Móviles (hasta 600px) */
+  @media (max-width: 600px) {
 
-.stack-header {
-  /* height: 50px; */
-  height: 70px;
-  padding: 0 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  color: white;
-}
-.stack-header.un-active {
-  height: 70px;
-  padding-top: 30px;
-}
+    .stack-item {
+      border-radius: 15px; /* Bordes un poco menos pronunciados en pantallas pequeñas */
+    }
 
-.stack-title {
-  font-weight: bold;
-  font-size: 0.95rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+    .stack-header {
+      height: 60px;
+      padding: 0 15px;
+    }
 
-.icon-pill {
-  background: white;
-  width: 32px;
-  height: 20px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+    .stack-header.un-active {
+      height: 60px;
+      padding-top: 25px; /* Se ajusta para que el traslape (-30px) siga funcionando visualmente */
+    }
 
-.stack-content {
-  background: white;
-  /* padding: 15px; */
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-}
-
-/* Estilos de ejemplo para el contenido interno */
-.fake-content {
-  color: #444;
-}
-
-.simple-bar {
-  height: 12px;
-  background: #ff5252;
-  margin: 10px 0;
-  border-radius: 6px;
-  opacity: 0.8;
-}
+    .stack-title {
+      font-size: 0.85rem; /* Texto un poco más pequeño para evitar saltos de línea */
+    }
+  }
 </style>

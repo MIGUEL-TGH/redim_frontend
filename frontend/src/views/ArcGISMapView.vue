@@ -275,6 +275,7 @@ export default {
   },
   computed: {
     ...mapState([
+      'urlParams',
       'dialog_loader'
     ])
   },
@@ -347,7 +348,8 @@ export default {
   methods: {
     // vuex
     ...mapActions([
-      'setSleep'
+      'setSleep',
+      'getParams'
     ]),
     // map
     throttle (func, limit) {
@@ -830,14 +832,20 @@ export default {
   beforeCreate () {},
   async created () {
     // this.$refs.notifier.success('Operación realizada correctamente')
+    // =========================================================================================
     // this.dialog_loader.actived = true
     // this.dialog_loader.message = 'Por favor espere...'
-    // --------------------------------------------------------------------------------
+    // await this.setSleep(2500)
+    // this.dialog_loader.actived = false
+    // this.dialog_loader.message = ''
+
+    // =========================================================================================
     // this.getIndicators()
     // this.getStates()
     // this.getYears()
     // this.getGenders()
-    // --------------------------------------------------------------------------------
+
+    // =========================================================================================
     // this.getCategories()
 
     // this.categories = [
@@ -852,6 +860,29 @@ export default {
     // console.log(this.frmData.category_id)
 
     // this.submit()
+
+    // =========================================================================================
+    // await this.getParams(null)
+    // await window.addEventListener('popstate', this.getParams)
+    // await this.setSleep(1500)
+    // console.log(this.urlParams)
+    // if (this.urlParams.size) {
+    //   console.log('Con parametros')
+    // } else {
+    //   console.log('Sin parametros')
+    // }
+
+    // const project = this.urlParams.get('project')
+    // const find = await this.projects.find(element => { return element.param === project })
+
+    // if (type === 'cloced') {
+    //   state.dialog_data.actived = false
+    //   state.url.searchParams.delete('project')
+    //   window.history.replaceState({}, '', state.url)
+
+    //   state.urlParams = new URLSearchParams(state.url.search)
+    //   state.dialog_data.currentPage = 1
+    // }
   },
   beforeMount () {},
   mounted () {
@@ -860,6 +891,7 @@ export default {
   beforeUpdate () {},
   updated () {},
   beforeDestroy () {
+    window.removeEventListener('popstate', this.getParams)
   },
   destroyed () { }
 
@@ -985,7 +1017,6 @@ export default {
     background: rgba(0, 0, 0, 0.15);
     pointer-events: none;
   }
-
   /* Más contraste en dark mode */
   .theme--dark .drawer-gradient::before {
     background: rgba(0, 0, 0, 0.25);
@@ -998,7 +1029,7 @@ export default {
     letter-spacing: 0.5px;
   }
 
-  /* -------------------------------------------------------------------------------- */
+  /* ===============================  CONTENEDOR PRINCIPAL  =============================== */
   .map-wrapper {
     position: relative;
     width: 100%;
@@ -1010,15 +1041,30 @@ export default {
     height: 100%;
   }
 
-  /* -------------------------------------------------------------------------------- */
-   .stats-panel {
+  /* ===============================  PANEL  =============================== */
+  .stats-panel {
     position: absolute;
     top: 20px;
     right: 20px;
-    /* width: 320px; */
-    z-index: 50; /* 20 */
+    z-index: 50;
+    width: 400px; /* Ancho en escritorio */
+    max-width: calc(100vw - 40px); /* Evita que desborde si la pantalla es menor a 440px */
   }
-
-  /* -------------------------------------------------------------------------------- */
+  /* Tablets (hasta 960px) */
+  @media (max-width: 960px) {
+    .stats-panel {
+      width: 350px;
+    }
+  }
+  /* Teléfonos Móviles (hasta 600px) */
+  @media (max-width: 600px) {
+    .stats-panel {
+      top: 10px;
+      right: 10px;
+      width: 335px; /* 80% 335px */
+      /* Le restamos 20px (10px de cada lado) para mantener un margen parejo en móvil */
+      max-width: calc(100vw - 20px);
+    }
+  }
 
 </style>
