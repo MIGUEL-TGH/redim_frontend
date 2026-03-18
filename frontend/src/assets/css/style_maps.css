@@ -1,14 +1,33 @@
 /* ---------global----------------------------------------- */
 /* ---------map-------------------------------------------- */
-/* #viewDiv {
-  width: 100%;
-  height: 93vh;
-  margin: 0;
-  padding: 0;
-} */
-#InfoMap {
-  padding: 10px;
-  border-radius: 5px;
-  width: 400px;
-  overflow: hidden;
-}
+  /* #viewDiv {
+    width: 100%;
+    height: 93vh;
+    margin: 0;
+    padding: 0;
+  } */
+  #InfoMap {
+    padding: 10px;
+    border-radius: 5px;
+    width: 400px;
+    overflow: hidden;
+  }
+
+  /* .BtnHover:hover {
+      -webkit-transform:scale(1);
+      transform:scale(1.3);
+      transition-duration: 500ms;
+      cursor: pointer;
+  }
+  .BtnHover {overflow:hidden;} */
+
+  /* Transición suave para el estado normal */
+  .BtnHover {
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+  }
+
+  /* Efecto de crecimiento al pasar el mouse */
+  .BtnHover:hover {
+    transform: scale(1.2); /* 1.2 es un poco más elegante que 1.3, no satura el espacio */
+  }

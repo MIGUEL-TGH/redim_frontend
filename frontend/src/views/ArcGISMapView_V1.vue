@@ -2,9 +2,9 @@
   <div>
     <v-app-bar app dark elevation="10" clipped-left class="app-bar-gradient">
       <v-app-bar-nav-icon @click.stop="drawer_left_map=!drawer_left_map"></v-app-bar-nav-icon>
-      <custom-navbar />
-      <!-- <span class="ml-2 font-weight-bold">REDIM</span> -->
+        REDIM
       <v-spacer></v-spacer>
+        <!-- <img src="@/assets/logos/redim_logo.png" style="width: 100%; max-width: 60px; height: auto;"> -->
     </v-app-bar>
     <!-- <v-col cols="12">
       <label class="tree-label">Categoría</label>
@@ -13,6 +13,9 @@
       >
       </v-treeview>
     </v-col> -->
+
+    <!-- <div id="viewDiv" ref="mapView"></div>
+    <div id="InfoMap" class="esri-widget"></div> -->
 
     <div class="map-wrapper">
       <div id="viewDiv" ref="mapView"></div>
@@ -26,36 +29,25 @@
       </div>
     </div>
 
-    <v-navigation-drawer app v-model="drawer_left_map" width="280px" clipped style="padding: 10px !important;" color="#efeee8"> <!-- B2B2B1 -->
+    <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped style="padding: 10px !important;" color="#B2B2B1">
+    <!-- <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped class="drawer-gradient" > -->
       <div class="drawer-content">
+        <!-- Navegar por el mapa -->
         <v-form ref="form_item" style="padding-top: 5px;">
-
-          <v-select
-            class="select-compacto" v-model="frmData.indicator_id" item-value="id" item-text="name" :items="indicators" multiple
-            :rules="[v => (v && v.length > 0) || 'Campo obligatorio']" dense outlined background-color="#FAFAFA" color="#246257" item-color="#246257" label="Población*:"
-          >
+          <v-select v-model="frmData.indicator_id" item-value="id" item-text="name" :items="indicators" :rules="[v => !!v || 'Campo obligatorio']"
+            dense filled background-color="#fafafa" color="#246257" @change="getCategories" label="Población*:">
             <template v-slot:selection="{ item, index }">
-              <v-chip v-if="index < 2" small label close color="#246257" class="white--text chip-select" @click:close="removeIndicator(item.id)">
-                <span>{{ item.id }}</span>
-              </v-chip>
-              <span v-if="index === 2" class="grey--text text-caption ml-1 font-weight-medium">
-                (+{{ frmData.indicator_id.length - 2 }} más)
-              </span>
-            </template>
-
-            <template v-slot:append-outer>
-              <v-icon large color="#342a83" class="BtnHover mt-n1" @click="getCategories" title="Cargar categorías">
-                mdi-arrow-right-bold-box
-              </v-icon>
-            </template>
+                <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                  <span>{{ truncateText(item.name, 30) }}</span>
+                </v-chip>
+              </template>
           </v-select>
 
-          <v-select v-model="frmData.state_id" :items="states" item-value="id" item-text="title" multiple :item-disabled="isStateDisabled" :rules="[v => !!v.length || 'Campo obligatorio']"
+          <v-select v-model="frmData.state_id" :items="states" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isStateDisabled"
             dense filled background-color="#fafafa" color="#246257" label="Entidad Federativa*:">
               <template v-slot:selection="{ item, index }">
                 <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                  <!-- <span>{{ truncateText(item.title, 20) }}</span> -->
-                  <span>{{ item.title }}</span>
+                  <span>{{ truncateText(item.title, 20) }}</span>
                 </v-chip>
                 <span v-if="index === 1" class="grey--text span-select">
                   (+{{ frmData.state_id.length - 1 }} más)
@@ -90,13 +82,16 @@
           <div v-if="categories.length">
             <label class="tree-label">Tipo de delito</label>
             <v-treeview selectable v-model="frmData.category_id" :items="categories" item-text="title" item-key="id"
-              class="tree-compact" open-all selected-color="#246257"
+              class="tree-compact" open-all selected-color="white"
             >
             </v-treeview>
+            <!-- <br>
+            {{ frmData.category_id }} -->
             <br>
           </div>
 
-          <v-btn color="#342a83" elevation="5" @click="submit" block class="white--text" :disabled="btnSend">consultar</v-btn>
+          <!-- <v-btn color="#246257" elevation="5" @click="submit" block class="white--text">consultar</v-btn> -->
+          <v-btn color="#342a83" elevation="5" @click="submit" block class="white--text">consultar</v-btn>
         </v-form>
       </div>
 
@@ -116,8 +111,6 @@ import LoaderComp from '@/components/LoaderComp.vue'
 import viewNotificationsComp from '@/components/dashboard/viewNotifications.vue'
 import StackCards from '@/components/map/StackCards.vue'
 import LogosCards from '@/components/map/LogosCards.vue'
-// import FloatingNavbar from '@/components/map/FloatingNavbar.vue'
-import CustomNavbar from '@/components/map/CustomNavbar.vue'
 
 import '@/assets/css/style_maps.css'
 import '@/assets/css/style_notifications.css'
@@ -142,9 +135,7 @@ export default {
     LoaderComp,
     viewNotificationsComp,
     StackCards,
-    LogosCards,
-    // FloatingNavbar
-    CustomNavbar
+    LogosCards
   },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -267,8 +258,7 @@ export default {
       states: [],
 
       frmData: {
-        // indicator_id: null,
-        indicator_id: [],
+        indicator_id: null,
         category_id: [],
         year_id: [],
         gender_id: [],
@@ -280,8 +270,7 @@ export default {
       isUpdatingYear: false,
       isUpdatingCategory: false,
       isUpdatingGender: false,
-      isUpdatingState: false,
-      btnSend: true
+      isUpdatingState: false
     }
   },
   computed: {
@@ -293,27 +282,6 @@ export default {
 
   // 4️⃣ Observadores
   watch: {
-    'frmData.indicator_id' (newVal, oldVal) {
-      // Nos aseguramos de tener la longitud, usando 0 si por alguna razón es undefined
-      const newLength = newVal ? newVal.length : 0
-      const oldLength = oldVal ? oldVal.length : 0
-
-      // Condición 1: Se quedó vacío (!newLength)
-      // Condición 2: El usuario desmarcó uno de la lista (newLength < oldLength)
-      // if (!newLength || newLength < oldLength) { // solo cuando disminulle
-      if (!newLength || newLength !== oldLength) { // cuando es diferente
-        console.log('submit()--> deshabilitado')
-
-        this.$nextTick(() => {
-          // Deshabilitamos el botón de enviar
-          this.btnSend = true
-
-          // Opcional: Si quieres limpiar las categorías tal como lo haces en removeIndicator
-          this.categories = []
-        })
-      }
-    },
-
     'frmData.year_id' (val) {
       if (this.isUpdatingYear) return
 
@@ -637,14 +605,6 @@ export default {
     },
 
     // data
-    removeIndicator (idToRemove) {
-      // Filtramos el array del v-model para excluir el ID que el usuario cerró
-      this.frmData.indicator_id = this.frmData.indicator_id.filter(
-        id => id !== idToRemove
-      )
-      // this.btnSend = true
-      // this.categories = []
-    },
     truncateText (text, maxLength) {
       if (text.length > maxLength) {
         return text.substring(0, maxLength) + '...'
@@ -742,41 +702,18 @@ export default {
     },
     async getCategories () {
       try {
-        const sendData = this.frmData.indicator_id
-        if (!sendData.length) {
-          this.$store.dispatch('storeNotif/error', {
-            message: 'Debe de seleccionar al menos algún tipo de población para solicitar tipos de delitos asociados'
-          })
-          return
-        }
-
+        // console.log(this.frmData.indicator_id)
         const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
-        // const response = await axios.post(url, this.frmData.indicator_id)
-        const response = await axios.post(url, { indicator_ids: this.frmData.indicator_id })
+        const response = await axios.post(url, this.frmData.indicator_id)
         console.log('getCategories() --> ', response.data.result)
         if (response.data.status === 200) {
-          // 1️⃣ VALIDACIÓN DE ESTADO VACÍO
-          if (!response.data.result || response.data.result.length === 0) {
-            this.categories = []
-            this.frmData.category_id = []
-            this.btnSend = true
-
-            this.$store.dispatch('storeNotif/info', {
-              message: 'No se encontraron tipos de delitos asociadas a las poblaciones seleccionadas. Por favor, intenta con otra combinación.'
-            })
-
-            return
-          }
-
-          // 2️⃣ FLUJO NORMAL (Si hay datos)
           this.frmData.category_id = []
           this.categories = []
-          this.btnSend = false
 
-          // if (response.data.total === 1 && !response.data.result[0].children.length) { // Sin nodos
-          //   this.frmData.category_id = [response.data.result[0].id]
-          //   return
-          // }
+          if (response.data.total === 1 && !response.data.result[0].children.length) { // Sin nodos
+            this.frmData.category_id = [response.data.result[0].id]
+            return
+          }
 
           this.categories = response.data.result
 
@@ -788,7 +725,7 @@ export default {
         }
       } catch (error) {
         console.log(error)
-        this.$store.dispatch('storeNotif/error', {
+        this.$store.dispatch('error', {
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })
       }
@@ -812,10 +749,7 @@ export default {
       // console.log('submit-->', value)
 
       if (!this.$refs.form_item.validate()) {
-        // this.$refs.notifier.error('¡Favor de seleccionar las opciones obligatorias para generar la consulta!')
-        this.$store.dispatch('storeNotif/error', {
-          message: '¡Favor de seleccionar las opciones obligatorias para generar la consulta!'
-        })
+        this.$refs.notifier.error('¡Favor de seleccionar las opciones obligatorias para generar la consulta!')
         return ''
       }
 
@@ -864,11 +798,7 @@ export default {
         .map(item => item)
 
       if (!categoryIds.length) {
-        // return this.$refs.notifier.error('¡Favor de seleccionar al menos una de las categorías disponobles!')
-        this.$store.dispatch('storeNotif/error', {
-          message: '¡Favor de seleccionar al menos una de las categorías disponobles!'
-        })
-        return
+        return this.$refs.notifier.error('¡Favor de seleccionar al menos una de las categorías disponobles!')
       }
       sendData.category_id = categoryIds
 
@@ -910,10 +840,10 @@ export default {
     // this.dialog_loader.message = ''
 
     // =========================================================================================
-    this.getIndicators()
-    this.getStates()
-    this.getYears()
-    this.getGenders()
+    // this.getIndicators()
+    // this.getStates()
+    // this.getYears()
+    // this.getGenders()
 
     // =========================================================================================
     // this.getCategories()
@@ -983,26 +913,13 @@ export default {
   } */
   .chip-select {
     font-size: 12px;
-    padding: 0 8px;
-    margin: 0 1px !important;
-    text-overflow: ellipsis;
+    padding: 0 5px;
+    margin: 0 0px !important;
   }
   .span-select {
     font-size: 11px;
     padding: 0 5px !important;
   }
-
-  /* .btn-append-outer {
-    position: relative;
-    left: 0px;
-    padding: 0px 0px 0px 0px;
-    margin: 0px 0px 0px 0px;
-  } */
-
-  ::v-deep .select-compacto .v-input__append-outer {
-    margin-left: 2px !important; /* Cambia a 0px si lo quieres 100% pegado */
-  }
-
   /* --------------------------------treeview------------------------------------------------ */
   /* Label tipo v-text-field */
   .tree-label {
@@ -1107,8 +1024,7 @@ export default {
   .drawer-content {
     position: relative;
     z-index: 1;
-    /* padding: 10px; */
-    padding: 5px;
+    padding: 10px;
     font-weight: 500;
     letter-spacing: 0.5px;
   }
