@@ -108,6 +108,33 @@
 
     <loader-comp />
     <view-notifications-comp ref="notifier"/>
+
+      <v-dialog v-model="dialogData.actived" scrollable max-width="750px" persistent>
+        <v-card max-height="85vh">
+          <v-toolbar dark class="toolbar title-dialog" color="#424242">
+            REDIM: <strong style="padding-left: 5px;">{{dialogData.title}}</strong>
+            <v-spacer></v-spacer>
+            <v-btn @click="dialogData.actived=false, Panel=false" color="error" small fab>
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-toolbar>
+          <v-card-text>
+            <br>
+            <h2 class="title-indicator">{{dialogData.indicator}}</h2>
+            <v-divider></v-divider>
+            <template>
+              <br>
+              <!-- <ChartComp
+                  :type="element.chart.name"
+                  :data="element.chart.attributes"
+                  :options="chartOptions"
+                  :refresh="Panel === index"
+                /> -->
+            </template>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
   </div>
 </template>
 
@@ -132,6 +159,10 @@ import MapView from '@arcgis/core/views/MapView'
 // import Point from '@arcgis/core/geometry/Point'
 import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer'
 
+// import Tables from '@/js/20242030/tables.js'
+// import Charts from '@/js/20242030/charts.js'
+// import ChartComp from '@/components/20242030/ChartComp.vue'
+
 import axios from 'axios'
 import { mapState, mapActions } from 'vuex'
 
@@ -145,6 +176,7 @@ export default {
     LogosCards,
     // FloatingNavbar
     CustomNavbar
+    // ChartComp
   },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -157,6 +189,14 @@ export default {
   // 3️⃣ Datos reactivas
   data () {
     return {
+      // test
+      dialogData: { actived: true, panel: false, title: '', indicator: '', table_01: {}, panels: [] },
+      chartOptions: {
+        responsive: true,
+        maintainAspectRatio: false
+      },
+      Panel: false,
+
       // map
       vectors: [
         'streets-navigation-vector',
@@ -633,7 +673,7 @@ export default {
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
-      // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+      await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     },
 
     // data
