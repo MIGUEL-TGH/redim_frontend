@@ -109,7 +109,7 @@
     <loader-comp />
     <view-notifications-comp ref="notifier"/>
 
-      <v-dialog v-model="dialogData.actived" scrollable max-width="750px" persistent>
+      <v-dialog v-model="dialogData.actived" scrollable max-width="300px" persistent> <!--750px-->
         <v-card max-height="85vh">
           <v-toolbar dark class="toolbar title-dialog" color="#424242">
             REDIM: <strong style="padding-left: 5px;">{{dialogData.title}}</strong>
@@ -125,11 +125,21 @@
             <template>
               <br>
               <!-- <ChartComp
-                  :type="element.chart.name"
-                  :data="element.chart.attributes"
-                  :options="chartOptions"
-                  :refresh="Panel === index"
-                /> -->
+                :type="element.chart.name"
+                :data="element.chart.attributes"
+                :options="chartOptionsPie"
+                :refresh="Panel === index"
+              /> -->
+              <!-- <ChartComp
+                :type="nameChart"
+                :data="dataLine"
+                :options="chartOptionsLine"
+              /> -->
+              <ChartComp
+                :type="nameChart"
+                :data="myChartData"
+                :options="myChartOptions"
+              />
             </template>
           </v-card-text>
         </v-card>
@@ -160,8 +170,8 @@ import MapView from '@arcgis/core/views/MapView'
 import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer'
 
 // import Tables from '@/js/20242030/tables.js'
-// import Charts from '@/js/20242030/charts.js'
-// import ChartComp from '@/components/20242030/ChartComp.vue'
+import Charts from '@/js/charts.js'
+import ChartComp from '@/components/ChartComp.vue'
 
 import axios from 'axios'
 import { mapState, mapActions } from 'vuex'
@@ -175,8 +185,8 @@ export default {
     StackCards,
     LogosCards,
     // FloatingNavbar
-    CustomNavbar
-    // ChartComp
+    CustomNavbar,
+    ChartComp
   },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -189,14 +199,71 @@ export default {
   // 3️⃣ Datos reactivas
   data () {
     return {
-      // test
-      dialogData: { actived: true, panel: false, title: '', indicator: '', table_01: {}, panels: [] },
-      chartOptions: {
+      // test =======================================================================
+      myChartData: [],
+      myChartOptions: [],
+
+      dialogData: {
+        actived: false,
+        panel: false,
+        nameChart: 'doughnut' // pie
+      },
+      dataPieDoughnut: {
+        datasets: [{
+          backgroundColor: [
+            '#ff6384',
+            '#36a2eb',
+            '#cc65fe'
+          ],
+          data: [10, 20, 30]
+        }],
+
+        // These labels appear in the legend and in the tooltips when hovering different arcs
+        labels: [
+          'Red',
+          'Yellow',
+          'Blue'
+        ]
+      },
+      chartOptionsPie: {
         responsive: true,
         maintainAspectRatio: false
       },
       Panel: false,
-
+      attributes: {
+        labels: [],
+        datasets: [{ backgroundColor: [], data: [] }]
+      },
+      chartOptionsLine: {
+        responsive: true,
+        maintainAspectRatio: false,
+        elements: {
+          line: {
+            tension: 0 // disables bezier curves
+          }
+        }
+      },
+      nameChart: 'line',
+      dataLine: {
+        datasets: [{
+          label: 'Scatter Dataset',
+          backgroundColor: [
+            '#ff6384',
+            '#cc65fe'
+          ],
+          data: [{
+            x: -10,
+            y: 0
+          }, {
+            x: 0,
+            y: 10
+          }, {
+            x: 10,
+            y: 5
+          }]
+        }]
+      },
+      // =========================================================================
       // map
       vectors: [
         'streets-navigation-vector',
@@ -673,7 +740,88 @@ export default {
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
-      await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+      // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+    },
+
+    async getDataLiner () {
+      const lineChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: true,
+          labels: {
+            // fontColor: '#ffffff', // Texto de la leyenda en blanco
+            fontColor: '#595555', // Texto de la leyenda en blanco
+            boxWidth: 12
+          }
+        },
+        elements: {
+          line: {
+            tension: 0.3 // Hace que la línea tenga una curva suave. Ponlo en 0 para líneas totalmente rectas.
+          }
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              // fontColor: '#e0e0e0', // Números del eje Y
+              fontColor: '#858181', // Números del eje Y
+              beginAtZero: true
+            },
+            gridLines: {
+              // color: 'rgba(255, 255, 255, 0.1)', // Líneas horizontales sutiles
+              // zeroLineColor: 'rgba(255, 255, 255, 0.2)'
+              color: 'rgba(242, 7, 19, 0.1)', // Líneas horizontales sutiles
+              zeroLineColor: 'rgba(255, 255, 255, 0.2)'
+            }
+          }],
+          xAxes: [{
+            ticks: {
+              // fontColor: '#e0e0e0' // Años del eje X
+              fontColor: '#858181' // Años del eje X
+            },
+            gridLines: {
+              display: false // Usualmente en gráficos de línea de tiempo se oculta la cuadrícula vertical
+            }
+          }]
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: false, // Permite ver ambas cifras al pasar el mouse por encima de un año
+          // backgroundColor: 'rgba(0,0,0,0.8)'
+          backgroundColor: 'rgba(33,75,148,0.8)'
+        }
+      }
+
+      // 1. Instancias tu clase
+      const chartProcessor = new Charts()
+
+      // 2. Le pasas tus datos puros de la BD
+      // const rawData = [
+      //   { year: 2015, internada: 500, senalada: 350 },
+      //   { year: 2016, internada: 600, senalada: 250 },
+      //   { year: 2017, internada: 300, senalada: 450 },
+      //   { year: 2018, internada: 120, senalada: 300 },
+      //   { year: 2019, internada: 150, senalada: 280 },
+      //   { year: 2020, internada: 90, senalada: 250 }
+      // ]
+      const rawData = [
+        { year: 2015, internada: 480, senalada: 320 },
+        { year: 2016, internada: 610, senalada: 290 },
+        { year: 2017, internada: 350, senalada: 460 },
+        { year: 2018, internada: 200, senalada: 310 },
+        { year: 2019, internada: 170, senalada: 270 },
+        { year: 2020, internada: 95, senalada: 240 },
+        { year: 2021, internada: 130, senalada: 260 },
+        { year: 2022, internada: 220, senalada: 300 },
+        { year: 2023, internada: 340, senalada: 410 },
+        { year: 2024, internada: 410, senalada: 380 }
+      ]
+
+      await chartProcessor.setComparativeLine(rawData)
+
+      // 3. Pasas los datos procesados a Vue
+      this.myChartData = chartProcessor.attributes
+      this.myChartOptions = lineChartOptions
     },
 
     // data
@@ -941,6 +1089,17 @@ export default {
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
   async created () {
+    // =========================================================================================
+    await this.getDataLiner()
+    await this.setSleep(1500)
+    this.dialogData.actived = true
+    // =========================================================================================
+    // this.getIndicators()
+    // this.getStates()
+    // this.getYears()
+    // this.getGenders()
+    // =========================================================================================
+
     // this.$refs.notifier.success('Operación realizada correctamente')
     // =========================================================================================
     // this.dialog_loader.actived = true
@@ -948,12 +1107,6 @@ export default {
     // await this.setSleep(2500)
     // this.dialog_loader.actived = false
     // this.dialog_loader.message = ''
-
-    // =========================================================================================
-    this.getIndicators()
-    this.getStates()
-    this.getYears()
-    this.getGenders()
 
     // =========================================================================================
     // this.getCategories()

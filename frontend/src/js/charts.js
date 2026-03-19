@@ -80,6 +80,45 @@ class ChartsOBJ {
     }
     await CHARTS[type] ? CHARTS[type]() : console.log('chart not found!')
   }
+
+  async setComparativeLine (items) {
+    try {
+      // Ordenamos por año para asegurar que la línea fluya de izquierda a derecha
+      items.sort((a, b) => a.year - b.year)
+
+      this.attributes = {
+        labels: items.map(item => item.year),
+        datasets: [
+          {
+            label: 'Población Internada',
+            borderColor: '#e30c7e', // Color rosado/magenta que encaja con tu diseño
+            backgroundColor: 'rgba(227, 12, 126, 0.1)',
+            pointBackgroundColor: '#e30c7e',
+            pointBorderColor: '#ffffff',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            borderWidth: 2,
+            fill: false,
+            data: items.map(item => item.internada)
+          },
+          {
+            label: 'Población Señalada',
+            borderColor: '#4caf50', // Verde de contraste, ajústalo a la paleta UX
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            pointBackgroundColor: '#4caf50',
+            pointBorderColor: '#ffffff',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            borderWidth: 2,
+            fill: false,
+            data: items.map(item => item.senalada)
+          }
+        ]
+      }
+    } catch (error) {
+      console.log('Error procesando datos para Line Chart:', error)
+    }
+  }
 }
 
 export default ChartsOBJ
