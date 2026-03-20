@@ -118,7 +118,7 @@ export default {
   ================================ */
   /* Se agrega object-fit y max-width como medida de seguridad */
   .logo-project {
-    height: 150px;
+    height: 100px;
     max-width: 45vw;
     object-fit: contain;
     transition: height 0.3s ease;
@@ -137,7 +137,7 @@ export default {
 
   /* Tablets y Laptops pequeñas (Vuetify 'sm' y 'md' - hasta 960px) */
   @media (max-width: 960px) {
-    .logo-project { height: 100px; }
+    .logo-project { height: 80px; }
     .logo-dependences { height: 70px; }
 
     .map-card-left { bottom: 15px; left: 15px; }

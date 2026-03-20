@@ -81,6 +81,7 @@ class ChartsOBJ {
     await CHARTS[type] ? CHARTS[type]() : console.log('chart not found!')
   }
 
+  // =========================================================================================================
   async setComparativeLine (items) {
     try {
       // Ordenamos por año para asegurar que la línea fluya de izquierda a derecha
@@ -95,21 +96,21 @@ class ChartsOBJ {
             backgroundColor: 'rgba(227, 12, 126, 0.1)',
             pointBackgroundColor: '#e30c7e',
             pointBorderColor: '#ffffff',
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            borderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            borderWidth: 3, // Grosor de las líneas
             fill: false,
             data: items.map(item => item.internada)
           },
           {
             label: 'Población Señalada',
-            borderColor: '#4caf50', // Verde de contraste, ajústalo a la paleta UX
+            borderColor: '#2e91ce', // Verde de contraste, ajústalo a la paleta UX
             backgroundColor: 'rgba(76, 175, 80, 0.1)',
-            pointBackgroundColor: '#4caf50',
+            pointBackgroundColor: '#2e91ce',
             pointBorderColor: '#ffffff',
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            borderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            borderWidth: 3, // Grosor de las líneas
             fill: false,
             data: items.map(item => item.senalada)
           }
@@ -118,6 +119,115 @@ class ChartsOBJ {
     } catch (error) {
       console.log('Error procesando datos para Line Chart:', error)
     }
+  }
+
+  async setBarComparative (items) {
+    try {
+      items.sort((a, b) => a.year - b.year)
+
+      this.attributes = {
+        labels: items.map(item => item.year),
+        datasets: [
+          {
+            label: 'Población Internada',
+            backgroundColor: 'rgba(227, 12, 126, 0.8)', // Rosa fucsia
+            borderColor: '#e30c7e',
+            borderWidth: 1,
+            data: items.map(item => item.internada)
+          },
+          {
+            label: 'Población Señalada',
+            backgroundColor: 'rgba(76, 175, 80, 0.8)', // Verde
+            borderColor: '#4caf50',
+            borderWidth: 1,
+            data: items.map(item => item.senalada)
+          }
+        ]
+      }
+    } catch (error) {
+      console.log('Error en Bar Chart:', error)
+    }
+  }
+
+  async setRadarChart (labels, dataset1, dataset2) {
+    try {
+      this.attributes = {
+        labels: labels, // ej: ['Robo', 'Lesiones', 'Daños', 'Otros']
+        datasets: [
+          {
+            label: 'Año Anterior',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            borderColor: '#ffffff',
+            pointBackgroundColor: '#ffffff',
+            borderWidth: 2,
+            data: dataset1
+          },
+          {
+            label: 'Año Actual',
+            backgroundColor: 'rgba(227, 12, 126, 0.3)',
+            borderColor: '#e30c7e',
+            pointBackgroundColor: '#e30c7e',
+            borderWidth: 2,
+            data: dataset2
+          }
+        ]
+      }
+    } catch (error) { console.log(error) }
+  }
+
+  async setPolarAreaChart (labels, dataArray) {
+    // const labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo']
+    // const dataMeses = [11, 16, 7, 3, 14]
+    try {
+      this.attributes = {
+        labels: labels,
+        datasets: [{
+          data: dataArray,
+          backgroundColor: [
+            'rgba(227, 12, 126, 0.7)', // Rosa
+            'rgba(76, 175, 80, 0.7)', // Verde
+            'rgba(33, 150, 243, 0.7)', // Azul
+            'rgba(255, 193, 7, 0.7)', // Amarillo
+            'rgba(156, 39, 176, 0.7)' // Morado
+          ],
+          borderWidth: 1,
+          borderColor: '#272727' // Color oscuro para separar las áreas
+        }]
+        // datasets: [{
+        //   data: [10, 20, 30]
+        // }],
+
+        // labels: [
+        //   'Red',
+        //   'Yellow',
+        //   'Blue'
+        // ]
+      }
+    } catch (error) { console.log(error) }
+  }
+
+  async setBubbleChart (bubbleData1, bubbleData2) {
+    // Ejemplo de entrada: [{x: 15, y: 10, r: 8}, {x: 17, y: 12, r: 15}]
+    try {
+      this.attributes = {
+        datasets: [
+          {
+            label: 'Grupo A',
+            backgroundColor: 'rgba(227, 12, 126, 0.6)',
+            borderColor: '#e30c7e',
+            borderWidth: 1,
+            data: bubbleData1
+          },
+          {
+            label: 'Grupo B',
+            backgroundColor: 'rgba(76, 175, 80, 0.6)',
+            borderColor: '#4caf50',
+            borderWidth: 1,
+            data: bubbleData2
+          }
+        ]
+      }
+    } catch (error) { console.log(error) }
   }
 }
 

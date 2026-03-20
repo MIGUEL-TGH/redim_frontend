@@ -98,8 +98,16 @@
 
           <v-btn color="#342a83" elevation="5" @click="submit" block class="white--text" :disabled="btnSend">consultar</v-btn>
         </v-form>
-      </div>
 
+        <!-- <div style="margin-top: 20px;">
+          <p class="text-center font-weight-bold">Pruebas UI:</p>
+          <v-btn small color="info" class="ma-1" @click="testNewCharts('bar')">Bar</v-btn>
+          <v-btn small color="success" class="ma-1" @click="testNewCharts('radar')">Radar</v-btn>
+          <v-btn small color="warning" class="ma-1" @click="testNewCharts('polararea')">Polar</v-btn>
+          <v-btn small color="error" class="ma-1" @click="testNewCharts('bubble')">Burbuja</v-btn>
+        </div> -->
+
+      </div>
     </v-navigation-drawer>
 
     <!-- <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped style="padding: 10px !important;" color="#B2B2B1">
@@ -109,41 +117,30 @@
     <loader-comp />
     <view-notifications-comp ref="notifier"/>
 
-      <v-dialog v-model="dialogData.actived" scrollable max-width="300px" persistent> <!--750px-->
-        <v-card max-height="85vh">
-          <v-toolbar dark class="toolbar title-dialog" color="#424242">
-            REDIM: <strong style="padding-left: 5px;">{{dialogData.title}}</strong>
-            <v-spacer></v-spacer>
-            <v-btn @click="dialogData.actived=false, Panel=false" color="error" small fab>
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-          </v-toolbar>
-          <v-card-text>
+    <v-dialog v-model="dialogData.actived" scrollable max-width="400px" persistent> <!--750px-->
+      <v-card max-height="85vh">
+        <v-toolbar dark class="toolbar title-dialog" color="#424242">
+          REDIM: <strong style="padding-left: 5px;">{{dialogData.title}}</strong>
+          <v-spacer></v-spacer>
+          <v-btn @click="dialogData.actived=false, Panel=false" color="error" small fab>
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <br>
+          <h2 class="title-indicator">{{dialogData.indicator}}</h2>
+          <v-divider></v-divider>
+          <template>
             <br>
-            <h2 class="title-indicator">{{dialogData.indicator}}</h2>
-            <v-divider></v-divider>
-            <template>
-              <br>
-              <!-- <ChartComp
-                :type="element.chart.name"
-                :data="element.chart.attributes"
-                :options="chartOptionsPie"
-                :refresh="Panel === index"
-              /> -->
-              <!-- <ChartComp
-                :type="nameChart"
-                :data="dataLine"
-                :options="chartOptionsLine"
-              /> -->
-              <ChartComp
-                :type="nameChart"
-                :data="myChartData"
-                :options="myChartOptions"
-              />
-            </template>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
+            <ChartComp
+              :type="myChartName"
+              :data="myChartData"
+              :options="myChartOptions"
+            />
+          </template>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
   </div>
 </template>
@@ -153,7 +150,6 @@ import LoaderComp from '@/components/LoaderComp.vue'
 import viewNotificationsComp from '@/components/dashboard/viewNotifications.vue'
 import StackCards from '@/components/map/StackCards.vue'
 import LogosCards from '@/components/map/LogosCards.vue'
-// import FloatingNavbar from '@/components/map/FloatingNavbar.vue'
 import CustomNavbar from '@/components/map/CustomNavbar.vue'
 
 import '@/assets/css/style_maps.css'
@@ -184,7 +180,6 @@ export default {
     viewNotificationsComp,
     StackCards,
     LogosCards,
-    // FloatingNavbar
     CustomNavbar,
     ChartComp
   },
@@ -199,69 +194,12 @@ export default {
   // 3️⃣ Datos reactivas
   data () {
     return {
-      // test =======================================================================
-      myChartData: [],
-      myChartOptions: [],
-
+      // charts =======================================================================
+      myChartName: '',
+      myChartData: {},
+      myChartOptions: {},
       dialogData: {
-        actived: false,
-        panel: false,
-        nameChart: 'doughnut' // pie
-      },
-      dataPieDoughnut: {
-        datasets: [{
-          backgroundColor: [
-            '#ff6384',
-            '#36a2eb',
-            '#cc65fe'
-          ],
-          data: [10, 20, 30]
-        }],
-
-        // These labels appear in the legend and in the tooltips when hovering different arcs
-        labels: [
-          'Red',
-          'Yellow',
-          'Blue'
-        ]
-      },
-      chartOptionsPie: {
-        responsive: true,
-        maintainAspectRatio: false
-      },
-      Panel: false,
-      attributes: {
-        labels: [],
-        datasets: [{ backgroundColor: [], data: [] }]
-      },
-      chartOptionsLine: {
-        responsive: true,
-        maintainAspectRatio: false,
-        elements: {
-          line: {
-            tension: 0 // disables bezier curves
-          }
-        }
-      },
-      nameChart: 'line',
-      dataLine: {
-        datasets: [{
-          label: 'Scatter Dataset',
-          backgroundColor: [
-            '#ff6384',
-            '#cc65fe'
-          ],
-          data: [{
-            x: -10,
-            y: 0
-          }, {
-            x: 0,
-            y: 10
-          }, {
-            x: 10,
-            y: 5
-          }]
-        }]
+        actived: false
       },
       // =========================================================================
       // map
@@ -297,78 +235,6 @@ export default {
       drawer_left_map: true,
       indicators: [],
       categories: [],
-      // categories: [
-      //   {
-      //     id: 1,
-      //     title: 'Applications :',
-      //     children: [
-      //       { id: 2, title: 'Calendar : app' },
-      //       { id: 3, title: 'Chrome : app' },
-      //       { id: 4, title: 'Webstorm : app' }
-      //     ]
-      //   },
-      //   {
-      //     id: 5,
-      //     title: 'Documents :',
-      //     children: [
-      //       {
-      //         id: 6,
-      //         title: 'vuetify :',
-      //         children: [
-      //           {
-      //             id: 7,
-      //             title: 'src :',
-      //             children: [
-      //               { id: 8, title: 'index : ts' },
-      //               { id: 9, title: 'bootstrap : ts' }
-      //             ]
-      //           }
-      //         ]
-      //       },
-      //       {
-      //         id: 10,
-      //         title: 'material2 :',
-      //         children: [
-      //           {
-      //             id: 11,
-      //             title: 'src :',
-      //             children: [
-      //               { id: 12, title: 'v-btn : ts' },
-      //               { id: 13, title: 'v-card : ts' },
-      //               { id: 14, title: 'v-window : ts' }
-      //             ]
-      //           }
-      //         ]
-      //       }
-      //     ]
-      //   },
-      //   {
-      //     id: 15,
-      //     title: 'Downloads :',
-      //     children: [
-      //       { id: 16, title: 'October : pdf' },
-      //       { id: 17, title: 'November : pdf' },
-      //       { id: 18, title: 'Tutorial : html' }
-      //     ]
-      //   },
-      //   {
-      //     id: 19,
-      //     title: 'Videos :',
-      //     children: [
-      //       {
-      //         id: 20,
-      //         title: 'Tutorials :',
-      //         children: [
-      //           { id: 21, title: 'Basic layouts : mp4' },
-      //           { id: 22, title: 'Advanced techniques : mp4' },
-      //           { id: 23, title: 'All about app : dir' }
-      //         ]
-      //       },
-      //       { id: 24, title: 'Intro : mov' },
-      //       { id: 25, title: 'Conference introduction : avi' }
-      //     ]
-      //   }
-      // ],
       years: [],
       genders: [],
       states: [],
@@ -742,9 +608,9 @@ export default {
       // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     },
-
-    async getDataLiner () {
-      const lineChartOptions = {
+    // CHARTS ========================================================================================================
+    async renderLinerBarChart () {
+      const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
         legend: {
@@ -757,26 +623,24 @@ export default {
         },
         elements: {
           line: {
-            tension: 0.3 // Hace que la línea tenga una curva suave. Ponlo en 0 para líneas totalmente rectas.
+            tension: 0 // Hace que la línea tenga una curva suave (0.3). Ponlo en 0 para líneas totalmente rectas.
           }
         },
         scales: {
           yAxes: [{
             ticks: {
-              // fontColor: '#e0e0e0', // Números del eje Y
               fontColor: '#858181', // Números del eje Y
               beginAtZero: true
             },
             gridLines: {
-              // color: 'rgba(255, 255, 255, 0.1)', // Líneas horizontales sutiles
-              // zeroLineColor: 'rgba(255, 255, 255, 0.2)'
-              color: 'rgba(242, 7, 19, 0.1)', // Líneas horizontales sutiles
+              display: true, // Activa las líneas horizontales
+              color: 'rgba(6, 0, 0, 0.2)', // Líneas horizontales sutiles
+              borderDash: [5, 5], // Opcional: Crea el efecto punteado (5px línea, 5px espacio)
               zeroLineColor: 'rgba(255, 255, 255, 0.2)'
             }
           }],
           xAxes: [{
             ticks: {
-              // fontColor: '#e0e0e0' // Años del eje X
               fontColor: '#858181' // Años del eje X
             },
             gridLines: {
@@ -796,14 +660,6 @@ export default {
       const chartProcessor = new Charts()
 
       // 2. Le pasas tus datos puros de la BD
-      // const rawData = [
-      //   { year: 2015, internada: 500, senalada: 350 },
-      //   { year: 2016, internada: 600, senalada: 250 },
-      //   { year: 2017, internada: 300, senalada: 450 },
-      //   { year: 2018, internada: 120, senalada: 300 },
-      //   { year: 2019, internada: 150, senalada: 280 },
-      //   { year: 2020, internada: 90, senalada: 250 }
-      // ]
       const rawData = [
         { year: 2015, internada: 480, senalada: 320 },
         { year: 2016, internada: 610, senalada: 290 },
@@ -817,11 +673,133 @@ export default {
         { year: 2024, internada: 410, senalada: 380 }
       ]
 
-      await chartProcessor.setComparativeLine(rawData)
+      // await chartProcessor.setComparativeLine(rawData)
+      await chartProcessor.setBarComparative(rawData)
 
       // 3. Pasas los datos procesados a Vue
+      this.myChartName = 'bar' // line
       this.myChartData = chartProcessor.attributes
-      this.myChartOptions = lineChartOptions
+      this.myChartOptions = chartOptions
+    },
+    async renderPieDoughnutChart () {
+      const pieChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+
+      // 2. Le pasas tus datos puros de la BD
+      const dataPieDoughnut = {
+        datasets: [{
+          backgroundColor: [
+            '#ff6384',
+            '#36a2eb',
+            '#cc65fe'
+          ],
+          data: [10, 20, 30]
+        }],
+
+        // These labels appear in the legend and in the tooltips when hovering different arcs
+        labels: [
+          'Red',
+          'Yellow',
+          'Blue'
+        ]
+      }
+
+      // 3. Pasas los datos procesados a Vue
+      this.myChartName = 'doughnut' // pie doughnut
+      this.myChartData = dataPieDoughnut
+      this.myChartOptions = pieChartOptions
+    },
+    // Método temporal para testear los nuevos gráficos
+    async testNewCharts (chartType) {
+      // 1. Instanciamos tu clase
+      const chartProcessor = new Charts()
+
+      // 2. Opciones de diseño general (Dark Mode para Vuetify)
+      const optionsRadarPolar = {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { labels: { fontColor: '#ffffff' } },
+        scale: {
+          gridLines: { color: 'rgba(255, 255, 255, 0.15)' },
+          pointLabels: { fontColor: '#e0e0e0', fontSize: 12 },
+          ticks: { display: false }
+        }
+      }
+
+      const optionsXY = { // Usado para Barras
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { labels: { fontColor: '#ffffff' } },
+        scales: {
+          yAxes: [{ gridLines: { color: 'rgba(255, 255, 255, 0.15)' }, ticks: { fontColor: '#e0e0e0', beginAtZero: true } }],
+          xAxes: [{ gridLines: { display: false }, ticks: { fontColor: '#e0e0e0' } }]
+        }
+      }
+
+      const optionsBubble = {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: { labels: { fontColor: '#ffffff' } },
+        scales: {
+          yAxes: [{ gridLines: { color: 'rgba(255, 255, 255, 0.15)' }, ticks: { fontColor: '#e0e0e0' } }],
+          xAxes: [{ gridLines: { color: 'rgba(255, 255, 255, 0.15)' }, ticks: { fontColor: '#e0e0e0' } }]
+        },
+        tooltips: {
+          callbacks: {
+            label: function (tooltipItem, data) {
+              const label = data.datasets[tooltipItem.datasetIndex].label || ''
+              const val = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]
+              return `${label} -> (X: ${val.x}, Y: ${val.y}, Volumen: ${val.r})`
+            }
+          }
+        }
+      }
+
+      // 3. Generar la Data Simulada (Mock Data) según el tipo
+      if (chartType === 'bar') {
+        const mockBarData = [
+          { categoria: 'Robo', internada: 450, senalada: 800 },
+          { categoria: 'Lesiones', internada: 320, senalada: 600 },
+          { categoria: 'Daños', internada: 150, senalada: 300 }
+        ]
+        // Asumiendo que agregaste el método setBarComparative que te sugerí antes
+        await chartProcessor.setBarComparative(mockBarData)
+        this.myChartOptions = optionsXY
+      } else if (chartType === 'radar') {
+        const labels = ['Robo', 'Lesiones', 'Daños', 'Homicidio', 'Narcomenudeo']
+        const dataAnterior = [65, 59, 90, 81, 56]
+        const dataActual = [28, 48, 40, 19, 96]
+        await chartProcessor.setRadarChart(labels, dataAnterior, dataActual)
+        this.myChartOptions = optionsRadarPolar
+      } else if (chartType === 'polararea') { // En tu ChartComp vi que usaste 'polararea' minúscula
+        const labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo']
+        const dataMeses = [11, 16, 7, 3, 14]
+        await chartProcessor.setPolarAreaChart(labels, dataMeses)
+        this.myChartOptions = optionsRadarPolar
+      } else if (chartType === 'bubble') {
+        const dataGpoA = [
+          { x: 14, y: 6, r: 15 }, // Ej. X: Edad 14, Y: 6 meses sentencia, R: 15 casos
+          { x: 16, y: 12, r: 25 },
+          { x: 18, y: 24, r: 10 }
+        ]
+        const dataGpoB = [
+          { x: 15, y: 3, r: 8 },
+          { x: 17, y: 8, r: 30 },
+          { x: 18, y: 18, r: 5 }
+        ]
+        await chartProcessor.setBubbleChart(dataGpoA, dataGpoB)
+        this.myChartOptions = optionsBubble
+      }
+
+      // 4. Inyectar datos al componente Vue y abrir el Modal
+      this.myChartName = chartType
+      this.myChartData = chartProcessor.attributes // Pasamos el JSON estructurado por tu clase
+
+      this.dialogData.title = 'Test: ' + chartType.toUpperCase()
+      this.dialogData.indicator = 'Previsualización de Mock Data'
+      this.dialogData.actived = true // Abre tu <v-dialog>
     },
 
     // data
@@ -1090,14 +1068,15 @@ export default {
   beforeCreate () {},
   async created () {
     // =========================================================================================
-    await this.getDataLiner()
-    await this.setSleep(1500)
-    this.dialogData.actived = true
+    // await this.renderLinerBarChart()
+    // await this.renderPieDoughnutChart()
+    // await this.setSleep(1500)
+    // this.dialogData.actived = true
     // =========================================================================================
-    // this.getIndicators()
-    // this.getStates()
-    // this.getYears()
-    // this.getGenders()
+    this.getIndicators()
+    this.getStates()
+    this.getYears()
+    this.getGenders()
     // =========================================================================================
 
     // this.$refs.notifier.success('Operación realizada correctamente')

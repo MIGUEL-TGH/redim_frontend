@@ -23,6 +23,11 @@ const routes = [
     name: 'LoginView',
     component: () => import('../views/LoginView.vue')
   },
+  {
+    path: '/charts',
+    name: 'ChartsView',
+    component: () => import('../views/testCharts.vue')
+  },
   // --------------------------------------------------------------------------------
   // RUTA 404 (COMODÍN) - DEBE IR SIEMPRE AL FINAL
   // --------------------------------------------------------------------------------

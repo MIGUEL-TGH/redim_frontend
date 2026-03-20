@@ -8,10 +8,13 @@
 </template>
 
 <script>
-import BarChart from '@/components/charts/BarChart'
-import PieChart from '@/components/charts/PieChart'
 import LineChart from '@/components/charts/LineChart'
 import DoughnutChart from '@/components/charts/DoughnutChart'
+import BarChart from '@/components/charts/BarChart'
+import PieChart from '@/components/charts/PieChart'
+import RadarChart from './charts/RadarChart.js'
+import PolarAreaChart from './charts/PolarAreaChart.js'
+import BubbleChart from './charts/BubbleChart.js'
 
 export default {
   name: 'ChartRenderer',
@@ -33,10 +36,13 @@ export default {
   computed: {
     chartComponent () {
       const types = {
-        bar: BarChart,
-        pie: PieChart,
         line: LineChart,
-        doughnut: DoughnutChart
+        pie: PieChart,
+        doughnut: DoughnutChart,
+        bar: BarChart,
+        radar: RadarChart,
+        polararea: PolarAreaChart,
+        bubble: BubbleChart
       }
       return types[this.type] || BarChart
     },
