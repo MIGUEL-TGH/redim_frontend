@@ -1,25 +1,24 @@
 <template>
   <div>
     <v-app-bar app dark elevation="10" clipped-left class="app-bar-gradient">
+      <v-app-bar-nav-icon @click.stop="drawer_left_map=!drawer_left_map"></v-app-bar-nav-icon>
       <custom-navbar />
       <!-- <span class="ml-2 font-weight-bold">REDIM</span> -->
       <v-spacer></v-spacer>
     </v-app-bar>
+    <!-- <v-col cols="12">
+      <label class="tree-label">Categoría</label>
+      <v-treeview selectable v-model="frmData.category_id" :items="categories" item-text="title" item-key="id"
+        class="tree-compact" open-all selected-color="white"
+      >
+      </v-treeview>
+    </v-col> -->
 
     <div class="map-wrapper">
       <div id="viewDiv" ref="mapView"></div>
+      <!-- <div id="InfoMap" class="esri-widget"></div> -->
 
       <logos-cards />
-
-      <left-filter-deck
-        :indicators="indicators"
-        :states="states"
-        :years="years"
-        :genders="genders"
-        :categories="categories"
-        @fetch-categories="handleGetCategories"
-        @submit="handleFilterSubmit"
-      />
 
       <!-- PANEL ESTADÍSTICO -->
       <div class="stats-panel">
@@ -27,7 +26,7 @@
       </div>
     </div>
 
-    <!-- <v-navigation-drawer app v-model="drawer_left_map" width="280px" clipped style="padding: 10px !important;" color="#efeee8">
+    <v-navigation-drawer app v-model="drawer_left_map" width="280px" clipped style="padding: 10px !important;" color="#efeee8"> <!-- B2B2B1 -->
       <div class="drawer-content">
         <v-form ref="form_item" style="padding-top: 5px;">
 
@@ -55,6 +54,7 @@
             dense filled background-color="#fafafa" color="#246257" label="Entidad Federativa*:">
               <template v-slot:selection="{ item, index }">
                 <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                  <!-- <span>{{ truncateText(item.title, 20) }}</span> -->
                   <span>{{ item.title }}</span>
                 </v-chip>
                 <span v-if="index === 1" class="grey--text span-select">
@@ -100,12 +100,12 @@
         </v-form>
 
       </div>
-    </v-navigation-drawer> -->
+    </v-navigation-drawer>
 
     <loader-comp />
     <view-notifications-comp ref="notifier"/>
 
-    <!-- <v-dialog v-model="dialogData.actived" scrollable max-width="400px" persistent>
+    <v-dialog v-model="dialogData.actived" scrollable max-width="400px" persistent>
       <v-card max-height="85vh">
         <v-toolbar dark class="toolbar title-dialog" color="#424242">
           REDIM: <strong style="padding-left: 5px;">{{dialogData.title}}</strong>
@@ -128,7 +128,7 @@
           </template>
         </v-card-text>
       </v-card>
-    </v-dialog> -->
+    </v-dialog>
 
   </div>
 </template>
@@ -139,7 +139,6 @@ import viewNotificationsComp from '@/components/dashboard/viewNotifications.vue'
 import StackCards from '@/components/map/StackCards.vue'
 import LogosCards from '@/components/map/LogosCards.vue'
 import CustomNavbar from '@/components/map/CustomNavbar.vue'
-import LeftFilterDeck from '@/components/map/LeftFilterDeck.vue'
 
 import '@/assets/css/style_maps.css'
 import '@/assets/css/style_notifications.css'
@@ -156,7 +155,7 @@ import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer'
 
 // import Tables from '@/js/20242030/tables.js'
 import Charts from '@/js/charts.js'
-// import ChartComp from '@/components/ChartComp.vue'
+import ChartComp from '@/components/ChartComp.vue'
 
 import axios from 'axios'
 import { mapState, mapActions } from 'vuex'
@@ -170,8 +169,7 @@ export default {
     StackCards,
     LogosCards,
     CustomNavbar,
-    // ChartComp
-    LeftFilterDeck
+    ChartComp
   },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -184,13 +182,6 @@ export default {
   // 3️⃣ Datos reactivas
   data () {
     return {
-      // data form =======================================================================
-      // indicators: [],
-      // states: [],
-      // years: [],
-      // genders: [],
-      // categories: [], // Este se llenará cuando el hijo emita 'fetch-categories'
-
       // charts =======================================================================
       myChartName: '',
       myChartData: {},
@@ -234,23 +225,24 @@ export default {
       categories: [],
       years: [],
       genders: [],
-      states: []
+      states: [],
 
-      // frmData: {
-      //   indicator_id: [],
-      //   category_id: [],
-      //   year_id: [],
-      //   gender_id: [],
-      //   state_id: []
-      // },
-      // frmDisabled: {
-      //   category: false
-      // },
-      // isUpdatingYear: false,
-      // isUpdatingCategory: false,
-      // isUpdatingGender: false,
-      // isUpdatingState: false,
-      // btnSend: true
+      frmData: {
+        // indicator_id: null,
+        indicator_id: [],
+        category_id: [],
+        year_id: [],
+        gender_id: [],
+        state_id: []
+      },
+      frmDisabled: {
+        category: false
+      },
+      isUpdatingYear: false,
+      isUpdatingCategory: false,
+      isUpdatingGender: false,
+      isUpdatingState: false,
+      btnSend: true
     }
   },
   computed: {
@@ -262,86 +254,87 @@ export default {
 
   // 4️⃣ Observadores
   watch: {
-    // 'frmData.indicator_id' (newVal, oldVal) {
-    //   // Nos aseguramos de tener la longitud, usando 0 si por alguna razón es undefined
-    //   const newLength = newVal ? newVal.length : 0
-    //   const oldLength = oldVal ? oldVal.length : 0
+    'frmData.indicator_id' (newVal, oldVal) {
+      // Nos aseguramos de tener la longitud, usando 0 si por alguna razón es undefined
+      const newLength = newVal ? newVal.length : 0
+      const oldLength = oldVal ? oldVal.length : 0
 
-    //   // Condición 1: Se quedó vacío (!newLength)
-    //   // Condición 2: El usuario desmarcó uno de la lista (newLength < oldLength)
-    //   // if (!newLength || newLength < oldLength) { // solo cuando disminulle
-    //   if (!newLength || newLength !== oldLength) { // cuando es diferente
-    //     console.log('submit()--> deshabilitado')
+      // Condición 1: Se quedó vacío (!newLength)
+      // Condición 2: El usuario desmarcó uno de la lista (newLength < oldLength)
+      // if (!newLength || newLength < oldLength) { // solo cuando disminulle
+      if (!newLength || newLength !== oldLength) { // cuando es diferente
+        console.log('submit()--> deshabilitado')
 
-    //     this.$nextTick(() => {
-    //       // Deshabilitamos el botón de enviar
-    //       this.btnSend = true
+        this.$nextTick(() => {
+          // Deshabilitamos el botón de enviar
+          this.btnSend = true
 
-    //       // Opcional: Si quieres limpiar las categorías tal como lo haces en removeIndicator
-    //       this.categories = []
-    //     })
-    //   }
-    // },
-    // 'frmData.year_id' (val) {
-    //   if (this.isUpdatingYear) return
+          // Opcional: Si quieres limpiar las categorías tal como lo haces en removeIndicator
+          this.categories = []
+        })
+      }
+    },
 
-    //   this.isUpdatingYear = true
+    'frmData.year_id' (val) {
+      if (this.isUpdatingYear) return
 
-    //   if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
-    //     this.frmData.year_id = [0]
-    //   } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan años normales
-    //     this.frmData.year_id = val.filter(v => v !== 0)
-    //   }
+      this.isUpdatingYear = true
 
-    //   this.$nextTick(() => {
-    //     this.isUpdatingYear = false
-    //   })
-    // },
-    // 'frmData.category_id' (val) {
-    //   if (this.isUpdatingCategory) return
+      if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
+        this.frmData.year_id = [0]
+      } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan años normales
+        this.frmData.year_id = val.filter(v => v !== 0)
+      }
 
-    //   this.isUpdatingCategory = true
+      this.$nextTick(() => {
+        this.isUpdatingYear = false
+      })
+    },
+    'frmData.category_id' (val) {
+      if (this.isUpdatingCategory) return
 
-    //   if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
-    //     this.frmData.category_id = [0]
-    //   } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan categorías normales
-    //     this.frmData.category_id = val.filter(v => v !== 0)
-    //   }
+      this.isUpdatingCategory = true
 
-    //   this.$nextTick(() => {
-    //     this.isUpdatingCategory = false
-    //   })
-    // },
-    // 'frmData.state_id' (val) {
-    //   if (this.isUpdatingState) return
+      if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
+        this.frmData.category_id = [0]
+      } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan categorías normales
+        this.frmData.category_id = val.filter(v => v !== 0)
+      }
 
-    //   this.isUpdatingState = true
+      this.$nextTick(() => {
+        this.isUpdatingCategory = false
+      })
+    },
+    'frmData.state_id' (val) {
+      if (this.isUpdatingState) return
 
-    //   if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
-    //     this.frmData.state_id = [0]
-    //   } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan categorías normales
-    //     this.frmData.state_id = val.filter(v => v !== 0)
-    //   }
+      this.isUpdatingState = true
 
-    //   this.$nextTick(() => {
-    //     this.isUpdatingState = false
-    //   })
-    // },
-    // 'frmData.gender_id' (val) {
-    //   if (this.isUpdatingGender) return
+      if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
+        this.frmData.state_id = [0]
+      } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan categorías normales
+        this.frmData.state_id = val.filter(v => v !== 0)
+      }
 
-    //   this.isUpdatingGender = true
+      this.$nextTick(() => {
+        this.isUpdatingState = false
+      })
+    },
+    'frmData.gender_id' (val) {
+      if (this.isUpdatingGender) return
 
-    //   if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
-    //     this.frmData.gender_id = [0]
-    //   } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan categorías normales
-    //     this.frmData.gender_id = val.filter(v => v !== 0)
-    //   }
+      this.isUpdatingGender = true
 
-    //   this.$nextTick(() => {
-    //     this.isUpdatingGender = false
-    //   })
-    // }
+      if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
+        this.frmData.gender_id = [0]
+      } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan categorías normales
+        this.frmData.gender_id = val.filter(v => v !== 0)
+      }
+
+      this.$nextTick(() => {
+        this.isUpdatingGender = false
+      })
+    }
   },
 
   // 5️⃣ Métodos
@@ -797,7 +790,7 @@ export default {
       this.dialogData.actived = true // Abre tu <v-dialog>
     },
 
-    // data =========================================================================================================
+    // data
     removeIndicator (idToRemove) {
       // Filtramos el array del v-model para excluir el ID que el usuario cerró
       this.frmData.indicator_id = this.frmData.indicator_id.filter(
@@ -813,40 +806,40 @@ export default {
       return text
     },
 
-    // isYearDisabled (item) {
-    //   // Si "Todos" está seleccionado, deshabilitar los demás
-    //   if (this.frmData.year_id.includes(0)) {
-    //     return item.id !== 0
-    //   }
+    isYearDisabled (item) {
+      // Si "Todos" está seleccionado, deshabilitar los demás
+      if (this.frmData.year_id.includes(0)) {
+        return item.id !== 0
+      }
 
-    //   // Si hay otros seleccionados, deshabilitar "Todos"
-    //   // if (this.frmData.year_id.length > 0) {
-    //   //   return item.id === 0
-    //   // }
+      // Si hay otros seleccionados, deshabilitar "Todos"
+      // if (this.frmData.year_id.length > 0) {
+      //   return item.id === 0
+      // }
 
-    //   return false
-    // },
-    // isCategoryDisabled (item) {
-    //   if (this.frmData.category_id.includes(0)) {
-    //     return item.id !== 0
-    //   }
+      return false
+    },
+    isCategoryDisabled (item) {
+      if (this.frmData.category_id.includes(0)) {
+        return item.id !== 0
+      }
 
-    //   return false
-    // },
-    // isStateDisabled (item) {
-    //   if (this.frmData.state_id.includes(0)) {
-    //     return item.id !== 0
-    //   }
+      return false
+    },
+    isStateDisabled (item) {
+      if (this.frmData.state_id.includes(0)) {
+        return item.id !== 0
+      }
 
-    //   return false
-    // },
-    // isGenderDisabled (item) {
-    //   if (this.frmData.gender_id.includes(0)) {
-    //     return item.id !== 0
-    //   }
+      return false
+    },
+    isGenderDisabled (item) {
+      if (this.frmData.gender_id.includes(0)) {
+        return item.id !== 0
+      }
 
-    //   return false
-    // },
+      return false
+    },
 
     getAllLeafIds (nodes, result = []) {
       nodes.forEach(node => {
@@ -1055,56 +1048,6 @@ export default {
     onSubmit (e) {
       if (!this.htmlSubmit) {
         e.preventDefault()
-      }
-    },
-    // =================================================================================================
-    /**
-     * MÉTODO 1: handleGetCategories
-     * Este método se ejecuta cuando el usuario presiona "Buscar" en la tarjeta rosa.
-     * Recibe el objeto frmData que emitió el componente hijo.
-     */
-    async handleGetCategories (formData) {
-      try {
-        console.log('Buscando categorías con los datos:', formData)
-
-        // Aquí haces la petición a tu API en Node.js enviando los IDs seleccionados
-        const response = await axios.post('/api/categories', {
-          indicator_id: formData.indicator_id,
-          state_id: formData.state_id,
-          year_id: formData.year_id,
-          gender_id: formData.gender_id
-        })
-
-        // Actualizas el arreglo de categorías del padre.
-        // Como es reactivo, se enviará automáticamente a LeftFilterDeck
-        // y el v-treeview se poblará con estos nuevos datos.
-        this.categories = response.data.categories
-      } catch (error) {
-        console.error('Error al obtener las categorías:', error)
-      }
-    },
-
-    /**
-     * MÉTODO 2: handleFilterSubmit
-     * Este método se ejecuta cuando el usuario presiona "Aplicar" en la tarjeta blanca.
-     * Recibe el frmData COMPLETO, incluyendo el arreglo de category_id seleccionado en el árbol.
-     */
-    async handleFilterSubmit (formData) {
-      try {
-        console.log('Aplicando filtros al mapa ArcGIS:', formData)
-
-        // 1. Petición a tu API para traer la data filtrada (GeoJSON, estadísticas, etc.)
-        // const response = await axios.post('/api/map-data', formData)
-        // const mapData = response.data
-
-        // 2. Aquí va toda tu lógica existente de ArcGIS API for JavaScript
-        // Por ejemplo, actualizar los graphics de la vista, cambiar el FeatureLayer, etc.
-        // this.updateArcGISMap(mapData)
-
-        // 3. Opcional: Actualizar también los datos del componente estadístico (StackCards)
-        // this.updateStackCardsData(mapData.statistics)
-      } catch (error) {
-        console.error('Error al aplicar los filtros al mapa:', error)
       }
     }
   },
