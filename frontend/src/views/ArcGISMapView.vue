@@ -17,7 +17,7 @@
         :years="years"
         :genders="genders"
         :categories="categories"
-        @fetch-categories="handleGetCategories"
+        @fetch-categories="getCategories"
         @submit="handleFilterSubmit"
       />
 
@@ -27,108 +27,14 @@
       </div>
     </div>
 
-    <!-- <v-navigation-drawer app v-model="drawer_left_map" width="280px" clipped style="padding: 10px !important;" color="#efeee8">
-      <div class="drawer-content">
-        <v-form ref="form_item" style="padding-top: 5px;">
-
-          <v-select
-            class="select-compacto" v-model="frmData.indicator_id" item-value="id" item-text="name" :items="indicators" multiple
-            :rules="[v => (v && v.length > 0) || 'Campo obligatorio']" dense outlined background-color="#FAFAFA" color="#246257" item-color="#246257" label="Población*:"
-          >
-            <template v-slot:selection="{ item, index }">
-              <v-chip v-if="index < 2" small label close color="#246257" class="white--text chip-select" @click:close="removeIndicator(item.id)">
-                <span>{{ item.id }}</span>
-              </v-chip>
-              <span v-if="index === 2" class="grey--text text-caption ml-1 font-weight-medium">
-                (+{{ frmData.indicator_id.length - 2 }} más)
-              </span>
-            </template>
-
-            <template v-slot:append-outer>
-              <v-icon large color="#342a83" class="BtnHover mt-n1" @click="getCategories" title="Cargar categorías">
-                mdi-arrow-right-bold-box
-              </v-icon>
-            </template>
-          </v-select>
-
-          <v-select v-model="frmData.state_id" :items="states" item-value="id" item-text="title" multiple :item-disabled="isStateDisabled" :rules="[v => !!v.length || 'Campo obligatorio']"
-            dense filled background-color="#fafafa" color="#246257" label="Entidad Federativa*:">
-              <template v-slot:selection="{ item, index }">
-                <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                  <span>{{ item.title }}</span>
-                </v-chip>
-                <span v-if="index === 1" class="grey--text span-select">
-                  (+{{ frmData.state_id.length - 1 }} más)
-                </span>
-              </template>
-          </v-select>
-
-          <v-select v-model="frmData.year_id" :items="years" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isYearDisabled"
-            dense filled background-color="#fafafa" color="#246257" label="Año*:">
-            <template v-slot:selection="{ item, index }">
-              <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                <span>{{ truncateText(item.title, 20) }}</span>
-              </v-chip>
-              <span v-if="index === 1" class="grey--text span-select">
-                (+{{ frmData.year_id.length - 1 }} más)
-              </span>
-            </template>
-          </v-select>
-
-          <v-select v-model="frmData.gender_id" :items="genders" item-value="id" item-text="title" multiple :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isGenderDisabled"
-            dense filled background-color="#fafafa" color="#246257" label="Sexo*:">
-              <template v-slot:selection="{ item, index }">
-                <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                  <span>{{ truncateText(item.title, 20) }}</span>
-                </v-chip>
-                <span v-if="index === 1" class="grey--text span-select">
-                  (+{{ frmData.gender_id.length - 1 }} más)
-                </span>
-              </template>
-          </v-select>
-
-          <div v-if="categories.length">
-            <label class="tree-label">Tipo de delito</label>
-            <v-treeview selectable v-model="frmData.category_id" :items="categories" item-text="title" item-key="id"
-              class="tree-compact" open-all selected-color="#246257"
-            >
-            </v-treeview>
-            <br>
-          </div>
-
-          <v-btn color="#342a83" elevation="5" @click="submit" block class="white--text" :disabled="btnSend">consultar</v-btn>
-        </v-form>
-
-      </div>
-    </v-navigation-drawer> -->
-
     <loader-comp />
     <view-notifications-comp ref="notifier"/>
 
-    <!-- <v-dialog v-model="dialogData.actived" scrollable max-width="400px" persistent>
-      <v-card max-height="85vh">
-        <v-toolbar dark class="toolbar title-dialog" color="#424242">
-          REDIM: <strong style="padding-left: 5px;">{{dialogData.title}}</strong>
-          <v-spacer></v-spacer>
-          <v-btn @click="dialogData.actived=false, Panel=false" color="error" small fab>
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-toolbar>
-        <v-card-text>
-          <br>
-          <h2 class="title-indicator">{{dialogData.indicator}}</h2>
-          <v-divider></v-divider>
-          <template>
-            <br>
-            <ChartComp
-              :type="myChartName"
-              :data="myChartData"
-              :options="myChartOptions"
-            />
-          </template>
-        </v-card-text>
-      </v-card>
-    </v-dialog> -->
+    <!-- <ChartComp
+      :type="myChartName"
+      :data="myChartData"
+      :options="myChartOptions"
+    /> -->
 
   </div>
 </template>
@@ -155,7 +61,7 @@ import MapView from '@arcgis/core/views/MapView'
 import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer'
 
 // import Tables from '@/js/20242030/tables.js'
-import Charts from '@/js/charts.js'
+// import Charts from '@/js/charts.js'
 // import ChartComp from '@/components/ChartComp.vue'
 
 import axios from 'axios'
@@ -185,11 +91,11 @@ export default {
   data () {
     return {
       // data form =======================================================================
-      // indicators: [],
-      // states: [],
-      // years: [],
-      // genders: [],
-      // categories: [], // Este se llenará cuando el hijo emita 'fetch-categories'
+      indicators: [],
+      categories: [],
+      years: [],
+      genders: [],
+      states: [],
 
       // charts =======================================================================
       myChartName: '',
@@ -227,30 +133,8 @@ export default {
       view: undefined,
       map: undefined,
       stopWatchHandle: null,
-      graphicsLayer: null,
+      graphicsLayer: null
       // vue
-      drawer_left_map: true,
-      indicators: [],
-      categories: [],
-      years: [],
-      genders: [],
-      states: []
-
-      // frmData: {
-      //   indicator_id: [],
-      //   category_id: [],
-      //   year_id: [],
-      //   gender_id: [],
-      //   state_id: []
-      // },
-      // frmDisabled: {
-      //   category: false
-      // },
-      // isUpdatingYear: false,
-      // isUpdatingCategory: false,
-      // isUpdatingGender: false,
-      // isUpdatingState: false,
-      // btnSend: true
     }
   },
   computed: {
@@ -261,88 +145,7 @@ export default {
   },
 
   // 4️⃣ Observadores
-  watch: {
-    // 'frmData.indicator_id' (newVal, oldVal) {
-    //   // Nos aseguramos de tener la longitud, usando 0 si por alguna razón es undefined
-    //   const newLength = newVal ? newVal.length : 0
-    //   const oldLength = oldVal ? oldVal.length : 0
-
-    //   // Condición 1: Se quedó vacío (!newLength)
-    //   // Condición 2: El usuario desmarcó uno de la lista (newLength < oldLength)
-    //   // if (!newLength || newLength < oldLength) { // solo cuando disminulle
-    //   if (!newLength || newLength !== oldLength) { // cuando es diferente
-    //     console.log('submit()--> deshabilitado')
-
-    //     this.$nextTick(() => {
-    //       // Deshabilitamos el botón de enviar
-    //       this.btnSend = true
-
-    //       // Opcional: Si quieres limpiar las categorías tal como lo haces en removeIndicator
-    //       this.categories = []
-    //     })
-    //   }
-    // },
-    // 'frmData.year_id' (val) {
-    //   if (this.isUpdatingYear) return
-
-    //   this.isUpdatingYear = true
-
-    //   if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
-    //     this.frmData.year_id = [0]
-    //   } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan años normales
-    //     this.frmData.year_id = val.filter(v => v !== 0)
-    //   }
-
-    //   this.$nextTick(() => {
-    //     this.isUpdatingYear = false
-    //   })
-    // },
-    // 'frmData.category_id' (val) {
-    //   if (this.isUpdatingCategory) return
-
-    //   this.isUpdatingCategory = true
-
-    //   if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
-    //     this.frmData.category_id = [0]
-    //   } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan categorías normales
-    //     this.frmData.category_id = val.filter(v => v !== 0)
-    //   }
-
-    //   this.$nextTick(() => {
-    //     this.isUpdatingCategory = false
-    //   })
-    // },
-    // 'frmData.state_id' (val) {
-    //   if (this.isUpdatingState) return
-
-    //   this.isUpdatingState = true
-
-    //   if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
-    //     this.frmData.state_id = [0]
-    //   } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan categorías normales
-    //     this.frmData.state_id = val.filter(v => v !== 0)
-    //   }
-
-    //   this.$nextTick(() => {
-    //     this.isUpdatingState = false
-    //   })
-    // },
-    // 'frmData.gender_id' (val) {
-    //   if (this.isUpdatingGender) return
-
-    //   this.isUpdatingGender = true
-
-    //   if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
-    //     this.frmData.gender_id = [0]
-    //   } else if (!val.includes(0) && val.length >= 1) { // Caso 2: Se seleccionan categorías normales
-    //     this.frmData.gender_id = val.filter(v => v !== 0)
-    //   }
-
-    //   this.$nextTick(() => {
-    //     this.isUpdatingGender = false
-    //   })
-    // }
-  },
+  watch: {},
 
   // 5️⃣ Métodos
   methods: {
@@ -604,261 +407,8 @@ export default {
       // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     },
     // CHARTS ========================================================================================================
-    async renderLinerBarChart () {
-      const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          display: true,
-          labels: {
-            // fontColor: '#ffffff', // Texto de la leyenda en blanco
-            fontColor: '#595555', // Texto de la leyenda en blanco
-            boxWidth: 12
-          }
-        },
-        elements: {
-          line: {
-            tension: 0 // Hace que la línea tenga una curva suave (0.3). Ponlo en 0 para líneas totalmente rectas.
-          }
-        },
-        scales: {
-          yAxes: [{
-            ticks: {
-              fontColor: '#858181', // Números del eje Y
-              beginAtZero: true
-            },
-            gridLines: {
-              display: true, // Activa las líneas horizontales
-              color: 'rgba(6, 0, 0, 0.2)', // Líneas horizontales sutiles
-              borderDash: [5, 5], // Opcional: Crea el efecto punteado (5px línea, 5px espacio)
-              zeroLineColor: 'rgba(255, 255, 255, 0.2)'
-            }
-          }],
-          xAxes: [{
-            ticks: {
-              fontColor: '#858181' // Años del eje X
-            },
-            gridLines: {
-              display: false // Usualmente en gráficos de línea de tiempo se oculta la cuadrícula vertical
-            }
-          }]
-        },
-        tooltips: {
-          mode: 'index',
-          intersect: false, // Permite ver ambas cifras al pasar el mouse por encima de un año
-          // backgroundColor: 'rgba(0,0,0,0.8)'
-          backgroundColor: 'rgba(33,75,148,0.8)'
-        }
-      }
 
-      // 1. Instancias tu clase
-      const chartProcessor = new Charts()
-
-      // 2. Le pasas tus datos puros de la BD
-      const rawData = [
-        { year: 2015, internada: 480, senalada: 320 },
-        { year: 2016, internada: 610, senalada: 290 },
-        { year: 2017, internada: 350, senalada: 460 },
-        { year: 2018, internada: 200, senalada: 310 },
-        { year: 2019, internada: 170, senalada: 270 },
-        { year: 2020, internada: 95, senalada: 240 },
-        { year: 2021, internada: 130, senalada: 260 },
-        { year: 2022, internada: 220, senalada: 300 },
-        { year: 2023, internada: 340, senalada: 410 },
-        { year: 2024, internada: 410, senalada: 380 }
-      ]
-
-      // await chartProcessor.setComparativeLine(rawData)
-      await chartProcessor.setBarComparative(rawData)
-
-      // 3. Pasas los datos procesados a Vue
-      this.myChartName = 'bar' // line
-      this.myChartData = chartProcessor.attributes
-      this.myChartOptions = chartOptions
-    },
-    async renderPieDoughnutChart () {
-      const pieChartOptions = {
-        responsive: true,
-        maintainAspectRatio: false
-      }
-
-      // 2. Le pasas tus datos puros de la BD
-      const dataPieDoughnut = {
-        datasets: [{
-          backgroundColor: [
-            '#ff6384',
-            '#36a2eb',
-            '#cc65fe'
-          ],
-          data: [10, 20, 30]
-        }],
-
-        // These labels appear in the legend and in the tooltips when hovering different arcs
-        labels: [
-          'Red',
-          'Yellow',
-          'Blue'
-        ]
-      }
-
-      // 3. Pasas los datos procesados a Vue
-      this.myChartName = 'doughnut' // pie doughnut
-      this.myChartData = dataPieDoughnut
-      this.myChartOptions = pieChartOptions
-    },
-    // Método temporal para testear los nuevos gráficos
-    async testNewCharts (chartType) {
-      // 1. Instanciamos tu clase
-      const chartProcessor = new Charts()
-
-      // 2. Opciones de diseño general (Dark Mode para Vuetify)
-      const optionsRadarPolar = {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: { labels: { fontColor: '#ffffff' } },
-        scale: {
-          gridLines: { color: 'rgba(255, 255, 255, 0.15)' },
-          pointLabels: { fontColor: '#e0e0e0', fontSize: 12 },
-          ticks: { display: false }
-        }
-      }
-
-      const optionsXY = { // Usado para Barras
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: { labels: { fontColor: '#ffffff' } },
-        scales: {
-          yAxes: [{ gridLines: { color: 'rgba(255, 255, 255, 0.15)' }, ticks: { fontColor: '#e0e0e0', beginAtZero: true } }],
-          xAxes: [{ gridLines: { display: false }, ticks: { fontColor: '#e0e0e0' } }]
-        }
-      }
-
-      const optionsBubble = {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: { labels: { fontColor: '#ffffff' } },
-        scales: {
-          yAxes: [{ gridLines: { color: 'rgba(255, 255, 255, 0.15)' }, ticks: { fontColor: '#e0e0e0' } }],
-          xAxes: [{ gridLines: { color: 'rgba(255, 255, 255, 0.15)' }, ticks: { fontColor: '#e0e0e0' } }]
-        },
-        tooltips: {
-          callbacks: {
-            label: function (tooltipItem, data) {
-              const label = data.datasets[tooltipItem.datasetIndex].label || ''
-              const val = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]
-              return `${label} -> (X: ${val.x}, Y: ${val.y}, Volumen: ${val.r})`
-            }
-          }
-        }
-      }
-
-      // 3. Generar la Data Simulada (Mock Data) según el tipo
-      if (chartType === 'bar') {
-        const mockBarData = [
-          { categoria: 'Robo', internada: 450, senalada: 800 },
-          { categoria: 'Lesiones', internada: 320, senalada: 600 },
-          { categoria: 'Daños', internada: 150, senalada: 300 }
-        ]
-        // Asumiendo que agregaste el método setBarComparative que te sugerí antes
-        await chartProcessor.setBarComparative(mockBarData)
-        this.myChartOptions = optionsXY
-      } else if (chartType === 'radar') {
-        const labels = ['Robo', 'Lesiones', 'Daños', 'Homicidio', 'Narcomenudeo']
-        const dataAnterior = [65, 59, 90, 81, 56]
-        const dataActual = [28, 48, 40, 19, 96]
-        await chartProcessor.setRadarChart(labels, dataAnterior, dataActual)
-        this.myChartOptions = optionsRadarPolar
-      } else if (chartType === 'polararea') { // En tu ChartComp vi que usaste 'polararea' minúscula
-        const labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo']
-        const dataMeses = [11, 16, 7, 3, 14]
-        await chartProcessor.setPolarAreaChart(labels, dataMeses)
-        this.myChartOptions = optionsRadarPolar
-      } else if (chartType === 'bubble') {
-        const dataGpoA = [
-          { x: 14, y: 6, r: 15 }, // Ej. X: Edad 14, Y: 6 meses sentencia, R: 15 casos
-          { x: 16, y: 12, r: 25 },
-          { x: 18, y: 24, r: 10 }
-        ]
-        const dataGpoB = [
-          { x: 15, y: 3, r: 8 },
-          { x: 17, y: 8, r: 30 },
-          { x: 18, y: 18, r: 5 }
-        ]
-        await chartProcessor.setBubbleChart(dataGpoA, dataGpoB)
-        this.myChartOptions = optionsBubble
-      }
-
-      // 4. Inyectar datos al componente Vue y abrir el Modal
-      this.myChartName = chartType
-      this.myChartData = chartProcessor.attributes // Pasamos el JSON estructurado por tu clase
-
-      this.dialogData.title = 'Test: ' + chartType.toUpperCase()
-      this.dialogData.indicator = 'Previsualización de Mock Data'
-      this.dialogData.actived = true // Abre tu <v-dialog>
-    },
-
-    // data =========================================================================================================
-    removeIndicator (idToRemove) {
-      // Filtramos el array del v-model para excluir el ID que el usuario cerró
-      this.frmData.indicator_id = this.frmData.indicator_id.filter(
-        id => id !== idToRemove
-      )
-      // this.btnSend = true
-      // this.categories = []
-    },
-    truncateText (text, maxLength) {
-      if (text.length > maxLength) {
-        return text.substring(0, maxLength) + '...'
-      }
-      return text
-    },
-
-    // isYearDisabled (item) {
-    //   // Si "Todos" está seleccionado, deshabilitar los demás
-    //   if (this.frmData.year_id.includes(0)) {
-    //     return item.id !== 0
-    //   }
-
-    //   // Si hay otros seleccionados, deshabilitar "Todos"
-    //   // if (this.frmData.year_id.length > 0) {
-    //   //   return item.id === 0
-    //   // }
-
-    //   return false
-    // },
-    // isCategoryDisabled (item) {
-    //   if (this.frmData.category_id.includes(0)) {
-    //     return item.id !== 0
-    //   }
-
-    //   return false
-    // },
-    // isStateDisabled (item) {
-    //   if (this.frmData.state_id.includes(0)) {
-    //     return item.id !== 0
-    //   }
-
-    //   return false
-    // },
-    // isGenderDisabled (item) {
-    //   if (this.frmData.gender_id.includes(0)) {
-    //     return item.id !== 0
-    //   }
-
-    //   return false
-    // },
-
-    getAllLeafIds (nodes, result = []) {
-      nodes.forEach(node => {
-        if (node.children && node.children.length) {
-          this.getAllLeafIds(node.children, result)
-        } else {
-          result.push(node.id)
-        }
-      })
-      return result
-    },
-
+    // ================================================================================================================
     async getGenders () {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=genders`
@@ -866,7 +416,6 @@ export default {
         if (response.data.status === 200) {
           this.genders = response.data.result
           this.genders.unshift({ id: 0, title: 'Todos' })
-          this.frmData.gender_id = [0]
         }
       } catch (error) {
         console.log(error.response.data)
@@ -880,7 +429,6 @@ export default {
         if (response.data.status === 200) {
           this.years = response.data.result
           this.years.unshift({ id: 0, title: 'Todos' })
-          this.frmData.year_id = [0]
         }
       } catch (error) {
         console.log(error.response.data)
@@ -891,19 +439,20 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=states`
         const response = await axios.get(url)
+        // console.log('result', response.data)
         if (response.data.status === 200) {
           this.states = response.data.result
           this.states.unshift({ id: 0, title: 'Todos' })
-          this.frmData.state_id = [0]
+          // this.frmData.state_id = [0]
+          // console.log(this.states)
         }
       } catch (error) {
-        console.log(error.response.data)
         console.log(error)
+        console.log(error.response.data)
       }
     },
-    async getCategories () {
+    async getCategories (sendData) {
       try {
-        const sendData = this.frmData.indicator_id
         if (!sendData.length) {
           this.$store.dispatch('storeNotif/error', {
             message: 'Debe de seleccionar al menos algún tipo de población para solicitar tipos de delitos asociados'
@@ -912,15 +461,12 @@ export default {
         }
 
         const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
-        // const response = await axios.post(url, this.frmData.indicator_id)
-        const response = await axios.post(url, { indicator_ids: this.frmData.indicator_id })
-        console.log('getCategories() --> ', response.data.result)
+        const response = await axios.post(url, { indicator_ids: sendData })
+        // console.log('getCategories() --> ', response.data.result)
         if (response.data.status === 200) {
           // 1️⃣ VALIDACIÓN DE ESTADO VACÍO
           if (!response.data.result || response.data.result.length === 0) {
             this.categories = []
-            this.frmData.category_id = []
-            this.btnSend = true
 
             this.$store.dispatch('storeNotif/info', {
               message: 'No se encontraron tipos de delitos asociadas a las poblaciones seleccionadas. Por favor, intenta con otra combinación.'
@@ -930,22 +476,7 @@ export default {
           }
 
           // 2️⃣ FLUJO NORMAL (Si hay datos)
-          this.frmData.category_id = []
-          this.categories = []
-          this.btnSend = false
-
-          // if (response.data.total === 1 && !response.data.result[0].children.length) { // Sin nodos
-          //   this.frmData.category_id = [response.data.result[0].id]
-          //   return
-          // }
-
           this.categories = response.data.result
-
-          await this.setSleep(100)
-          const LeafIds = await this.getAllLeafIds(this.categories)
-          // console.log('LeafIds-->', LeafIds)
-          this.frmData.category_id = LeafIds
-          //   this.frmDisabled.category = false
         }
       } catch (error) {
         console.log(error)
@@ -1058,31 +589,6 @@ export default {
       }
     },
     // =================================================================================================
-    /**
-     * MÉTODO 1: handleGetCategories
-     * Este método se ejecuta cuando el usuario presiona "Buscar" en la tarjeta rosa.
-     * Recibe el objeto frmData que emitió el componente hijo.
-     */
-    async handleGetCategories (formData) {
-      try {
-        console.log('Buscando categorías con los datos:', formData)
-
-        // Aquí haces la petición a tu API en Node.js enviando los IDs seleccionados
-        const response = await axios.post('/api/categories', {
-          indicator_id: formData.indicator_id,
-          state_id: formData.state_id,
-          year_id: formData.year_id,
-          gender_id: formData.gender_id
-        })
-
-        // Actualizas el arreglo de categorías del padre.
-        // Como es reactivo, se enviará automáticamente a LeftFilterDeck
-        // y el v-treeview se poblará con estos nuevos datos.
-        this.categories = response.data.categories
-      } catch (error) {
-        console.error('Error al obtener las categorías:', error)
-      }
-    },
 
     /**
      * MÉTODO 2: handleFilterSubmit
@@ -1118,10 +624,11 @@ export default {
     // await this.setSleep(1500)
     // this.dialogData.actived = true
     // =========================================================================================
-    // this.getIndicators()
-    // this.getStates()
-    // this.getYears()
-    // this.getGenders()
+    this.getIndicators()
+    this.getStates()
+    this.getYears()
+    this.getGenders()
+    // this.getCategories([1, 2, 3, 4])
     // =========================================================================================
 
     // this.$refs.notifier.success('Operación realizada correctamente')
@@ -1189,103 +696,6 @@ export default {
 </script>
 
 <style scoped>
-  /* #mapView {
-    background-color: #CFC6BA;
-  } */
-  /* .v-input {
-    font-size: 14px;
-  }
-  .v-label {
-    font-size: 25px !important;
-  } */
-  .chip-select {
-    font-size: 12px;
-    padding: 0 8px;
-    margin: 0 1px !important;
-    text-overflow: ellipsis;
-  }
-  .span-select {
-    font-size: 11px;
-    padding: 0 5px !important;
-  }
-
-  /* .btn-append-outer {
-    position: relative;
-    left: 0px;
-    padding: 0px 0px 0px 0px;
-    margin: 0px 0px 0px 0px;
-  } */
-
-  ::v-deep .select-compacto .v-input__append-outer {
-    margin-left: 2px !important; /* Cambia a 0px si lo quieres 100% pegado */
-  }
-
-  /* --------------------------------treeview------------------------------------------------ */
-  /* Label tipo v-text-field */
-  .tree-label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.6);
-    margin-bottom: 4px;
-  }
-
-  /* Contenedor general */
-  .tree-compact {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 4px;
-    max-height: 280px;
-    overflow-y: auto;
-  }
-
-  /* Cada nodo */
-  .tree-compact ::v-deep .v-treeview-node__root {
-    min-height: 20px !important;
-    padding: 0 4px !important;
-  }
-
-  /* Texto del nodo */
-  .tree-compact ::v-deep .v-treeview-node__label {
-    font-size: 12px;
-    line-height: 1.2 !important;
-  }
-
-  /* --------------------------------Checkbox------------------------------------------------ */
-  /* Checkbox */
-  .tree-compact ::v-deep .v-input--selection-controls {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-  }
-
-  /* Iconos (expand + checkbox) */
-  /* .tree-compact ::v-deep .v-icon {
-    font-size: 20px !important;
-  } */
-
-  .tree-compact ::v-deep .v-treeview-node__checkbox {
-    width: 10px !important;
-    /* font-size: 25px !important; */
-    transform: scale(0.85) !important;
-  }
-
-  /* -------------------------------------------------------------------------------- */
-  /* Botón del icono expand/collapse */
-  .tree-compact ::v-deep .v-treeview-node__toggle {
-    width: 25px;
-    height: 25px;
-  }
-
-  /* Icono expand/collapse */
-  .tree-compact ::v-deep .v-treeview-node__toggle .v-icon {
-    font-size: 20px !important;
-  }
-
-  /* Estado activo (seleccionado / focus) */
-  .tree-compact ::v-deep .v-treeview-node__toggle.v-btn--active {
-    border-radius: 50%;
-  }
-
   /* -------------------------------------------------------------------------------- */
   .app-bar-gradient {
     background: linear-gradient(

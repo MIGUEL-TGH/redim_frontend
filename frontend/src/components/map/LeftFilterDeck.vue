@@ -9,104 +9,102 @@
 
     <transition name="slide-panel">
       <div v-if="isOpen" class="deck-container">
-
         <div class="card-pink elevation-6">
-          <div class="d-flex justify-space-between align-center mb-3">
-            <h3 class="white--text mb-0"></h3>
-            <v-btn icon dark small @click="isOpen = false">
-              <v-icon>mdi-close</v-icon>
-               <!-- ocultar -->
+          <div class="d-flex justify-end mb-1">
+            <v-btn dark small outlined @click="isOpen = false" class="btn-closed">
+               OCULTAR
             </v-btn>
           </div>
+          <v-form ref="form_item">
+            <v-row dense class="ma-0">
+              <v-col cols="12" class="py-1 pr-1 pl-1">
+                <label class="white--text font-weight-bold caption mb-1 d-block">Población*:</label>
+                <v-select
+                  v-model="frmData.indicator_id" :items="indicators" multiple item-value="id" item-text="name" :rules="[v => (v && v.length > 0) || 'Campo obligatorio']"
+                  background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                  <template v-slot:selection="{ item, index }">
+                    <v-chip v-if="index < 5" small label close color="#246257" class="white--text chip-select" @click:close="removeIndicator(item.id)">
+                      <span>{{ item.id }}</span>
+                    </v-chip>
+                    <span v-if="index === 5" class="grey--text text-caption ml-1 font-weight-medium">
+                      (+{{ frmData.indicator_id.length - 5 }} más)
+                    </span>
+                  </template>
 
-          <div class="mb-1">
-            <label class="white--text font-weight-bold caption mb-1 d-block">Población*:</label>
-            <v-select
-              v-model="frmData.indicator_id" :items="indicators" multiple item-value="id" item-text="name" :rules="[v => (v && v.length > 0) || 'Campo obligatorio']"
-              background-color="white" light solo flat dense hide-details="auto">
-              <template v-slot:selection="{ item, index }">
-                <v-chip v-if="index < 2" small label close color="#246257" class="white--text chip-select" @click:close="removeIndicator(item.id)">
-                  <span>{{ item.id }}</span>
-                </v-chip>
-                <span v-if="index === 2" class="grey--text text-caption ml-1 font-weight-medium">
-                  (+{{ frmData.indicator_id.length - 2 }} más)
-                </span>
-              </template>
+                  <template v-slot:append-outer>
+                    <v-icon large color="#efeee8" class="BtnHover mt-n1" @click="getCategories" title="Cargar categorías">
+                      mdi-arrow-right-bold-box
+                    </v-icon>
+                  </template>
 
-              <template v-slot:append-outer>
-                <v-icon large color="#efeee8" class="BtnHover mt-n1" @click="getCategories" title="Cargar categorías">
-                  mdi-arrow-right-bold-box
-                </v-icon>
-              </template>
+                  <template v-slot:message="{ message }">
+                    <span class="yellow--text text--lighten-3 font-weight-bold">{{ message }}</span>
+                  </template>
+                </v-select>
+              </v-col>
 
-              <template v-slot:message="{ message }">
-                <span class="yellow--text text--lighten-3 font-weight-bold">{{ message }}</span>
-              </template>
-            </v-select>
-          </div>
+              <v-col cols="4" class="py-1 pl-1 pr-1">
+                <label class="white--text font-weight-bold caption mb-1 d-block">Estado*:</label>
+                  <v-select v-model="frmData.state_id" :items="states" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isStateDisabled"
+                    background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                    <template v-slot:selection="{ item, index }">
+                      <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                        <span>{{ item.title }}</span>
+                      </v-chip>
+                      <span v-if="index === 1" class="grey--text span-select">
+                        (+{{ frmData.state_id.length - 1 }} más)
+                      </span>
+                    </template>
 
-          <div class="mb-1">
-            <label class="white--text font-weight-bold caption mb-1 d-block">Entidad Federativa*:</label>
-            <v-select v-model="frmData.state_id" :items="states" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isStateDisabled"
-              background-color="white" light solo flat dense hide-details="auto">
-              <template v-slot:selection="{ item, index }">
-                <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                  <span>{{ item.title }}</span>
-                </v-chip>
-                <span v-if="index === 1" class="grey--text span-select">
-                  (+{{ frmData.state_id.length - 1 }} más)
-                </span>
-              </template>
+                    <template v-slot:message="{ message }">
+                      <span class="yellow--text text--lighten-3 font-weight-bold">{{ message }}</span>
+                    </template>
+                  </v-select>
+              </v-col>
 
-              <template v-slot:message="{ message }">
-                <span class="yellow--text text--lighten-3 font-weight-bold">{{ message }}</span>
-              </template>
-            </v-select>
-          </div>
+              <v-col cols="4" class="py-1 pr-1 pl-1">
+                <label class="white--text font-weight-bold caption mb-1 d-block">Año*:</label>
+                <v-select v-model="frmData.year_id" :items="years" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isYearDisabled"
+                  background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                  <template v-slot:selection="{ item, index }">
+                    <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                      <span>{{ truncateText(item.title, 20) }}</span>
+                    </v-chip>
+                    <span v-if="index === 1" class="grey--text span-select">
+                      (+{{ frmData.year_id.length - 1 }} más)
+                    </span>
+                  </template>
+                  <template v-slot:message="{ message }">
+                    <span class="yellow--text text--lighten-3 font-weight-bold">{{ message }}</span>
+                  </template>
+                </v-select>
+              </v-col>
 
-          <div class="mb-1">
-            <label class="white--text font-weight-bold caption mb-1 d-block">Año*:</label>
-            <v-select v-model="frmData.year_id" :items="years" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isYearDisabled"
-              background-color="white" light solo flat dense hide-details="auto">
-              <template v-slot:selection="{ item, index }">
-                <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                  <span>{{ truncateText(item.title, 20) }}</span>
-                </v-chip>
-                <span v-if="index === 1" class="grey--text span-select">
-                  (+{{ frmData.year_id.length - 1 }} más)
-                </span>
-              </template>
-              <template v-slot:message="{ message }">
-                <span class="yellow--text text--lighten-3 font-weight-bold">{{ message }}</span>
-              </template>
-            </v-select>
-          </div>
+              <v-col cols="4" class="py-1 pl-1 pr-1">
+                <label class="white--text font-weight-bold caption mb-1 d-block">Sexo*:</label>
+                <v-select v-model="frmData.gender_id" :items="genders" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isGenderDisabled"
+                    background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                    <template v-slot:selection="{ item, index }">
+                      <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                        <span>{{ truncateText(item.title, 20) }}</span>
+                      </v-chip>
+                      <span v-if="index === 1" class="grey--text span-select">
+                        (+{{ frmData.gender_id.length - 1 }} más)
+                      </span>
+                    </template>
+                    <template v-slot:message="{ message }">
+                      <span class="yellow--text text--lighten-3 font-weight-bold">{{ message }}</span>
+                    </template>
+                </v-select>
+              </v-col>
 
-          <div class="mb-1">
-            <label class="white--text font-weight-bold caption mb-1 d-block">Sexo*:</label>
-            <v-select v-model="frmData.gender_id" :items="genders" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isGenderDisabled"
-              background-color="white" light solo flat dense hide-details="auto">
-              <template v-slot:selection="{ item, index }">
-                <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                  <span>{{ truncateText(item.title, 20) }}</span>
-                </v-chip>
-                <span v-if="index === 1" class="grey--text span-select">
-                  (+{{ frmData.gender_id.length - 1 }} más)
-                </span>
-              </template>
-              <template v-slot:message="{ message }">
-                <span class="yellow--text text--lighten-3 font-weight-bold">{{ message }}</span>
-              </template>
-          </v-select>
-          </div>
-
+            </v-row>
+          </v-form>
         </div>
 
         <div class="card-white-wrapper">
           <div class="card-white elevation-4" :class="{ 'is-expanded': categoriesExpanded }">
             <div class="pa-4 pt-6"> <h4 class="mb-2" style="color: #6a3d8f;">Tipo de delito:</h4>
-              <br>
-              <br>
               <v-treeview
                 selectable
                 v-model="frmData.category_id"
@@ -115,12 +113,16 @@
                 item-key="id"
                 class="tree-compact custom-tree"
                 selected-color="#b62b86"
-                dense
-              ></v-treeview>
-
+                dense>
+              </v-treeview>
               <!-- <v-btn color="#342a83" elevation="5" @click="submitFilters" block class="white--text" :disabled="btnSend">consultar</v-btn> -->
-              <v-btn color="#342a83" elevation="5" @click="submitFilters" block class="white--text">consultar</v-btn>
-
+              <!-- <br> -->
+              <div class="d-flex justify-end mt-2">
+                <v-btn color="#342a83" elevation="5" @click="submitFilters" class="white--text btn-consultar" :disabled="btnSend">
+                  CONSULTAR
+                  <v-icon right dark>mdi-arrow-bottom-right-thick</v-icon>
+                </v-btn>
+              </div>
             </div>
           </div>
         </div>
@@ -154,7 +156,7 @@ export default {
   data () {
     return {
       isOpen: true, // Controla el panel completo vs la cinta
-      categoriesExpanded: true, // Controla si la tarjeta blanca está visible
+      categoriesExpanded: false, // Controla si la tarjeta blanca está visible
       frmData: {
         indicator_id: [],
         category_id: [],
@@ -193,6 +195,8 @@ export default {
 
           // Opcional: Si quieres limpiar las categorías tal como lo haces en removeIndicator
           // this.categories = []
+          // this.frmData.category_id = []
+          // this.$emit('indicator-changed')
         })
       }
     },
@@ -255,23 +259,62 @@ export default {
       this.$nextTick(() => {
         this.isUpdatingGender = false
       })
+    },
+    states: {
+      immediate: true, // Se ejecuta apenas se crea el componente
+      handler (newStates) {
+        if (newStates && newStates.length > 0 && this.frmData.state_id.length === 0) {
+          this.frmData.state_id = [0]
+        }
+      }
+    },
+    years: {
+      immediate: true, // Se ejecuta apenas se crea el componente
+      handler (newYears) {
+        if (newYears && newYears.length > 0 && this.frmData.year_id.length === 0) {
+          this.frmData.year_id = [0]
+        }
+      }
+    },
+    genders: {
+      immediate: true, // Se ejecuta apenas se crea el componente
+      handler (newGenders) {
+        if (newGenders && newGenders.length > 0 && this.frmData.gender_id.length === 0) {
+          this.frmData.gender_id = [0]
+        }
+      }
+    },
+    categories: {
+      immediate: true, // Se ejecuta apenas se crea el componente
+      async handler (newCategories) {
+        if (!newCategories.length) {
+          this.frmData.category_id = []
+          this.btnSend = true
+        } else if (newCategories && newCategories.length > 0) {
+          this.btnSend = false
+          const LeafIds = await this.getAllLeafIds(this.categories)
+          // console.log('LeafIds-->', LeafIds)
+          this.frmData.category_id = LeafIds
+        }
+      }
     }
   },
 
   // 5️⃣ Métodos
   methods: {
-    getCategories () {
-      // 1. Emitir evento para buscar las categorías reales en el backend (si aplica)
-      this.$emit('fetch-categories', this.frmData)
-
-      // 2. Desplegar la segunda tarjeta (efecto baraja)
-      this.categoriesExpanded = true
+    truncateText (text, maxLength) {
+      if (text.length > maxLength) {
+        return text.substring(0, maxLength) + '...'
+      }
+      return text
     },
-    submitFilters () {
-      // Emitir el formulario completo al mapa
-      this.$emit('submit', this.frmData)
-      // Opcional: Contraer o cerrar panel después de aplicar
-      // this.isOpen = false;
+    removeIndicator (idToRemove) {
+      // Filtramos el array del v-model para excluir el ID que el usuario cerró
+      this.frmData.indicator_id = this.frmData.indicator_id.filter(
+        id => id !== idToRemove
+      )
+      // this.btnSend = true
+      // this.categories = []
     },
 
     // ==============================================
@@ -308,6 +351,40 @@ export default {
       }
 
       return false
+    },
+
+    // ==============================================
+    getAllLeafIds (nodes, result = []) {
+      nodes.forEach(node => {
+        if (node.children && node.children.length) {
+          this.getAllLeafIds(node.children, result)
+        } else {
+          result.push(node.id)
+        }
+      })
+      return result
+    },
+    getCategories () {
+      // 1. Validar IDs de indicadores seleccionados
+      const sendData = this.frmData.indicator_id
+      if (!sendData.length) {
+        this.$store.dispatch('storeNotif/error', {
+          message: 'Debe de seleccionar al menos algún tipo de población para solicitar tipos de delitos asociados'
+        })
+        return
+      }
+
+      // 2. Emitir evento para buscar las categorías reales en el backend (si aplica)
+      this.$emit('fetch-categories', sendData) // this.frmData
+
+      // 3. Desplegar la segunda tarjeta (efecto baraja)
+      this.categoriesExpanded = true
+    },
+    submitFilters () {
+      // Emitir el formulario completo al mapa
+      this.$emit('submit', this.frmData)
+      // Opcional: Contraer o cerrar panel después de aplicar
+      // this.isOpen = false;
     }
   },
 
@@ -327,6 +404,8 @@ export default {
 </script>
 <style scoped>
   /* Personalizar estilos aquí */
+  /* general ======================================================================================================= */
+
   /* Contenedor absoluto a la misma altura (20px) que el StackCards */
   .left-panel-wrapper {
     position: absolute;
@@ -357,7 +436,7 @@ export default {
     TARJETAS APILADAS (Deck)
   =============================== */
   .deck-container {
-    width: 350px;
+    width: 450px;
     margin-left: 60px; /* Separación del borde de la pantalla */
     margin-top: -75px;
     display: flex;
@@ -397,6 +476,24 @@ export default {
     transform: translateY(0);
   }
 
+  /* Boton de cerrar */
+  .btn-closed {
+    border-radius: 10px !important;
+    font-weight: bold !important;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    background-color: transparent !important;
+    color: white !important;
+    border: 1px solid white !important;
+  }
+
+  .btn-consultar {
+    border-radius: 10px !important;
+    font-weight: bold !important;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
   /* ===============================
     ANIMACIONES DE ENTRADA/SALIDA
   =============================== */
@@ -420,6 +517,79 @@ export default {
   .custom-input :deep(.v-input__slot) {
     background: rgba(255, 255, 255, 0.1) !important;
   }
+
+   /* treeview ======================================================================================================= */
+
+  ::v-deep .select-compacto .v-input__append-outer {
+    margin-left: 2px !important;
+  }
+
+  /* --------------------------------treeview------------------------------------------------ */
+  /* Label tipo v-text-field */
+  .tree-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 4px;
+  }
+
+  /* Contenedor general */
+  .tree-compact {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  /* Cada nodo */
+  .tree-compact ::v-deep .v-treeview-node__root {
+    min-height: 20px !important;
+    padding: 0 4px !important;
+  }
+
+  /* Texto del nodo */
+  .tree-compact ::v-deep .v-treeview-node__label {
+    font-size: 12px;
+    line-height: 1.2 !important;
+  }
+  /* --------------------------------Checkbox------------------------------------------------ */
+  /* Checkbox */
+  .tree-compact ::v-deep .v-input--selection-controls {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Iconos (expand + checkbox) */
+  .tree-compact ::v-deep .v-icon {
+    font-size: 20px !important;
+  }
+
+  .tree-compact ::v-deep .v-treeview-node__checkbox {
+    width: 10px !important;
+    /* font-size: 25px !important; */
+    transform: scale(0.85) !important;
+  }
+
+  /* -------------------------------------------------------------------------------- */
+  /* Botón del icono expand/collapse */
+  .tree-compact ::v-deep .v-treeview-node__toggle {
+    width: 25px;
+    height: 25px;
+  }
+
+  /* Icono expand/collapse */
+  .tree-compact ::v-deep .v-treeview-node__toggle .v-icon {
+    font-size: 20px !important;
+  }
+
+  /* Estado activo (seleccionado / focus) */
+  .tree-compact ::v-deep .v-treeview-node__toggle.v-btn--active {
+    border-radius: 50%;
+  }
+
+  /* ======================================================================================================= */
 
   /* ===============================
     MEDIA QUERIES (Responsividad)
@@ -457,6 +627,18 @@ export default {
     .card-pink, .card-white {
       border-radius: 15px 15px 15px 15px;
     }
+  }
+
+  /* v-select ============================================================================================================ */
+  .chip-select {
+    font-size: 12px;
+    padding: 0 8px;
+    margin: 0 1px !important;
+    text-overflow: ellipsis;
+  }
+  .span-select {
+    font-size: 11px;
+    padding: 0 5px !important;
   }
 
 </style>

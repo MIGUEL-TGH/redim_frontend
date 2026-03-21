@@ -9,15 +9,6 @@
     <div class="map-card map-card-right">
       <img src="@/assets/logos/NiñezPrimero-Placa.png" class="logo-dependences" alt="Logo Instituciones">
     </div>
-
-    <!-- <div class="map-card map-card-left">
-      <img src="@/assets/logos/LOGOTIPO-COLOR.png" class="logo-project" alt="Logo Institucional">
-    </div>
-
-    <div class="map-card map-card-right">
-      <img src="@/assets/logos/NiñezPrimero-Placa.png" class="logo-dependences" alt="Logo Proyecto">
-    </div> -->
-
   </div>
 </template>
 
