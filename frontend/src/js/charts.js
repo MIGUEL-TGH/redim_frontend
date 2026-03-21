@@ -100,7 +100,7 @@ class ChartsOBJ {
             pointHoverRadius: 7,
             borderWidth: 3, // Grosor de las líneas
             fill: false,
-            data: items.map(item => item.internada)
+            data: items.map(item => item.PI)
           },
           {
             label: 'Población Señalada',
@@ -112,7 +112,7 @@ class ChartsOBJ {
             pointHoverRadius: 7,
             borderWidth: 3, // Grosor de las líneas
             fill: false,
-            data: items.map(item => item.senalada)
+            data: items.map(item => item.PS)
           }
         ]
       }
@@ -133,14 +133,14 @@ class ChartsOBJ {
             backgroundColor: 'rgba(227, 12, 126, 0.8)', // Rosa fucsia
             borderColor: '#e30c7e',
             borderWidth: 1,
-            data: items.map(item => item.internada)
+            data: items.map(item => item.PI)
           },
           {
             label: 'Población Señalada',
             backgroundColor: 'rgba(76, 175, 80, 0.8)', // Verde
             borderColor: '#4caf50',
             borderWidth: 1,
-            data: items.map(item => item.senalada)
+            data: items.map(item => item.PS)
           }
         ]
       }

@@ -18,7 +18,8 @@
         :genders="genders"
         :categories="categories"
         @fetch-categories="getCategories"
-        @submit="handleFilterSubmit"
+        @submit="handleSubmit"
+        @clear-categories="categories = []"
       />
 
       <!-- PANEL ESTADÍSTICO -->
@@ -35,6 +36,30 @@
       :data="myChartData"
       :options="myChartOptions"
     /> -->
+    <v-dialog v-model="dialogData.actived" scrollable max-width="400px" persistent>
+      <v-card max-height="85vh">
+        <v-toolbar dark class="toolbar title-dialog" color="#424242">
+          REDIM: <strong style="padding-left: 5px;">{{dialogData.title}}</strong>
+          <v-spacer></v-spacer>
+          <v-btn @click="dialogData.actived=false" color="error" small fab>
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text>
+          <br>
+          <!-- <h2 class="title-indicator">{{dialogData.indicator}}</h2> -->
+          <v-divider></v-divider>
+          <template>
+            <br>
+            <ChartComp
+              :type="myChartName"
+              :data="myChartData"
+              :options="myChartOptions"
+            />
+          </template>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
   </div>
 </template>
@@ -61,8 +86,8 @@ import MapView from '@arcgis/core/views/MapView'
 import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer'
 
 // import Tables from '@/js/20242030/tables.js'
-// import Charts from '@/js/charts.js'
-// import ChartComp from '@/components/ChartComp.vue'
+import Charts from '@/js/charts.js'
+import ChartComp from '@/components/ChartComp.vue'
 
 import axios from 'axios'
 import { mapState, mapActions } from 'vuex'
@@ -76,7 +101,7 @@ export default {
     StackCards,
     LogosCards,
     CustomNavbar,
-    // ChartComp
+    ChartComp,
     LeftFilterDeck
   },
   directives: {}, // Directivas personalizadas
@@ -102,7 +127,8 @@ export default {
       myChartData: {},
       myChartOptions: {},
       dialogData: {
-        actived: false
+        actived: false,
+        title: ''
       },
       // =========================================================================
       // map
@@ -407,7 +433,93 @@ export default {
       // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     },
     // CHARTS ========================================================================================================
+    async renderCharts (element) {
+      // 1. Instancias tu clase
+      const chartProcessor = new Charts()
 
+      // 2. Opciones de diseño general (Dark Mode para Vuetify)
+      const optionsBarLine = {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: true,
+          labels: {
+            // fontColor: '#ffffff', // Texto de la leyenda en blanco
+            fontColor: '#595555', // Texto de la leyenda en blanco
+            boxWidth: 12
+          }
+        },
+        elements: {
+          line: {
+            tension: 0 // Hace que la línea tenga una curva suave (0.3). Ponlo en 0 para líneas totalmente rectas.
+          }
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              fontColor: '#858181', // Números del eje Y
+              beginAtZero: true
+            },
+            gridLines: {
+              display: true, // Activa las líneas horizontales
+              color: 'rgba(6, 0, 0, 0.2)', // Líneas horizontales sutiles
+              borderDash: [5, 5], // Opcional: Crea el efecto punteado (5px línea, 5px espacio)
+              zeroLineColor: 'rgba(255, 255, 255, 0.2)'
+            }
+          }],
+          xAxes: [{
+            ticks: {
+              fontColor: '#858181' // Años del eje X
+            },
+            gridLines: {
+              display: false // Usualmente en gráficos de línea de tiempo se oculta la cuadrícula vertical
+            }
+          }]
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: false, // Permite ver ambas cifras al pasar el mouse por encima de un año
+          // backgroundColor: 'rgba(0,0,0,0.8)'
+          backgroundColor: 'rgba(33,75,148,0.8)'
+        }
+      }
+
+      // 3. Generar la Data Simulada (Mock Data) según el tipo
+      if (element.type === 'bar') {
+        await chartProcessor.setBarComparative(element.data)
+        this.myChartOptions = optionsBarLine
+      } else if (element.type === 'line') {
+        await chartProcessor.setComparativeLine(element.data)
+        this.myChartOptions = optionsBarLine
+      }
+
+      await this.setSleep(100)
+      // 4. Inyectar datos al componente Vue
+      this.myChartName = element.type
+      this.myChartData = chartProcessor.attributes
+
+      // 2. Le pasas tus datos puros de la BD
+      // const rawData = [
+      //   { year: 2015, internada: 480, senalada: 320 },
+      //   { year: 2016, internada: 610, senalada: 290 },
+      //   { year: 2017, internada: 350, senalada: 460 },
+      //   { year: 2018, internada: 200, senalada: 310 },
+      //   { year: 2019, internada: 170, senalada: 270 },
+      //   { year: 2020, internada: 95, senalada: 240 },
+      //   { year: 2021, internada: 130, senalada: 260 },
+      //   { year: 2022, internada: 220, senalada: 300 },
+      //   { year: 2023, internada: 340, senalada: 410 },
+      //   { year: 2024, internada: 410, senalada: 380 }
+      // ]
+
+      // await chartProcessor.setComparativeLine(rawData)
+      // await chartProcessor.setBarComparative(rawData)
+
+      // 3. Pasas los datos procesados a Vue
+      // this.myChartName = 'line' // line bar
+      // this.myChartData = chartProcessor.attributes
+      // this.myChartOptions = optionsBarLine
+    },
     // ================================================================================================================
     async getGenders () {
       try {
@@ -499,64 +611,55 @@ export default {
       }
     },
 
-    async submit () {
-      // this.$refs.notifier.success('Operación realizada correctamente')
-      // console.log('submit-->', value)
-
-      if (!this.$refs.form_item.validate()) {
-        // this.$refs.notifier.error('¡Favor de seleccionar las opciones obligatorias para generar la consulta!')
-        this.$store.dispatch('storeNotif/error', {
-          message: '¡Favor de seleccionar las opciones obligatorias para generar la consulta!'
-        })
-        return ''
-      }
+    async handleSubmit (formData) {
+      // console.log('submit-->', formData)
 
       const sendData = {
       // category_id: [1, 2, 3],
+      // state_id: [1, 2, 3]
       // year_id: [24, 25, 26],
       // gender_id: [1, 2],
-      // state_id: [1, 2, 3]
         category_id: [],
         state_id: [],
-        year_id: []
+        year_id: [],
+        gender_id: []
       }
 
-      if (this.frmData.state_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
+      if (formData.state_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
         const ids = this.states
           .filter(item => item.id !== 0)
           .map(item => item.id)
 
         sendData.state_id = ids
       } else {
-        sendData.state_id = this.frmData.state_id
+        sendData.state_id = formData.state_id
       }
 
-      if (this.frmData.year_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
+      if (formData.year_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
         const ids = this.years
           .filter(item => item.id !== 0)
           .map(item => item.id)
 
         sendData.year_id = ids
       } else {
-        sendData.year_id = this.frmData.year_id
+        sendData.year_id = formData.year_id
       }
 
-      if (this.frmData.gender_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
+      if (formData.gender_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
         const ids = this.genders
           .filter(item => item.id !== 0)
           .map(item => item.id)
 
         sendData.gender_id = ids
       } else {
-        sendData.gender_id = this.frmData.gender_id
+        sendData.gender_id = formData.gender_id
       }
 
-      const categoryIds = this.frmData.category_id
+      const categoryIds = formData.category_id
         .filter(item => item !== 0)
         .map(item => item)
 
       if (!categoryIds.length) {
-        // return this.$refs.notifier.error('¡Favor de seleccionar al menos una de las categorías disponobles!')
         this.$store.dispatch('storeNotif/error', {
           message: '¡Favor de seleccionar al menos una de las categorías disponobles!'
         })
@@ -564,28 +667,18 @@ export default {
       }
       sendData.category_id = categoryIds
 
-      // return console.log(sendData)
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
         const response = await axios.post(url, sendData)
-        console.log(response.data.result)
-        // if (response.data.status === 200) {
-        //   console.log(response.data.result)
-        // }
+        if (response.data.status === 200) {
+          console.log('RESULT: ', response.data.result)
+          await this.renderCharts({ type: 'line', data: response.data.result })
+          this.setSleep(1000)
+          this.dialogData.actived = true
+        }
       } catch (error) {
-        // console.log(error)
+        console.log(error)
         console.log(error.response.data)
-      }
-    },
-    async reset () {
-      this.$refs.form_checker.reset()
-      setTimeout(() => {
-        this.$refs.txt_exp.focus()
-      }, '100')
-    },
-    onSubmit (e) {
-      if (!this.htmlSubmit) {
-        e.preventDefault()
       }
     },
     // =================================================================================================

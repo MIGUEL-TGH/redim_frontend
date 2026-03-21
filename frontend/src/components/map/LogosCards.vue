@@ -6,9 +6,9 @@
     </div> -->
 
     <!-- TARJETA PROYECTO (abajo derecha) -->
-    <div class="map-card map-card-right">
+    <!-- <div class="map-card map-card-right">
       <img src="@/assets/logos/NiñezPrimero-Placa.png" class="logo-dependences" alt="Logo Instituciones">
-    </div>
+    </div> -->
   </div>
 </template>
 

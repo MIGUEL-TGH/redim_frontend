@@ -23,16 +23,16 @@
                   v-model="frmData.indicator_id" :items="indicators" multiple item-value="id" item-text="name" :rules="[v => (v && v.length > 0) || 'Campo obligatorio']"
                   background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
                   <template v-slot:selection="{ item, index }">
-                    <v-chip v-if="index < 5" small label close color="#246257" class="white--text chip-select" @click:close="removeIndicator(item.id)">
+                    <v-chip v-if="index < 4" small label close color="#246257" class="white--text chip-select" @click:close="removeIndicator(item.id)">
                       <span>{{ item.id }}</span>
                     </v-chip>
-                    <span v-if="index === 5" class="grey--text text-caption ml-1 font-weight-medium">
-                      (+{{ frmData.indicator_id.length - 5 }} más)
+                    <span v-if="index === 4" class="grey--text text-caption ml-1 font-weight-medium">
+                      (+{{ frmData.indicator_id.length - 4 }} más)
                     </span>
                   </template>
 
                   <template v-slot:append-outer>
-                    <v-icon large color="#efeee8" class="BtnHover mt-n1" @click="getCategories" title="Cargar categorías">
+                    <v-icon large color="#dedddc" class="BtnHover mt-n1" @click="getCategories" title="Cargar categorías">
                       mdi-arrow-right-bold-box
                     </v-icon>
                   </template>
@@ -103,7 +103,7 @@
         </div>
 
         <div class="card-white-wrapper">
-          <div class="card-white elevation-4" :class="{ 'is-expanded': categoriesExpanded }">
+          <div class="card-white" :class="{ 'is-expanded': categoriesExpanded }">
             <div class="pa-4 pt-6"> <h4 class="mb-2" style="color: #6a3d8f;">Tipo de delito:</h4>
               <v-treeview
                 selectable
@@ -115,10 +115,8 @@
                 selected-color="#b62b86"
                 dense>
               </v-treeview>
-              <!-- <v-btn color="#342a83" elevation="5" @click="submitFilters" block class="white--text" :disabled="btnSend">consultar</v-btn> -->
-              <!-- <br> -->
               <div class="d-flex justify-end mt-2">
-                <v-btn color="#342a83" elevation="5" @click="submitFilters" class="white--text btn-consultar" :disabled="btnSend">
+                <v-btn color="#342a83" elevation="5" @click="submitFilters" class="white--text btn-consult" :disabled="btnSend">
                   CONSULTAR
                   <v-icon right dark>mdi-arrow-bottom-right-thick</v-icon>
                 </v-btn>
@@ -171,7 +169,7 @@ export default {
       isUpdatingCategory: false,
       isUpdatingGender: false,
       isUpdatingState: false,
-      btnSend: true
+      btnSend: false
     }
   },
   computed: {},
@@ -183,20 +181,14 @@ export default {
       const newLength = newVal ? newVal.length : 0
       const oldLength = oldVal ? oldVal.length : 0
 
-      // Condición 1: Se quedó vacío (!newLength)
-      // Condición 2: El usuario desmarcó uno de la lista (newLength < oldLength)
       // if (!newLength || newLength < oldLength) { // solo cuando disminulle
       if (!newLength || newLength !== oldLength) { // cuando es diferente
-        console.log('submit()--> deshabilitado')
-
         this.$nextTick(() => {
           // Deshabilitamos el botón de enviar
           this.btnSend = true
-
-          // Opcional: Si quieres limpiar las categorías tal como lo haces en removeIndicator
-          // this.categories = []
-          // this.frmData.category_id = []
-          // this.$emit('indicator-changed')
+          this.frmData.category_id = []
+          this.$emit('clear-categories')
+          this.categoriesExpanded = false
         })
       }
     },
@@ -293,7 +285,6 @@ export default {
         } else if (newCategories && newCategories.length > 0) {
           this.btnSend = false
           const LeafIds = await this.getAllLeafIds(this.categories)
-          // console.log('LeafIds-->', LeafIds)
           this.frmData.category_id = LeafIds
         }
       }
@@ -313,8 +304,9 @@ export default {
       this.frmData.indicator_id = this.frmData.indicator_id.filter(
         id => id !== idToRemove
       )
-      // this.btnSend = true
-      // this.categories = []
+      this.btnSend = true
+      this.$emit('clear-categories')
+      this.categoriesExpanded = false
     },
 
     // ==============================================
@@ -380,12 +372,40 @@ export default {
       // 3. Desplegar la segunda tarjeta (efecto baraja)
       this.categoriesExpanded = true
     },
+    // ==============================================
     submitFilters () {
+      // Validar Campos vacios
+      if (!this.$refs.form_item.validate()) {
+        this.$store.dispatch('storeNotif/error', {
+          message: '¡Favor de seleccionar las opciones obligatorias para generar la consulta!'
+        })
+        return ''
+      }
+
+      const categoryID = this.frmData.category_id
+      if (!categoryID.length) {
+        this.$store.dispatch('storeNotif/error', {
+          message: 'Debe seleccionar al menos algún tipo de delito'
+        })
+        return
+      }
+
       // Emitir el formulario completo al mapa
       this.$emit('submit', this.frmData)
-      // Opcional: Contraer o cerrar panel después de aplicar
-      // this.isOpen = false;
+      // this.isOpen = false; // Contraer o cerrar panel después de aplicar
+    },
+    async reset () {
+      this.$refs.form_checker.reset()
+      setTimeout(() => {
+        this.$refs.txt_exp.focus()
+      }, '100')
+    },
+    onSubmit (e) {
+      if (!this.htmlSubmit) {
+        e.preventDefault()
+      }
     }
+
   },
 
   // 6️⃣ Ciclo de vida
@@ -436,7 +456,7 @@ export default {
     TARJETAS APILADAS (Deck)
   =============================== */
   .deck-container {
-    width: 450px;
+    width: 400px;
     margin-left: 60px; /* Separación del borde de la pantalla */
     margin-top: -75px;
     display: flex;
@@ -487,7 +507,7 @@ export default {
     border: 1px solid white !important;
   }
 
-  .btn-consultar {
+  .btn-consult {
     border-radius: 10px !important;
     font-weight: bold !important;
     letter-spacing: 1px;
@@ -539,7 +559,7 @@ export default {
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 4px;
-    max-height: 200px;
+    max-height: 150px;
     overflow-y: auto;
   }
 

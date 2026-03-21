@@ -274,16 +274,16 @@ export default {
       }
 
       const mockBarData = [
-        { year: 2015, internada: 480, senalada: 320 },
-        { year: 2016, internada: 610, senalada: 290 },
-        { year: 2017, internada: 350, senalada: 460 },
-        { year: 2018, internada: 200, senalada: 310 },
-        { year: 2019, internada: 170, senalada: 270 },
-        { year: 2020, internada: 95, senalada: 240 },
-        { year: 2021, internada: 130, senalada: 260 },
-        { year: 2022, internada: 220, senalada: 300 },
-        { year: 2023, internada: 340, senalada: 410 },
-        { year: 2024, internada: 410, senalada: 380 }
+        { year: 2015, PI: 480, PS: 320 },
+        { year: 2016, PI: 610, PS: 290 },
+        { year: 2017, PI: 350, PS: 460 },
+        { year: 2018, PI: 200, PS: 310 },
+        { year: 2019, PI: 170, PS: 270 },
+        { year: 2020, PI: 95, PS: 240 },
+        { year: 2021, PI: 130, PS: 260 },
+        { year: 2022, PI: 220, PS: 300 },
+        { year: 2023, PI: 340, PS: 410 },
+        { year: 2024, PI: 410, PS: 380 }
       ]
 
       const pieChartOptions = {
