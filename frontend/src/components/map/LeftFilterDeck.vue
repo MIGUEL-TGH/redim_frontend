@@ -2,14 +2,14 @@
   <div class="left-panel-wrapper">
 
     <transition name="slide-ribbon">
-      <div v-if="!isOpen" class="ribbon-toggle elevation-4" @click="isOpen = true">
+      <div v-if="!isOpen" class="ribbon-toggle elevation-10" @click="isOpen = true">
         <v-icon color="white" size="28">mdi-magnify</v-icon>
       </div>
     </transition>
 
     <transition name="slide-panel">
       <div v-if="isOpen" class="deck-container">
-        <div class="card-pink elevation-6">
+        <div class="card-pink elevation-10">
           <div class="d-flex justify-end mb-1">
             <v-btn dark small outlined @click="isOpen = false" class="btn-closed">
                OCULTAR
@@ -102,7 +102,7 @@
           </v-form>
         </div>
 
-        <div class="card-white-wrapper">
+        <div class="card-white-wrapper elevation-10">
           <div class="card-white" :class="{ 'is-expanded': categoriesExpanded }">
             <div class="pa-4 pt-6"> <h4 class="mb-2" style="color: #6a3d8f;">Tipo de delito:</h4>
               <v-treeview
@@ -425,13 +425,12 @@ export default {
 <style scoped>
   /* Personalizar estilos aquí */
   /* general ======================================================================================================= */
-
   /* Contenedor absoluto a la misma altura (20px) que el StackCards */
   .left-panel-wrapper {
     position: absolute;
     top: 90px;
     left: 0;
-    z-index: 50;
+    /* z-index: 5; */
     display: flex;
     align-items: flex-start;
   }
@@ -481,14 +480,16 @@ export default {
     margin-top: -20px; /* Sube el contenedor para solaparse por detrás del borde redondeado de la rosa */
     overflow: hidden; /* Clave para el efecto: esconde la tarjeta hasta que baje */
     border-radius: 0 0 20px 20px;
+    /* opacity: 0; */
   }
 
   /* La tarjeta blanca en sí */
   .card-white {
-    background-color: #efeee8;
+    background-color: #dfdad0; /* efeee8 */
     border-radius: 0 0 20px 20px;
     transform: translateY(-100%); /* Inicialmente escondida arriba (detrás de la rosa) */
     transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transición suave */
+    /* opacity: 1; */
   }
 
   /* Clase dinámica que baja la tarjeta blanca */

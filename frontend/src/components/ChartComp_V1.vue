@@ -1,11 +1,10 @@
 <template>
-  <component
-    :key="componentKey"
-    ref="chart"
-    :is="chartComponent"
-    :data="chartData"
-    :options="chartOptions"
-  />
+    <component
+      ref="chart"
+      :is="chartComponent"
+      :data="chartData"
+      :options="chartOptions"
+    />
 </template>
 
 <script>
@@ -34,11 +33,6 @@ export default {
     },
     refresh: Boolean
   },
-  data () {
-    return {
-      componentKey: 0
-    }
-  },
   computed: {
     chartComponent () {
       const types = {
@@ -53,28 +47,27 @@ export default {
       return types[this.type] || BarChart
     },
     chartData () {
+      // console.log('chartData() --> ', this.data)
       return this.data
     },
     chartOptions () {
+      // console.log('chartOptions() --> ', this.options)
       return this.options
     }
   },
-  watch: {
-    data: {
-      deep: true,
-      handler () {
-        this.forceRerender()
-      }
-    },
-    refresh (val) {
-      if (val) {
-        this.forceRerender()
-      }
-    }
+  mounted () {
+    // console.log('mounted --> ChartComp.vue')
   },
-  methods: {
-    forceRerender () {
-      this.componentKey += 1
+  watch: {
+    refresh (val) {
+      // console.log('refresh--> ChartComp.vue ', val)
+      if (val) {
+        this.$nextTick(() => {
+          if (this.$refs.chart && this.$refs.chart.renderChart) {
+            // console.log('refresh-->', val)
+          }
+        })
+      }
     }
   }
 }

@@ -24,42 +24,12 @@
 
       <!-- PANEL ESTADÍSTICO -->
       <div class="stats-panel">
-        <stack-cards />
+        <stack-cards :category_details="category_details"/>
       </div>
     </div>
 
     <loader-comp />
     <view-notifications-comp ref="notifier"/>
-
-    <!-- <ChartComp
-      :type="myChartName"
-      :data="myChartData"
-      :options="myChartOptions"
-    /> -->
-    <v-dialog v-model="dialogData.actived" scrollable max-width="400px" persistent>
-      <v-card max-height="85vh">
-        <v-toolbar dark class="toolbar title-dialog" color="#424242">
-          REDIM: <strong style="padding-left: 5px;">{{dialogData.title}}</strong>
-          <v-spacer></v-spacer>
-          <v-btn @click="dialogData.actived=false" color="error" small fab>
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-toolbar>
-        <v-card-text>
-          <br>
-          <!-- <h2 class="title-indicator">{{dialogData.indicator}}</h2> -->
-          <v-divider></v-divider>
-          <template>
-            <br>
-            <ChartComp
-              :type="myChartName"
-              :data="myChartData"
-              :options="myChartOptions"
-            />
-          </template>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
 
   </div>
 </template>
@@ -84,10 +54,12 @@ import MapView from '@arcgis/core/views/MapView'
 // import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
 // import Point from '@arcgis/core/geometry/Point'
 import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer'
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
+import Basemap from '@arcgis/core/Basemap'
 
 // import Tables from '@/js/20242030/tables.js'
-import Charts from '@/js/charts.js'
-import ChartComp from '@/components/ChartComp.vue'
+// import Charts from '@/js/charts.js'
+// import ChartComp from '@/components/ChartComp.vue'
 
 import axios from 'axios'
 import { mapState, mapActions } from 'vuex'
@@ -101,7 +73,7 @@ export default {
     StackCards,
     LogosCards,
     CustomNavbar,
-    ChartComp,
+    // ChartComp,
     LeftFilterDeck
   },
   directives: {}, // Directivas personalizadas
@@ -116,45 +88,31 @@ export default {
   data () {
     return {
       // data form =======================================================================
+      category_details: [],
       indicators: [],
       categories: [],
       years: [],
       genders: [],
       states: [],
-
-      // charts =======================================================================
-      myChartName: '',
-      myChartData: {},
-      myChartOptions: {},
-      dialogData: {
-        actived: false,
-        title: ''
-      },
       // =========================================================================
       // map
       vectors: [
         'streets-navigation-vector',
+        'streets-night-vector',
+        'streets-relief-vector',
         'streets',
         'topo-vector',
         'satellite',
         'hybrid',
-        'dark-gray-vector',
         'oceans',
-        'national-geographic',
         'terrain',
-
-        'light-gray-vector',
-        'gray-vector',
         'streets-vector',
-        'navigation-vector',
         'osm',
-        'arcgis-light-gray',
-        'arcgis-dark-gray',
-        'arcgis-topographic',
-        'arcgis-imagery',
-        'arcgis-navigation',
-        'arcgis-streets',
-        'arcgis-oceans'
+        'topo',
+        'dark-gray-vector',
+        'gray-vector',
+        'dark-gray',
+        'gray'
       ],
       view: undefined,
       map: undefined,
@@ -201,23 +159,13 @@ export default {
             color: item.color,
             outline: {
               width: 1.2,
-              color: 'gray' // black
+              color: item.outlineColor || 'gray' // black
             }
           }
         },
-        // renderer: {
-        //   type: 'simple',
-        //   symbol: {
-        //     type: 'simple-fill',
-        //     color: [0, 0, 0, 0], // 🔥 transparente
-        //     outline: {
-        //       color: '#BFB8AE',
-        //       width: 1.2
-        //     }
-        //   }
-        // },
         title: 'GeoJSON Layer',
-        zIndex: 10 // Asegura que esté debajo de los gráficos
+        zIndex: 10, // Asegura que esté debajo de los gráficos
+        effect: item.effect || null
       }
 
       if (item.type === 'rendered') {
@@ -226,10 +174,6 @@ export default {
         )
       } else if (item.type === 'files') {
         layerOptions.url = item.url
-        layerOptions.renderer.symbol.outline = {
-          width: 1,
-          color: 'black' // gray
-        }
       }
 
       // console.log('layerOptions -->', layerOptions)
@@ -329,198 +273,77 @@ export default {
         this.throttle(pointerMoveHandler, 50) // ~16 FPS
       )
     },
-
-    async _initMap () {
-      this.map = new Map({
-        basemap: this.vector[0] // 'streets-navigation-vector'
-      })
-
-      this.view = new MapView({
-        container: this.$refs.mapView,
-        map: this.map,
-        center: [-102.37592182483502, 24.097127823504444],
-        zoom: 4.4,
-        // scale: 9000000, // ajusta hasta que quede perfecto visualmente
-        constraints: {
-          snapToZoom: false // permite zoom decimal
-        },
-
-        highlightOptions: {
-          color: '#f44545', // 🔴 color del highlight
-          haloColor: '#f44545', // 🔴 borde exterior
-          haloOpacity: 1, // 0.9
-          fillOpacity: 1 // 0.3
+    async initMap () {
+      // 1. Creamos la capa de todos los países (Tierra)
+      const worldLayer = new FeatureLayer({
+        url: 'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Countries_(Generalized)/FeatureServer/0',
+        renderer: {
+          type: 'simple',
+          symbol: {
+            type: 'simple-fill',
+            color: '#dfdad0', // Color de todos los países
+            outline: {
+              color: '#efeee8', // Contorno sutil
+              width: 0.5
+            }
+          }
         }
       })
 
-      // await this.view.when() // Esperar a que la vista esté lista antes de agregar el componente
+      // 2. Empaquetamos esa capa en un Basemap personalizado
+      const customBasemap = new Basemap({
+        baseLayers: [worldLayer],
+        title: 'Fondo Minimalista Niñez Primero',
+        id: 'fondo-ninez-primero'
+      })
 
-      // this.WatchExpand = new Expand({
-      //   view: this.view,
-      //   content: document.getElementById('InfoMap'),
-      //   group: 'top-right',
-      //   visible: false,
-      //   focusTrapDisabled: true
-      // })
-      // this.view.ui.add(this.WatchExpand, 'top-right')
-      // console.log('initMap() END')
-      // this.stopWatchHandle = reactiveUtils.watch(
-      //   () => this.view.updating, // 🔹 propiedad reactiva
-      //   async (updating) => {
-      //     if (!updating) {
-      //       await this.setSleep(1500) // 🔸 espera un poco para asegurar que todo terminó de renderizar
-      //       this.dialog_loader.actived = false
-      //     }
-      //   }
-      // )
-    },
-
-    async initMap () {
-      // console.log('initMap()')
+      // 3. Instanciamos el mapa con nuestro propio basemap
       this.map = new Map({
         // basemap: this.vectors[0] // 'streets-navigation-vector'
-        basemap: 'gray-vector'
-        // basemap: null
+        basemap: customBasemap
       })
 
       this.view = new MapView({
         container: this.$refs.mapView,
         map: this.map,
         center: [-102.37592182483502, 24.097127823504444],
-        zoom: 4.4,
-        // scale: 9000000, // ajusta hasta que quede perfecto visualmente
+        // zoom: 4.4,
+        scale: 15000000, // ajusta hasta que quede perfecto visualmente
         constraints: {
           snapToZoom: false // permite zoom decimal
         },
 
         highlightOptions: {
-          color: '#f44545', // 🔴 color del highlight
-          haloColor: '#f44545', // 🔴 borde exterior
+          color: '#f44545',
+          haloColor: '#f44545',
           haloOpacity: 1, // 0.9
           fillOpacity: 1 // 0.3
+        },
+        // El color del océano/mares
+        background: {
+          type: 'color',
+          color: '#efeee8'
         }
-
-        // background: {
-        //   type: 'color',
-        //   color: '#CFC6BA'
-        // }
       })
 
-      await this.view.when() // Esperar a que la vista esté lista antes de agregar el componente
+      // 4. Esperar a que la vista esté lista antes de agregar el componente
+      await this.view.when()
 
-      // this.WatchExpand = new Expand({
-      //   view: this.view,
-      //   content: document.getElementById('InfoMap'),
-      //   group: 'top-right',
-      //   visible: false,
-      //   focusTrapDisabled: true
-      // })
-      // this.view.ui.add(this.WatchExpand, 'top-right')
-      // console.log('initMap() END')
-      // this.stopWatchHandle = reactiveUtils.watch(
-      //   () => this.view.updating, // 🔹 propiedad reactiva
-      //   async (updating) => {
-      //     if (!updating) {
-      //       await this.setSleep(1500) // 🔸 espera un poco para asegurar que todo terminó de renderizar
-      //       this.dialog_loader.actived = false
-      //     }
-      //   }
-      // )
+      // 5. Agregamos la capa de México con el efecto de SOMBRA
+      await this.AddGeoJSONLayer({
+        url: '/assets/WGS84_04.json',
+        color: '#b8ab9b', // Relleno de los estados
+        outlineColor: '#efeee8', // Color del contorno
+        type: 'files',
+        effect: 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))' // Efecto sombreado
+      })
 
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
-      // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+      // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [184, 171, 155, 0.9], type: 'files' })
       // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     },
-    // CHARTS ========================================================================================================
-    async renderCharts (element) {
-      // 1. Instancias tu clase
-      const chartProcessor = new Charts()
-
-      // 2. Opciones de diseño general (Dark Mode para Vuetify)
-      const optionsBarLine = {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          display: true,
-          labels: {
-            // fontColor: '#ffffff', // Texto de la leyenda en blanco
-            fontColor: '#595555', // Texto de la leyenda en blanco
-            boxWidth: 12
-          }
-        },
-        elements: {
-          line: {
-            tension: 0 // Hace que la línea tenga una curva suave (0.3). Ponlo en 0 para líneas totalmente rectas.
-          }
-        },
-        scales: {
-          yAxes: [{
-            ticks: {
-              fontColor: '#858181', // Números del eje Y
-              beginAtZero: true
-            },
-            gridLines: {
-              display: true, // Activa las líneas horizontales
-              color: 'rgba(6, 0, 0, 0.2)', // Líneas horizontales sutiles
-              borderDash: [5, 5], // Opcional: Crea el efecto punteado (5px línea, 5px espacio)
-              zeroLineColor: 'rgba(255, 255, 255, 0.2)'
-            }
-          }],
-          xAxes: [{
-            ticks: {
-              fontColor: '#858181' // Años del eje X
-            },
-            gridLines: {
-              display: false // Usualmente en gráficos de línea de tiempo se oculta la cuadrícula vertical
-            }
-          }]
-        },
-        tooltips: {
-          mode: 'index',
-          intersect: false, // Permite ver ambas cifras al pasar el mouse por encima de un año
-          // backgroundColor: 'rgba(0,0,0,0.8)'
-          backgroundColor: 'rgba(33,75,148,0.8)'
-        }
-      }
-
-      // 3. Generar la Data Simulada (Mock Data) según el tipo
-      if (element.type === 'bar') {
-        await chartProcessor.setBarComparative(element.data)
-        this.myChartOptions = optionsBarLine
-      } else if (element.type === 'line') {
-        await chartProcessor.setComparativeLine(element.data)
-        this.myChartOptions = optionsBarLine
-      }
-
-      await this.setSleep(100)
-      // 4. Inyectar datos al componente Vue
-      this.myChartName = element.type
-      this.myChartData = chartProcessor.attributes
-
-      // 2. Le pasas tus datos puros de la BD
-      // const rawData = [
-      //   { year: 2015, internada: 480, senalada: 320 },
-      //   { year: 2016, internada: 610, senalada: 290 },
-      //   { year: 2017, internada: 350, senalada: 460 },
-      //   { year: 2018, internada: 200, senalada: 310 },
-      //   { year: 2019, internada: 170, senalada: 270 },
-      //   { year: 2020, internada: 95, senalada: 240 },
-      //   { year: 2021, internada: 130, senalada: 260 },
-      //   { year: 2022, internada: 220, senalada: 300 },
-      //   { year: 2023, internada: 340, senalada: 410 },
-      //   { year: 2024, internada: 410, senalada: 380 }
-      // ]
-
-      // await chartProcessor.setComparativeLine(rawData)
-      // await chartProcessor.setBarComparative(rawData)
-
-      // 3. Pasas los datos procesados a Vue
-      // this.myChartName = 'line' // line bar
-      // this.myChartData = chartProcessor.attributes
-      // this.myChartOptions = optionsBarLine
-    },
-    // ================================================================================================================
+    // ======================================================================================================================================
     async getGenders () {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=genders`
@@ -614,6 +437,8 @@ export default {
     async handleSubmit (formData) {
       // console.log('submit-->', formData)
 
+      // this.category_details = []
+
       const sendData = {
       // category_id: [1, 2, 3],
       // state_id: [1, 2, 3]
@@ -671,68 +496,35 @@ export default {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
         const response = await axios.post(url, sendData)
         if (response.data.status === 200) {
-          console.log('RESULT: ', response.data.result)
-          await this.renderCharts({ type: 'line', data: response.data.result })
-          this.setSleep(1000)
-          this.dialogData.actived = true
+          // await this.setSleep(1000)
+          this.category_details = response.data.result
         }
       } catch (error) {
         console.log(error)
         console.log(error.response.data)
       }
-    },
-    // =================================================================================================
-
-    /**
-     * MÉTODO 2: handleFilterSubmit
-     * Este método se ejecuta cuando el usuario presiona "Aplicar" en la tarjeta blanca.
-     * Recibe el frmData COMPLETO, incluyendo el arreglo de category_id seleccionado en el árbol.
-     */
-    async handleFilterSubmit (formData) {
-      try {
-        console.log('Aplicando filtros al mapa ArcGIS:', formData)
-
-        // 1. Petición a tu API para traer la data filtrada (GeoJSON, estadísticas, etc.)
-        // const response = await axios.post('/api/map-data', formData)
-        // const mapData = response.data
-
-        // 2. Aquí va toda tu lógica existente de ArcGIS API for JavaScript
-        // Por ejemplo, actualizar los graphics de la vista, cambiar el FeatureLayer, etc.
-        // this.updateArcGISMap(mapData)
-
-        // 3. Opcional: Actualizar también los datos del componente estadístico (StackCards)
-        // this.updateStackCardsData(mapData.statistics)
-      } catch (error) {
-        console.error('Error al aplicar los filtros al mapa:', error)
-      }
     }
+    // ======================================================================================================================================
   },
 
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
   async created () {
-    // =========================================================================================
-    // await this.renderLinerBarChart()
-    // await this.renderPieDoughnutChart()
-    // await this.setSleep(1500)
-    // this.dialogData.actived = true
-    // =========================================================================================
+    // ======================================================================================================================================
     this.getIndicators()
     this.getStates()
     this.getYears()
     this.getGenders()
     // this.getCategories([1, 2, 3, 4])
-    // =========================================================================================
 
-    // this.$refs.notifier.success('Operación realizada correctamente')
-    // =========================================================================================
+    // ======================================================================================================================================
     // this.dialog_loader.actived = true
     // this.dialog_loader.message = 'Por favor espere...'
     // await this.setSleep(2500)
     // this.dialog_loader.actived = false
     // this.dialog_loader.message = ''
 
-    // =========================================================================================
+    // ======================================================================================================================================
     // this.getCategories()
 
     // this.categories = [
@@ -747,8 +539,8 @@ export default {
     // console.log(this.frmData.category_id)
 
     // this.submit()
+    // ======================================================================================================================================
 
-    // =========================================================================================
     // await this.getParams(null)
     // await window.addEventListener('popstate', this.getParams)
     // await this.setSleep(1500)
@@ -799,38 +591,6 @@ export default {
       #b62b86 75%,
       #ed712c 100%
     ) !important;
-  }
-
-  .drawer-gradient {
-    /* position: relative;
-    overflow: hidden; */
-
-    background: linear-gradient(
-      to bottom,
-      #b62b86 0%,
-      #e30c7e 100%
-    ) !important;
-
-    color: white;
-  }
-  .drawer-gradient::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.15);
-    pointer-events: none;
-  }
-  /* Más contraste en dark mode */
-  .theme--dark .drawer-gradient::before {
-    background: rgba(0, 0, 0, 0.25);
-  }
-  .drawer-content {
-    position: relative;
-    z-index: 1;
-    /* padding: 10px; */
-    padding: 5px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
   }
 
   /* ===============================  CONTENEDOR PRINCIPAL  =============================== */

@@ -85,7 +85,7 @@ class ChartsOBJ {
   async setComparativeLine (items) {
     try {
       // Ordenamos por año para asegurar que la línea fluya de izquierda a derecha
-      items.sort((a, b) => a.year - b.year)
+      // items.sort((a, b) => a.year - b.year)
 
       this.attributes = {
         labels: items.map(item => item.year),
@@ -123,7 +123,7 @@ class ChartsOBJ {
 
   async setBarComparative (items) {
     try {
-      items.sort((a, b) => a.year - b.year)
+      // items.sort((a, b) => a.year - b.year)
 
       this.attributes = {
         labels: items.map(item => item.year),

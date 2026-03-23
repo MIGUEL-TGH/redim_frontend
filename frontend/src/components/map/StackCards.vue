@@ -2,8 +2,6 @@
   <div class="stack-wrapper">
     <div class="stack-container">
       <div v-for="(card, index) in cards" :key="index" class="stack-item" :class="{ 'is-active': activeIndex === index }" :style="getItemStyle(index)">
-        <!-- :class="{ 'un-active': activeIndex != index }" -->
-         <!-- :class="{ 'un-active': activeIndex !== index && index !== 0 }" -->
         <div
           class="stack-header"
           :class="{ 'un-active': shouldApplyUnactive(index) }"
@@ -22,8 +20,18 @@
         <v-expand-transition>
           <div v-show="activeIndex === index" class="stack-content">
             <slot :name="card.id">
-              <!-- {{ card.id }} -->
-              <div class="fake-content" style="padding: 15px;">
+              <div v-if="card.id === 'poblacion'" class="fake-content">
+                <div style="padding: 15px;">
+                  <ChartComp
+                    v-if="myChartName && myChartData && myChartData.datasets && myChartData.datasets.length > 0 && myChartData.labels && myChartData.labels.length > 0"
+                    :type="myChartName"
+                    :data="myChartData"
+                    :options="myChartOptions"
+                    :refresh="activeIndex === index"
+                  />
+                </div>
+              </div>
+              <div v-else class="fake-content" style="padding: 15px;">
                 <p>Estadísticas para {{ card.title }}</p>
                 <div class="simple-bar" style="width: 80%"></div>
                 <div class="simple-bar" style="width: 60%"></div>
@@ -38,16 +46,24 @@
 </template>
 
 <script>
+import Charts from '@/js/charts.js'
+import ChartComp from '@/components/ChartComp.vue'
+
+import { /* mapState, */ mapActions } from 'vuex'
 
 export default {
   // 1️⃣ Identificación
   name: 'StackCardsComp',
-  components: {}, // Importación de componentes hijos
+  components: { // Importación de componentes hijos
+    ChartComp
+  },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
 
   // 2️⃣ Propiedades de entrada
-  props: {},
+  props: {
+    category_details: { type: Array, default: () => [] }
+  },
   mixins: {},
   extends: {},
 
@@ -81,16 +97,33 @@ export default {
           baseColor: '#17b35f',
           gradient: 'linear-gradient(90deg, #4CAF50 0%, #009688 100%)'
         }
-      ]
+      ],
+      // charts =======================================================================
+      myChartName: '',
+      myChartData: {},
+      myChartOptions: {}
     }
   },
   computed: {},
 
   // 4️⃣ Observadores
-  watch: {},
+  watch: {
+    category_details: {
+      immediate: true, // Se ejecuta apenas se crea el componente
+      handler (newData) {
+        // console.log('category_details --> ', newData)
+        if (newData && newData.length > 0) {
+          this.renderCharts({ type: 'line', data: newData })
+        }
+      }
+    }
+  },
 
   // 5️⃣ Métodos
   methods: {
+    ...mapActions([
+      'setSleep'
+    ]),
     toggle (index) {
       // console.log(index)
       this.activeIndex = this.activeIndex === index ? null : index
@@ -115,6 +148,73 @@ export default {
       if (index === 0) return false
       // Aplicar solo si no es el activo
       return this.activeIndex !== index
+    },
+    // CHARTS ========================================================================================================
+    async renderCharts (element) {
+      // console.log('renderCharts --> ', element)
+      // // 1. Instancias tu clase
+      const chartProcessor = new Charts()
+
+      // // 2. Opciones de diseño general (Dark Mode para Vuetify)
+      const optionsBarLine = {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: true,
+          labels: {
+            // fontColor: '#ffffff', // Texto de la leyenda en blanco
+            fontColor: '#595555', // Texto de la leyenda en blanco
+            boxWidth: 12
+          }
+        },
+        elements: {
+          line: {
+            tension: 0 // Hace que la línea tenga una curva suave (0.3). Ponlo en 0 para líneas totalmente rectas.
+          }
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              fontColor: '#858181', // Números del eje Y
+              beginAtZero: true
+            },
+            gridLines: {
+              display: true, // Activa las líneas horizontales
+              color: 'rgba(6, 0, 0, 0.2)', // Líneas horizontales sutiles
+              borderDash: [5, 5], // Opcional: Crea el efecto punteado (5px línea, 5px espacio)
+              zeroLineColor: 'rgba(255, 255, 255, 0.2)'
+            }
+          }],
+          xAxes: [{
+            ticks: {
+              fontColor: '#858181' // Años del eje X
+            },
+            gridLines: {
+              display: false // Usualmente en gráficos de línea de tiempo se oculta la cuadrícula vertical
+            }
+          }]
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: false, // Permite ver ambas cifras al pasar el mouse por encima de un año
+          // backgroundColor: 'rgba(0,0,0,0.8)'
+          backgroundColor: 'rgba(33,75,148,0.8)'
+        }
+      }
+
+      // // 3. Generar la Data Simulada (Mock Data) según el tipo
+      if (element.type === 'bar') {
+        await chartProcessor.setBarComparative(element.data)
+        this.myChartOptions = optionsBarLine
+      } else if (element.type === 'line') {
+        await chartProcessor.setComparativeLine(element.data)
+        this.myChartOptions = optionsBarLine
+      }
+
+      await this.setSleep(100)
+      // // 4. Inyectar datos al componente Vue
+      this.myChartName = element.type
+      this.myChartData = chartProcessor.attributes
     }
   },
 
