@@ -102,8 +102,8 @@
           </v-form>
         </div>
 
-        <div class="card-white-wrapper elevation-10">
-          <div class="card-white" :class="{ 'is-expanded': categoriesExpanded }">
+        <div class="card-white-wrapper">
+          <div class="card-white" :class="{ 'is-expanded': categoriesExpanded, 'elevation-2': categoriesExpanded }">
             <div class="pa-4 pt-6"> <h4 class="mb-2" style="color: #6a3d8f;">Tipo de delito:</h4>
               <v-treeview
                 selectable
@@ -478,18 +478,19 @@ export default {
     position: relative;
     z-index: 1; /* Por debajo de la tarjeta rosa */
     margin-top: -20px; /* Sube el contenedor para solaparse por detrás del borde redondeado de la rosa */
+    /* padding-bottom: 30px; */
+    padding: 5px;
     overflow: hidden; /* Clave para el efecto: esconde la tarjeta hasta que baje */
     border-radius: 0 0 20px 20px;
-    /* opacity: 0; */
   }
 
   /* La tarjeta blanca en sí */
   .card-white {
-    background-color: #dfdad0; /* efeee8 */
+    background-color: #efeee8; /* efeee8 dfdad0*/
     border-radius: 0 0 20px 20px;
     transform: translateY(-100%); /* Inicialmente escondida arriba (detrás de la rosa) */
-    transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transición suave */
-    /* opacity: 1; */
+    /* transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); Transición suave */
+    transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.5s;
   }
 
   /* Clase dinámica que baja la tarjeta blanca */

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/MainView.vue'
+// import HomeView from '../views/MainView.vue'
+import MapView from '../views/ArcGISMapView.vue'
 import RoutesDashBoard from './RoutesDashBoard'
 import store from '../store'
 
@@ -8,15 +9,20 @@ Vue.use(VueRouter)
 
 const routes = [
   ...RoutesDashBoard,
+  // {
+  //   path: '/',
+  //   name: 'home',
+  //   component: HomeView
+  // },
+  // {
+  //   path: '/mapa',
+  //   name: 'MapView',
+  //   component: () => import('../views/ArcGISMapView.vue')
+  // },
   {
     path: '/',
     name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/mapa',
-    name: 'MapView',
-    component: () => import('../views/ArcGISMapView.vue')
+    component: MapView
   },
   {
     path: '/administrator',
