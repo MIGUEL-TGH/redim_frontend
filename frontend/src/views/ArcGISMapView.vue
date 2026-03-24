@@ -9,7 +9,11 @@
     <div class="map-wrapper">
       <div id="viewDiv" ref="mapView"></div>
 
-      <logos-cards />
+      <logos-cards
+        @zoom-in="handleZoomIn"
+        @zoom-out="handleZoomOut"
+        @go-home="handleGoHome"
+      />
 
       <left-filter-deck
         :indicators="indicators"
@@ -147,6 +151,35 @@ export default {
           lastCall = now
           func.apply(this, args)
         }
+      }
+    },
+    handleZoomIn () { // +
+      if (this.view) {
+        // this.view.goTo({ scale: this.view.scale * 0.8 })
+        this.view.goTo(
+          { scale: this.view.scale * 0.8 },
+          { duration: 800, easing: 'ease-in-out' }
+        )
+      }
+    },
+    handleZoomOut () { // -
+      if (this.view) {
+        // this.view.goTo({ scale: this.view.scale * 1.5 })
+        this.view.goTo(
+          { scale: this.view.scale * 1.5 },
+          { duration: 800, easing: 'ease-in-out' }
+        )
+      }
+    },
+    handleGoHome () {
+      if (this.view) {
+        this.view.goTo(
+          {
+            center: [-106.98709444156532, 23.88462442879944],
+            scale: 15000000
+          },
+          { duration: 1200, easing: 'ease-in-out' } // Un poco más lento para viajes largos
+        )
       }
     },
     async AddGeoJSONLayer (item) {
@@ -306,7 +339,9 @@ export default {
       this.view = new MapView({
         container: this.$refs.mapView,
         map: this.map,
-        center: [-102.37592182483502, 24.097127823504444],
+        // longitude, latitude
+        // center: [-102.37592182483502, 24.097127823504444],
+        center: [-106.98709444156532, 23.88462442879944], // La Cruz Sinaloa
         // zoom: 4.4,
         scale: 15000000, // ajusta hasta que quede perfecto visualmente
         constraints: {
@@ -325,6 +360,9 @@ export default {
           color: '#efeee8'
         }
       })
+
+      // Ocultar los controles de zoom por defecto de ArcGIS
+      this.view.ui.remove('zoom')
 
       // 4. Esperar a que la vista esté lista antes de agregar el componente
       await this.view.when()

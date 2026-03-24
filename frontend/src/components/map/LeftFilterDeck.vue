@@ -153,7 +153,7 @@ export default {
   // 3️⃣ Datos reactivas
   data () {
     return {
-      isOpen: true, // Controla el panel completo vs la cinta
+      isOpen: false, // Controla el panel completo vs la cinta
       categoriesExpanded: false, // Controla si la tarjeta blanca está visible
       frmData: {
         indicator_id: [],
@@ -439,16 +439,17 @@ export default {
     CINTA (Ribbon)
   =============================== */
   .ribbon-toggle {
-    /* background: linear-gradient(135deg, #b62b86 0%, #6a3d8f 100%); */
-    /* background: linear-gradient(135deg, #b62b86  0%, #e30c7e 100%); */
     background: linear-gradient(90deg, #9C27B0 0%, #E91E63 100%);
     padding: 12px 15px 12px 10px;
     border-radius: 0 20px 20px 0;
     cursor: pointer;
     transition: width 0.3s ease;
+    /* Separación del borde de la pantalla */
+    margin-left: 0px;
+    margin-top: -80px;
   }
   .ribbon-toggle:hover {
-    padding-right: 20px; /* Pequeño efecto al pasar el mouse */
+    padding-right: 18px; /* Pequeño efecto al pasar el mouse */
   }
 
   /* ===============================
@@ -456,8 +457,9 @@ export default {
   =============================== */
   .deck-container {
     width: 400px;
-    margin-left: 60px; /* Separación del borde de la pantalla */
-    margin-top: -75px;
+    /* Separación del borde de la pantalla */
+    margin-left: 20px;
+    margin-top: -70px;
     display: flex;
     flex-direction: column;
   }

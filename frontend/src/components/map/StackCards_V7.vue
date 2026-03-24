@@ -2,13 +2,16 @@
   <div class="stack-wrapper">
     <div class="stack-container">
       <div v-for="(card, index) in cards" :key="index" class="stack-item" :class="{ 'is-active': activeIndex === index }" :style="getItemStyle(index)">
-
-        <!-- <div class="stack-header" :class="{ 'un-active': shouldApplyUnactive(index) }" :style="{ background: card.gradient }" @click="toggle(index)"> -->
-        <div class="stack-header" :class="{ 'first-header': index === 0 }" :style="{ background: card.gradient }" @click="toggle(index)">
+        <div
+          class="stack-header"
+          :class="{ 'un-active': shouldApplyUnactive(index) }"
+          :style="{ background: card.gradient }"
+          @click="toggle(index)"
+        >
             <span class="stack-title">{{ card.title }}</span>
 
             <div>
-              <v-icon color="white" class="thick-icon">
+              <v-icon color="white">
                 {{ activeIndex === index ? 'mdi-minus' : 'mdi-plus' }}
               </v-icon>
             </div>
@@ -17,18 +20,15 @@
         <v-expand-transition>
           <div v-show="activeIndex === index" class="stack-content">
             <slot :name="card.id">
-              <div v-if="card.id === 'poblacion'">
+              <div v-if="card.id === 'poblacion'" class="fake-content">
                 <div style="padding: 15px;">
-                  <div class="chart-wrapper">
-                    <ChartComp
-                      v-if="myChartName && myChartData && myChartData.datasets && myChartData.datasets.length > 0 && myChartData.labels && myChartData.labels.length > 0"
-                      :type="myChartName"
-                      :data="myChartData"
-                      :options="myChartOptions"
-                      :styles="{ height: '250px', position: 'relative' }"
-                      :refresh="activeIndex === index"
-                    />
-                  </div>
+                  <ChartComp
+                    v-if="myChartName && myChartData && myChartData.datasets && myChartData.datasets.length > 0 && myChartData.labels && myChartData.labels.length > 0"
+                    :type="myChartName"
+                    :data="myChartData"
+                    :options="myChartOptions"
+                    :refresh="activeIndex === index"
+                  />
                 </div>
               </div>
               <div v-else class="fake-content" style="padding: 15px;">
@@ -70,7 +70,7 @@ export default {
   // 3️⃣ Datos reactivas
   data () {
     return {
-      activeIndex: null, // 0
+      activeIndex: 0,
       overlapMargin: -30,
       cards: [
         {
@@ -114,9 +114,6 @@ export default {
         // console.log('category_details --> ', newData)
         if (newData && newData.length > 0) {
           this.renderCharts({ type: 'line', data: newData })
-          this.activeIndex = 0
-        } else {
-          this.activeIndex = null
         }
       }
     }
@@ -248,11 +245,6 @@ export default {
     flex-direction: column;
   }
 
-  .thick-icon {
-    font-weight: bold;
-    -webkit-text-stroke: 1px white;
-  }
-
   /* ===============================  TARJETAS  =============================== */
   .stack-item {
     border-radius: 20px;
@@ -261,19 +253,26 @@ export default {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     background: white;
   }
-
+  /* Hover solo para pantallas que soportan puntero (Escritorio/Laptops) */
+  @media (hover: hover) and (pointer: fine) {
+    .stack-item:hover {
+      transform: translateX(-15px); /* Un poco más sutil */
+    }
+  }
   /* Cuando una tarjeta está activa, le damos un poco más de sombra */
   .stack-item.is-active {
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     margin-bottom: 10px;
-    /* margin-top: 0 !important; */
+    /* margin-top: 5px !important;*/  /* Evita que se vea encimada cuando está abierta */
+    margin-top: 0 !important;
+    /* margin-top: -25px !important; */
   }
 
   /* ===============================  CABECERAS  =============================== */
   .stack-header {
+    /* height: 50px; */
     height: 70px;
     padding: 0 20px;
-    padding-top: 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -281,11 +280,8 @@ export default {
     color: white;
   }
   .stack-header.un-active {
-    /* height: 70px; */
+    height: 70px;
     padding-top: 30px;
-  }
-  .stack-header.first-header {
-    padding-top: 0px !important;
   }
   .stack-title {
     font-weight: bold;
@@ -297,19 +293,11 @@ export default {
     text-overflow: ellipsis; /* Si el texto es muy largo en móviles, pone "..." */
   }
 
-  .chart-wrapper {
-    position: relative;
-    width: 100%;
-    /* Le damos 250px para respetar el max-height de 300px y el padding */
-    /* height: 250px; */
-  }
-
   .stack-content {
     background: white;
+    /* padding: 15px; */
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
-    /* max-height: 300px;
-    overflow-y: auto; */
   }
 
   /* ===============================  ESTILOS INTERNOS DE EJEMPLO  =============================== */
@@ -326,12 +314,6 @@ export default {
   }
 
   /* ===============================  MEDIA QUERIES (Responsividad)  =============================== */
-  /* Hover solo para pantallas que soportan puntero (Escritorio/Laptops) */
-  @media (hover: hover) and (pointer: fine) {
-    .stack-item:hover {
-      transform: translateX(-5px); /* Un poco más sutil */
-    }
-  }
   /* Teléfonos Móviles (hasta 600px) */
   @media (max-width: 600px) {
 

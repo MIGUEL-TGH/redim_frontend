@@ -502,7 +502,7 @@ export default {
       this.view = new MapView({
         container: this.$refs.mapView,
         map: this.map,
-        center: [-102.37592182483502, 24.097127823504444],
+        center: [-102.37592182483502, 24.097127823504444], // longitude, latitude
         zoom: 4.4,
         // scale: 9000000, // ajusta hasta que quede perfecto visualmente
         constraints: {

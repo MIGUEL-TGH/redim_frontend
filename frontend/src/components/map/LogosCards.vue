@@ -1,14 +1,33 @@
 <template>
   <div>
     <!-- TARJETA INSTITUCIONAL (abajo izquierda) -->
-    <!-- <div class="map-card map-card-left">
+    <div class="map-card map-card-left">
       <img src="@/assets/logos/LOGOTIPO-COLOR.png" class="logo-project" alt="Logo Proyecto">
-    </div> -->
+    </div>
+
+    <!-- TARJETA ZOOM (abajo centro) -->
+    <div class="map-card map-card-center d-flex align-center">
+      <v-btn icon small @click="$emit('zoom-out')" aria-label="Alejar">
+        <v-icon color="grey darken-2">mdi-minus</v-icon>
+      </v-btn>
+
+      <v-divider vertical class="mx-1"></v-divider>
+
+      <v-btn icon small @click="$emit('go-home')" aria-label="Inicio">
+        <v-icon color="grey darken-2">mdi-home</v-icon>
+      </v-btn>
+
+      <v-divider vertical class="mx-1"></v-divider>
+
+      <v-btn icon small @click="$emit('zoom-in')" aria-label="Acercar">
+        <v-icon color="grey darken-2">mdi-plus</v-icon>
+      </v-btn>
+    </div>
 
     <!-- TARJETA PROYECTO (abajo derecha) -->
-    <!-- <div class="map-card map-card-right">
+    <div class="map-card map-card-right">
       <img src="@/assets/logos/NiñezPrimero-Placa.png" class="logo-dependences" alt="Logo Instituciones">
-    </div> -->
+    </div>
   </div>
 </template>
 
@@ -95,7 +114,8 @@ export default {
   }
 
   .map-card-right {
-    bottom: -30px;
+    /* bottom: -30px; */
+    bottom: 0px;
     right: 0px;
   }
 
@@ -122,6 +142,28 @@ export default {
     transition: height 0.3s ease;
   }
 
+/* ===============================
+    CONTROLES CENTRALES (ZOOM)
+  ================================ */
+  .map-card-center {
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    /* Estilos visuales tipo píldora */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(6px);
+    border-radius: 24px;
+    padding: 4px 8px;
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.15),
+      0 2px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  .map-card-center:hover {
+    transform: translateX(-50%) translateY(-3px);
+  }
+
   /* ===============================
     MEDIA QUERIES (Responsividad)
   ================================ */
@@ -133,6 +175,7 @@ export default {
 
     .map-card-left { bottom: 15px; left: 15px; }
     .map-card-right { bottom: -25px; right: 5px; }
+    .map-card-center { bottom: 15px; }
   }
 
   /* Teléfonos Móviles (Vuetify 'xs' - hasta 600px) */
@@ -143,5 +186,6 @@ export default {
     .map-card-left { bottom: 10px; left: 10px; }
     /* Le damos un poco más de margen al logo derecho en móviles para que respire */
     .map-card-right { bottom: -20px; right: 10px; }
+    .map-card-center { bottom: 10px; }
   }
 </style>
