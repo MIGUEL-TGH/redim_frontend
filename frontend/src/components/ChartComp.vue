@@ -33,7 +33,7 @@ export default {
       type: Object,
       default: () => ({ responsive: true, maintainAspectRatio: false })
     },
-    refresh: Boolean,
+    // refresh: Boolean,
     styles: {
       type: Object,
       default: () => ({ position: 'relative', height: '100%' })

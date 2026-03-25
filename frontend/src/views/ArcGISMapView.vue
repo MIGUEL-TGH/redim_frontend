@@ -16,6 +16,7 @@
       />
 
       <left-filter-deck
+        ref="filterDeck"
         :indicators="indicators"
         :states="states"
         :years="years"
@@ -381,6 +382,7 @@ export default {
       // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [184, 171, 155, 0.9], type: 'files' })
       // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
     },
+
     // ======================================================================================================================================
     async getGenders () {
       try {
@@ -436,6 +438,7 @@ export default {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
         const response = await axios.post(url, { indicator_ids: sendData })
         // console.log('getCategories() --> ', response.data.result)
+
         if (response.data.status === 200) {
           // 1️⃣ VALIDACIÓN DE ESTADO VACÍO
           if (!response.data.result || response.data.result.length === 0) {
@@ -462,20 +465,21 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getwithdata`
         const response = await axios.get(url)
-        // console.log(response.data)
         if (response.data.success) {
           this.indicators = response.data.result
-          // this.frmData.indicator_id = this.indicators[1].id
+          // console.log('getIndicators ', this.indicators)
         }
       } catch (error) {
         console.log(error)
       }
     },
-
     async handleSubmit (formData) {
-      // console.log('submit-->', formData)
+      console.log('submit-->', formData)
+      this.dialog_loader.actived = true
+      this.dialog_loader.message = 'Por favor espere...'
 
-      // this.category_details = []
+      this.category_details = []
+      await this.setSleep(1000)
 
       const sendData = {
       // category_id: [1, 2, 3],
@@ -529,7 +533,7 @@ export default {
         return
       }
       sendData.category_id = categoryIds
-
+      console.log(sendData)
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
         const response = await axios.post(url, sendData)
@@ -540,19 +544,110 @@ export default {
       } catch (error) {
         console.log(error)
         console.log(error.response.data)
+      } finally {
+        this.dialog_loader.actived = false
+        this.dialog_loader.message = ''
       }
+    },
+
+    // ======================================================================================================================================
+    parseParam (paramValue, catalogList) {
+      if (!paramValue || !catalogList || catalogList.length === 0) return []
+
+      // Convertimos el string "1,2,3" en un array de enteros [1, 2, 3]
+      const paramArray = paramValue.split(',').map(Number)
+
+      // REGLA: Si incluye un 0, se seleccionan todos los registros del array
+      if (paramArray.includes(0)) {
+        // En tu LeftFilterDeck vi que utilizas watchers para el valor [0] como "Todos"
+        // Si tienes esa lógica en todos los v-model, puedes retornar: return [0];
+        // De lo contrario, la forma más segura es retornar todos los IDs disponibles:
+        return catalogList.map(item => item.id)
+      }
+
+      // REGLA: Omitir (filtrar) aquellos IDs de la URL que NO existen en el catálogo
+      return paramArray.filter(id => catalogList.some(item => item.id === id))
+    },
+    async evaluateUrlParams () {
+      if (!this.urlParams) { return }
+
+      // Verificamos si la URL contiene al menos uno de los filtros
+      const filterKeys = ['indicator', 'category', 'gender', 'state', 'year']
+      const hasFilters = filterKeys.some(key => this.urlParams.has(key))
+
+      // Si no hay parámetros, el flujo termina aquí y funciona normalmente
+      if (!hasFilters) { return }
+
+      if (this.$refs.filterDeck) {
+        // const filterData = this.$refs.filterDeck.frmData
+        const dataFilter = this.parseParam(this.urlParams.get('year'), this.years)
+        console.log(dataFilter)
+        // Parseamos y validamos asegurándonos de que cada ID exista
+        // filterData.indicator_id = this.parseParam(this.urlParams.get('indicator'), this.indicators)
+        // filterData.state_id = this.parseParam(this.urlParams.get('state'), this.states)
+        // filterData.year_id = this.parseParam(this.urlParams.get('year'), this.years)
+        // filterData.gender_id = this.parseParam(this.urlParams.get('gender'), this.genders)
+        console.log('evaluateUrlParams --> NEXT')
+        // console.log(filterData.indicator_id)
+
+        // =================================================================================================================
+        // // Manejo de "category": Solo se puede validar si hay un indicador previo para cargar las categorías
+        // if (this.urlParams.has('category') && filterData.indicator_id.length > 0) {
+        //   // Llama al método que hace la petición de categorías basado en el indicador_id
+        //   await this.getCategories()
+        //   filterData.category_id = this.parseParam(this.urlParams.get('category'), this.categories)
+        // }
+
+        // // Opcional: Si deseas que la búsqueda se ejecute automáticamente tras inyectar la URL
+        // // this.$refs.filterDeck.submitFilters()
+      }
+    },
+    startTutorial () {
+      console.log('--- MODO TUTORIAL ACTIVADO ---')
+    },
+    async loadCatalogs () {
+      try {
+        await Promise.all([
+          this.getIndicators(),
+          this.getStates(),
+          this.getYears(),
+          this.getGenders()
+          // this.getCategories([1, 2, 3, 4])
+        ])
+      } catch (error) {
+        console.error('Error cargando catálogos:', error)
+      }
+    },
+    async initApplication () {
+      // 1. Obtener parámetros de la URL usando tu acción de Vuex existente
+      await this.getParams()
+
+      // 2. MODALIDAD 1: Modo Tutorial
+      // https://ninezprimero.aularedim.net/mapa?introduccion=true
+      // Verifica si existe la bandera introduccion=true
+      if (this.urlParams && this.urlParams.get('introduccion') === 'true') {
+        this.startTutorial()
+      }
+
+      // 3. Cargar catálogos base PRIMERO
+      await this.loadCatalogs()
+
+      // 4. MODALIDAD 2: Inyectar parámetros validados a LeftFilterDeck
+      await this.evaluateUrlParams()
     }
+
     // ======================================================================================================================================
   },
 
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
   async created () {
+    // console.log('created')
     // ======================================================================================================================================
-    this.getIndicators()
-    this.getStates()
-    this.getYears()
-    this.getGenders()
+    // this.getIndicators()
+    // this.getStates()
+    // this.getYears()
+    // this.getGenders()
     // this.getCategories([1, 2, 3, 4])
 
     // ======================================================================================================================================
@@ -602,8 +697,9 @@ export default {
     // }
   },
   beforeMount () {},
-  mounted () {
-    this.initMap()
+  async mounted () {
+    await this.initMap()
+    await this.initApplication()
   },
   beforeUpdate () {},
   updated () {},

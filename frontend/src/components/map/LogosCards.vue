@@ -1,9 +1,9 @@
 <template>
   <div>
     <!-- TARJETA INSTITUCIONAL (abajo izquierda) -->
-    <div class="map-card map-card-left">
+    <!-- <div class="map-card map-card-left">
       <img src="@/assets/logos/LOGOTIPO-COLOR.png" class="logo-project" alt="Logo Proyecto">
-    </div>
+    </div> -->
 
     <!-- TARJETA ZOOM (abajo centro) -->
     <div class="map-card map-card-center d-flex align-center">

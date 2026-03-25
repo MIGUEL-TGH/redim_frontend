@@ -153,7 +153,7 @@ export default {
   // 3️⃣ Datos reactivas
   data () {
     return {
-      isOpen: false, // Controla el panel completo vs la cinta
+      isOpen: true, // Controla el panel completo vs la cinta
       categoriesExpanded: false, // Controla si la tarjeta blanca está visible
       frmData: {
         indicator_id: [],

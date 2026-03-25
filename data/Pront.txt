@@ -1,0 +1,40 @@
+https://ninezprimero.aularedim.net/mapa
+
+category_id
+gender_id
+indicator_id
+state_id
+year_id
+
+
+1. Cuando se ingresa a la vista del mapa https://ninezprimero.aularedim.net/mapa (sin parámetros), necesito que se ejecute de manera normal, después se tiene planeado agregarle un pequeño tutorial para indicar de manera general donde están los botones y para que funcionan. Debe mostrar con una flecha donde y que hace cada uno; pero eso es lo ultimo que se tiene que hacer, después de tener todas las funcionalidades desarrolladas, pero si dejar las bases para cuando se integre esa funcionalidad o en su defecto agregar una modalidad adicionar como https://ninezprimero.aularedim.net/mapa?introduccion=true para activar el modo tutorial
+
+2. Ingresar a los datos desde los parámetros de la URL, para evitar hacer todo el recorrido manual al formulario form_item, ejemplo:
+https://ninezprimero.aularedim.net/mapa?indicator=1,2&category=1,2,3&gender=1,2&state=1,2,3,4,5&year=1,2,3,4,5
+
+En este sentido, primero tiene que cargar datos de indicators, states, years, genders para poder evaluar los datos
+
+Tiene que hacer filtrar los datos y determinar si el id agregado en los parámetros existen en caso de que no existan, lo debe de omitir
+
+si en los parámetros es igual a 0, indica que tiene seleccionado todos los registros del array, ejemplo: https://ninezprimero.aularedim.net/mapa?indicator=1,2&category=0&gender=0&state=0&year=0
+
+Espero ser lo suficientemente específico en lo que estoy solicitando, ya tengo un método que captura los parámetros:
+
+async getParams ({ state }, event) {
+      state.url = new URL(window.location)
+      state.urlParams = await new URLSearchParams(state.url.search)
+    }
+
+
+Te adjunto todos los archivos involucrados en esta solicitud:
+Nota: https://ninezprimero.aularedim.net es el dominio en donde se va a publicar, por eso lo estoy usando como ejemplo
+
+
+https://ninezprimero.aularedim.net/mapa?indicator=1,2&category=1,2,3&gender=1,2&state=1,2,3,4,5&year=1,2,3,4,5
+
+https://ninezprimero.aularedim.net/mapa?indicator=1,2&category=0&gender=0&state=0&year=0
+
+
+http://localhost:8080/?indicator=1,2&category=1,2,3&gender=1,2&state=1,2,3,4,5&year=1,2,3,4,5
+
+
