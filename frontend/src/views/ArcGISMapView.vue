@@ -552,21 +552,34 @@ export default {
 
     // ======================================================================================================================================
     parseParam (paramValue, catalogList) {
-      if (!paramValue || !catalogList || catalogList.length === 0) return []
+      // if (!paramValue || !catalogList || catalogList.length === 0) return []
+      if (!paramValue || !catalogList || catalogList.length === 0) return [0]
 
       // Convertimos el string "1,2,3" en un array de enteros [1, 2, 3]
       const paramArray = paramValue.split(',').map(Number)
 
       // REGLA: Si incluye un 0, se seleccionan todos los registros del array
       if (paramArray.includes(0)) {
-        // En tu LeftFilterDeck vi que utilizas watchers para el valor [0] como "Todos"
-        // Si tienes esa lógica en todos los v-model, puedes retornar: return [0];
-        // De lo contrario, la forma más segura es retornar todos los IDs disponibles:
-        return catalogList.map(item => item.id)
+        return [0]
+        // return catalogList.map(item => item.id)
+        // return catalogList
+        //   .filter(item => item.id !== 0)
+        //   .map(item => item.id)
       }
 
       // REGLA: Omitir (filtrar) aquellos IDs de la URL que NO existen en el catálogo
-      return paramArray.filter(id => catalogList.some(item => item.id === id))
+      const filter = paramArray.filter(id => catalogList.some(item => item.id === id))
+
+      // REGLA: Si no hay datos en filter, se asigna un 0
+      if (!filter.length) {
+        return [0]
+        // return catalogList.map(item => item.id)
+        // return catalogList
+        //   .filter(item => item.id !== 0)
+        //   .map(item => item.id)
+      }
+
+      return filter
     },
     async evaluateUrlParams () {
       if (!this.urlParams) { return }
@@ -579,15 +592,19 @@ export default {
       if (!hasFilters) { return }
 
       if (this.$refs.filterDeck) {
-        // const filterData = this.$refs.filterDeck.frmData
-        const dataFilter = this.parseParam(this.urlParams.get('year'), this.years)
-        console.log(dataFilter)
+        const filterData = this.$refs.filterDeck.frmData
+
+        // const dataIndicators = await this.parseParam(this.urlParams.get('indicator'), this.indicators)
+        // if (dataIndicators.includes(0)) { return }
+        // filterData.indicator_id = dataIndicators
+        // console.log('dataFilter -->', dataIndicators)
+
         // Parseamos y validamos asegurándonos de que cada ID exista
         // filterData.indicator_id = this.parseParam(this.urlParams.get('indicator'), this.indicators)
-        // filterData.state_id = this.parseParam(this.urlParams.get('state'), this.states)
+        filterData.state_id = this.parseParam(this.urlParams.get('state'), this.states)
         // filterData.year_id = this.parseParam(this.urlParams.get('year'), this.years)
         // filterData.gender_id = this.parseParam(this.urlParams.get('gender'), this.genders)
-        console.log('evaluateUrlParams --> NEXT')
+        // console.log('evaluateUrlParams --> NEXT')
         // console.log(filterData.indicator_id)
 
         // =================================================================================================================

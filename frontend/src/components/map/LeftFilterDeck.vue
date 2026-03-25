@@ -46,10 +46,13 @@
               <v-col cols="4" class="py-1 pl-1 pr-1">
                 <label class="white--text font-weight-bold caption mb-1 d-block">Estado*:</label>
                   <v-select v-model="frmData.state_id" :items="states" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isStateDisabled"
-                    background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                    class="select" background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
                     <template v-slot:selection="{ item, index }">
-                      <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                      <v-chip v-if="item.id === 0" small label color="#246257" class="chip-select" text-color="white">
                         <span>{{ item.title }}</span>
+                      </v-chip>
+                      <v-chip v-else-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                        <span>{{ item.iso_code }}</span>
                       </v-chip>
                       <span v-if="index === 1" class="grey--text span-select">
                         (+{{ frmData.state_id.length - 1 }} más)
@@ -65,10 +68,10 @@
               <v-col cols="4" class="py-1 pr-1 pl-1">
                 <label class="white--text font-weight-bold caption mb-1 d-block">Año*:</label>
                 <v-select v-model="frmData.year_id" :items="years" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isYearDisabled"
-                  background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                  class="select" background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
                   <template v-slot:selection="{ item, index }">
                     <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                      <span>{{ truncateText(item.title, 20) }}</span>
+                      <span>{{ item.title }}</span>
                     </v-chip>
                     <span v-if="index === 1" class="grey--text span-select">
                       (+{{ frmData.year_id.length - 1 }} más)
@@ -83,10 +86,13 @@
               <v-col cols="4" class="py-1 pl-1 pr-1">
                 <label class="white--text font-weight-bold caption mb-1 d-block">Sexo*:</label>
                 <v-select v-model="frmData.gender_id" :items="genders" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isGenderDisabled"
-                    background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                    class="select" background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
                     <template v-slot:selection="{ item, index }">
-                      <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                        <span>{{ truncateText(item.title, 20) }}</span>
+                      <v-chip v-if="item.id === 0" small label color="#246257" class="chip-select" text-color="white">
+                        <span>{{ item.title }}</span>
+                      </v-chip>
+                      <v-chip v-else-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                        <span>{{ truncateText(item.title, 1) }}</span>
                       </v-chip>
                       <span v-if="index === 1" class="grey--text span-select">
                         (+{{ frmData.gender_id.length - 1 }} más)
@@ -456,7 +462,7 @@ export default {
     TARJETAS APILADAS (Deck)
   =============================== */
   .deck-container {
-    width: 400px;
+    width: 410px;
     /* Separación del borde de la pantalla */
     margin-left: 20px;
     margin-top: -70px;
@@ -470,7 +476,7 @@ export default {
     /* background: linear-gradient(135deg, #9C27B0 0%, #E91E63 100%); */
     background: linear-gradient(to bottom, #b62b86 0%, #E91E63 100%);
     border-radius: 20px;
-    padding: 20px;
+    padding: 18px;
     position: relative;
     z-index: 2; /* Siempre por encima de la tarjeta blanca */
   }
@@ -655,14 +661,19 @@ export default {
 
   /* v-select ============================================================================================================ */
   .chip-select {
-    font-size: 12px;
-    padding: 0 8px;
+    font-size: 11px !important;
+    padding: 0 5px;
     margin: 0 1px !important;
     text-overflow: ellipsis;
+    border-radius: 4px !important;
   }
   .span-select {
-    font-size: 11px;
-    padding: 0 5px !important;
+    font-size: 10px;
+    padding: 0 0 0 2px !important;
+  }
+
+  .select ::v-deep .v-input__control>.v-input__slot {
+    padding: 0 0 0 5px !important;
   }
 
 </style>
