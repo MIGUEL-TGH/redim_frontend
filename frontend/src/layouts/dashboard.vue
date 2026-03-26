@@ -11,15 +11,13 @@
     </v-app-bar>
     <v-navigation-drawer app v-model="drawer_left_map" width="260px" clipped style="padding: 10px !important;" color="#B2B2B1">
       <!-- <h5>Barra de Navegación</h5>
-      <br> -->
-      <!-- <v-list-item>
+      <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="text-h6">Panel Redim</v-list-item-title>
           <v-list-item-subtitle>Menú Principal</v-list-item-subtitle>
         </v-list-item-content>
-      </v-list-item> -->
-
-      <!-- <v-divider></v-divider> -->
+      </v-list-item>
+      <v-divider></v-divider> -->
 
       <v-list dense nav>
         <!-- <v-list-item v-for="item in allowedMenu" :key="item.module" :to="item.route" link> -->
@@ -33,16 +31,6 @@
         </v-list-item>
       </v-list>
 
-      <!-- <template v-slot:append>
-        <div class="pa-4">
-          <v-divider class="mb-3"></v-divider>
-          <div class="text-caption text-center mb-1 grey--text text--darken-2">
-            Cierre por inactividad en: <strong>{{ formattedIdleTime }}</strong>
-          </div>
-          <v-progress-linear :value="idleProgress" :color="currentIdleTime < 60 ? 'red' : 'primary'" height="8" rounded striped ></v-progress-linear>
-        </div>
-      </template> -->
-
       <template v-slot:append>
         <div class="pa-4">
           <v-divider class="mb-3"></v-divider>
@@ -50,7 +38,8 @@
           <div class="text-caption text-center mb-1 grey--text text--darken-2">
             Cierre por inactividad en: <strong>{{ formattedIdleTime }}</strong>
           </div>
-          <v-progress-linear :value="idleProgress" :color="currentIdleTime < 60 ? 'red' : 'primary'" height="8" rounded striped class="mb-4"></v-progress-linear>
+          <!-- <v-progress-linear :value="idleProgress" :color="currentIdleTime < 60 ? 'red' : 'primary'" height="8" rounded striped class="mb-4"></v-progress-linear> -->
+          <v-progress-linear :value="idleProgress" :color="currentIdleTime < 60 ? 'red' : 'primary'" height="8" rounded class="mb-4"></v-progress-linear>
 
           <div class="text-caption mb-1 grey--text text--darken-2" style="font-size: 0.70rem !important; line-height: 1.2;">
             <div class="d-flex justify-space-between">
@@ -61,8 +50,8 @@
               Expira en: <strong>{{ formattedTokenRemaining }}</strong>
             </div>
           </div>
-
-          <v-progress-linear :value="tokenProgress" :color="tokenTimeRemaining < 120 ? 'orange' : 'teal'" height="8" rounded striped></v-progress-linear>
+          <!-- <v-progress-linear :value="tokenProgress" :color="tokenTimeRemaining < 120 ? 'orange' : 'teal'" height="8" rounded striped class="mb-4"></v-progress-linear> -->
+          <v-progress-linear :value="tokenProgress" :color="tokenTimeRemaining < 120 ? 'orange' : 'teal'" height="8" rounded class="mb-4"></v-progress-linear>
 
           <div class="text-center mt-1 text-caption grey--text text--lighten-1" v-if="isRefreshingToken">
             <em>Renovando token...</em>
@@ -77,13 +66,6 @@
     <router-view />
     <loader-comp />
     <view-notifications-comp ref="notifier"/>
-
-    <!-- <v-main>
-      <h1> DashBoard Welcome </h1>
-      <v-container fluid>
-        <router-view />
-      </v-container>
-    </v-main> -->
 
   </div>
 </template>
@@ -116,6 +98,7 @@ export default {
 
   // 3️⃣ Datos reactivas
   data () {
+    const maxIdle = parseInt(process.env.VUE_APP_MAX_IDLE_TIME || 600, 10)
     return {
       drawer_left_map: true,
       // Mapeo maestro de todas las rutas posibles del sistema
@@ -132,8 +115,11 @@ export default {
       ],
 
       // Variables para inactividad
-      maxIdleTime: 600, // 10 minutos en segundos
-      currentIdleTime: 600, // 600
+      // maxIdleTime: 600, // 10 minutos en segundos
+      // maxIdleTime: 180, // 10 minutos en segundos
+      // currentIdleTime: 180, // 600
+      maxIdleTime: maxIdle,
+      currentIdleTime: maxIdle,
       idleInterval: null,
       // Eventos del DOM que consideramos "actividad"
       activityEvents: ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'],
@@ -179,7 +165,10 @@ export default {
     tokenProgress () {
       if (this.tokenTotalLifespan <= 0) return 0
       // Porcentaje de uso: va de 0% al 100%
-      return (this.tokenTimeElapsed / this.tokenTotalLifespan) * 100
+      // return (this.tokenTimeElapsed / this.tokenTotalLifespan) * 100
+
+      // Porcentaje de uso: va de 100% al 0%
+      return (this.tokenTimeRemaining / this.tokenTotalLifespan) * 100
     },
     formattedTokenRemaining () {
       const minutes = Math.floor(this.tokenTimeRemaining / 60)
@@ -234,82 +223,6 @@ export default {
     resetIdleTimer () {
       this.currentIdleTime = this.maxIdleTime
     },
-    // Inicia la "escucha" de actividad y el contador regresivo
-    // startIdleTracking () {
-    //   // Registrar eventos en la ventana principal
-    //   this.activityEvents.forEach(event => {
-    //     window.addEventListener(event, this.resetIdleTimer)
-    //   })
-
-    //   // Bucle que se ejecuta cada 1 segundo (1000 ms)
-    //   this.idleInterval = setInterval(() => {
-    //     this.currentIdleTime -= 1
-
-    //     // Si el tiempo llega a cero, expulsamos al usuario
-    //     if (this.currentIdleTime <= 0) {
-    //       this.handleAutoLogout()
-    //     }
-    //   }, 1000)
-    // },
-    // Limpieza de memoria (muy importante en SPAs)
-    // stopIdleTracking () {
-    //   this.activityEvents.forEach(event => {
-    //     window.removeEventListener(event, this.resetIdleTimer)
-    //   })
-    //   clearInterval(this.idleInterval)
-    // },
-    // Ejecuta el cierre de sesión por inactividad
-    // handleAutoLogout () {
-    //   this.stopIdleTracking() // Detenemos el reloj
-
-    //   // Notificamos al usuario
-    //   this.$store.dispatch('storeNotif/warning', {
-    //     message: 'Tu sesión se ha cerrado automáticamente por inactividad.'
-    //   })
-
-    //   // Usamos tu método existente o despachamos directo a storeDB
-    //   this.$store.dispatch('storeDB/logout')
-    //   this.$router.push('/administrator').catch(() => {})
-    // },
-
-    // startIdleTracking () {
-    //   // Registrar eventos de actividad
-    //   this.activityEvents.forEach(event => {
-    //     window.addEventListener(event, this.resetIdleTimer)
-    //   })
-
-    //   // Bucle maestro cada 1 segundo
-    //   this.idleInterval = setInterval(() => {
-    //     // 1. Lógica de inactividad física del usuario
-    //     this.currentIdleTime -= 1
-    //     if (this.currentIdleTime <= 0) {
-    //       this.handleAutoLogout()
-    //       return // Detenemos aquí si ya lo expulsamos
-    //     }
-
-    //     // 2. Lógica de renovación silenciosa del Token JWT
-    //     const token = this.$store.state.storeDB.token
-    //     if (token) {
-    //       try {
-    //         const decoded = jwtDecode(token)
-    //         const currentTime = Math.floor(Date.now() / 1000) // Tiempo en segundos
-    //         const timeLeft = decoded.exp - currentTime
-    //         // console.log(timeLeft)
-    //         // Si faltan exactamente 120 segundos (2 minutos) para que expire el token...
-    //         // Y el usuario está activo (es decir, el reloj de idle time tiene buen tiempo)
-    //         if (timeLeft === 120 && this.currentIdleTime > 120) {
-    //           this.$store.dispatch('storeDB/silentRefresh')
-    //         }
-    //       } catch (error) {
-    //         console.error('Error leyendo expiración del token', error)
-    //       }
-    //     }
-    //   }, 1000)
-    // },
-    // --------------------------------------------------------------------------------------------------------
-    // resetIdleTimer () {
-    //   this.currentIdleTime = this.maxIdleTime
-    // },
 
     startIdleTracking () {
       this.activityEvents.forEach(event => {

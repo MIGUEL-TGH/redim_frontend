@@ -174,7 +174,7 @@ export default {
     .logo-dependences { height: 70px; }
 
     .map-card-left { bottom: 15px; left: 15px; }
-    .map-card-right { bottom: -25px; right: 5px; }
+    /* .map-card-right { bottom: -25px; right: 5px; } */
     .map-card-center { bottom: 15px; }
   }
 
@@ -185,7 +185,7 @@ export default {
 
     .map-card-left { bottom: 10px; left: 10px; }
     /* Le damos un poco más de margen al logo derecho en móviles para que respire */
-    .map-card-right { bottom: -20px; right: 10px; }
+    /* .map-card-right { bottom: -20px; right: 10px; } */
     .map-card-center { bottom: 10px; }
   }
 </style>

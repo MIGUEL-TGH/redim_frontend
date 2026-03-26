@@ -474,12 +474,12 @@ export default {
       }
     },
     async handleSubmit (formData) {
-      console.log('submit-->', formData)
+      // console.log('submit-->', formData)
       this.dialog_loader.actived = true
       this.dialog_loader.message = 'Por favor espere...'
 
       this.category_details = []
-      await this.setSleep(1000)
+      await this.setSleep(500)
 
       const sendData = {
       // category_id: [1, 2, 3],
@@ -533,7 +533,7 @@ export default {
         return
       }
       sendData.category_id = categoryIds
-      console.log(sendData)
+      // console.log(sendData)
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
         const response = await axios.post(url, sendData)
@@ -594,29 +594,22 @@ export default {
       if (this.$refs.filterDeck) {
         const filterData = this.$refs.filterDeck.frmData
 
-        // const dataIndicators = await this.parseParam(this.urlParams.get('indicator'), this.indicators)
-        // if (dataIndicators.includes(0)) { return }
-        // filterData.indicator_id = dataIndicators
-        // console.log('dataFilter -->', dataIndicators)
+        // Parseamos y validamos asegurándo de que cada ID exista
+        const dataIndicators = await this.parseParam(this.urlParams.get('indicator'), this.indicators)
+        if (dataIndicators.includes(0)) { return }
+        filterData.indicator_id = dataIndicators
 
-        // Parseamos y validamos asegurándonos de que cada ID exista
-        // filterData.indicator_id = this.parseParam(this.urlParams.get('indicator'), this.indicators)
-        filterData.state_id = this.parseParam(this.urlParams.get('state'), this.states)
-        // filterData.year_id = this.parseParam(this.urlParams.get('year'), this.years)
-        // filterData.gender_id = this.parseParam(this.urlParams.get('gender'), this.genders)
-        // console.log('evaluateUrlParams --> NEXT')
-        // console.log(filterData.indicator_id)
+        filterData.indicator_id = await this.parseParam(this.urlParams.get('indicator'), this.indicators)
+        filterData.state_id = await this.parseParam(this.urlParams.get('state'), this.states)
+        filterData.year_id = await this.parseParam(this.urlParams.get('year'), this.years)
+        filterData.gender_id = await this.parseParam(this.urlParams.get('gender'), this.genders)
 
         // =================================================================================================================
-        // // Manejo de "category": Solo se puede validar si hay un indicador previo para cargar las categorías
-        // if (this.urlParams.has('category') && filterData.indicator_id.length > 0) {
-        //   // Llama al método que hace la petición de categorías basado en el indicador_id
-        //   await this.getCategories()
-        //   filterData.category_id = this.parseParam(this.urlParams.get('category'), this.categories)
-        // }
+        await this.setSleep(1000)
+        await this.$refs.filterDeck.getCategories()
 
-        // // Opcional: Si deseas que la búsqueda se ejecute automáticamente tras inyectar la URL
-        // // this.$refs.filterDeck.submitFilters()
+        await this.setSleep(500)
+        await this.$refs.filterDeck.submitFilters()
       }
     },
     startTutorial () {
@@ -636,6 +629,9 @@ export default {
       }
     },
     async initApplication () {
+      this.dialog_loader.actived = true
+      this.dialog_loader.message = 'Por favor espere...'
+
       // 1. Obtener parámetros de la URL usando tu acción de Vuex existente
       await this.getParams()
 
@@ -643,14 +639,17 @@ export default {
       // https://ninezprimero.aularedim.net/mapa?introduccion=true
       // Verifica si existe la bandera introduccion=true
       if (this.urlParams && this.urlParams.get('introduccion') === 'true') {
-        this.startTutorial()
+        await this.startTutorial()
       }
 
-      // 3. Cargar catálogos base PRIMERO
+      // 3. Cargar catálogos base
       await this.loadCatalogs()
 
-      // 4. MODALIDAD 2: Inyectar parámetros validados a LeftFilterDeck
+      // 4. MODALIDAD 2: validar parámetros
       await this.evaluateUrlParams()
+
+      this.dialog_loader.actived = false
+      this.dialog_loader.message = ''
     }
 
     // ======================================================================================================================================

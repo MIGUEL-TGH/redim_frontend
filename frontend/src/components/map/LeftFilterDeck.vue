@@ -92,7 +92,7 @@
                         <span>{{ item.title }}</span>
                       </v-chip>
                       <v-chip v-else-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
-                        <span>{{ truncateText(item.title, 1) }}</span>
+                        <span>{{ truncateText(item.title, 2) }}</span>
                       </v-chip>
                       <span v-if="index === 1" class="grey--text span-select">
                         (+{{ frmData.gender_id.length - 1 }} más)

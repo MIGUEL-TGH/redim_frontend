@@ -30,10 +30,11 @@ Te adjunto todos los archivos involucrados en esta solicitud:
 Nota: https://ninezprimero.aularedim.net es el dominio en donde se va a publicar, por eso lo estoy usando como ejemplo
 
 
-https://ninezprimero.aularedim.net/mapa?indicator=1,2&category=1,2,3&gender=1,2&state=1,2,3,4,5&year=1,2,3,4,5
-https://ninezprimero.aularedim.net/mapa?indicator=1,2&category=0&gender=0&state=0&year=0
+https://ninezprimero.aularedim.net/mapa?indicator=1,2&gender=1,2&state=1,2,3,4,5&year=1,2,3,4,5
+https://ninezprimero.aularedim.net/mapa?indicator=1,2&gender=0&state=0&year=0
 ======================================================================================================================
-
-http://localhost:8080/?indicator=1,2&category=1,2,3&gender=1,2&state=1,2,3,4,5&year=1,2,3,4,5
-
+======================================================================================================================
+http://localhost:8080/
+http://localhost:8080/?indicator=1,2&gender=1,2&state=1,2,3,4,5&year=1,2,3,4,5,6,7,8,9,10,11,12,13,14
+http://localhost:8080/?indicator=1,2&gender=0&state=0&year=0
 
