@@ -17,9 +17,10 @@
         <v-expand-transition>
           <div v-show="activeIndex === index" class="stack-content">
             <slot :name="card.id">
-              <div v-if="card.id === 'poblacion'">
+              <div v-if="card.id === 'poblacion' || card.id === 'genders' || card.id === 'states'">
                 <div style="padding: 15px;">
                   <div class="chart-wrapper">
+                    <!-- {{ activeIndex }} / {{ index }} -->
                     <ChartComp
                       v-if="myChartName && myChartData && myChartData.datasets && myChartData.datasets.length > 0 && myChartData.labels && myChartData.labels.length > 0"
                       :type="myChartName"
@@ -63,7 +64,9 @@ export default {
   // 2️⃣ Propiedades de entrada
   props: {
     // category_details: { type: Array, default: () => [] },
-    chartDataYear: { type: Array, default: () => [] }
+    chartDataYear: { type: Array, default: () => [] },
+    chartDataGender: { type: Array, default: () => [] },
+    chartDataState: { type: Array, default: () => [] }
   },
   mixins: {},
   extends: {},
@@ -81,14 +84,14 @@ export default {
           gradient: 'linear-gradient(90deg, #9C27B0 0%, #E91E63 100%)'
         },
         {
-          id: 'pobreza',
-          title: 'Índice de pobreza',
+          id: 'genders',
+          title: 'Población por sexo',
           baseColor: '#556cd6',
           gradient: 'linear-gradient(90deg, #2196F3 0%, #3F51B5 100%)'
         },
         {
-          id: 'educacion',
-          title: 'Cobertura educativa',
+          id: 'states',
+          title: 'Población por estados',
           baseColor: '#ff7a1a',
           gradient: 'linear-gradient(90deg, #FF9800 0%, #FF5722 100%)'
         },
@@ -110,12 +113,39 @@ export default {
   // 4️⃣ Observadores
   watch: {
     chartDataYear: {
-      immediate: true, // Se ejecuta apenas se crea el componente
+      // immediate: true, // Se ejecuta apenas se crea el componente
       handler (newData) {
         // console.log('chartDataYear --> ', newData)
         if (newData && newData.length > 0) {
-          this.renderCharts({ type: 'line', data: newData })
+          // this.renderCharts({ type: 'line', data: newData })
+          this.renderCharts({ type: 'line', data: newData, labelKey: 'year' })
           this.activeIndex = 0
+        } else {
+          this.activeIndex = null
+        }
+      }
+    },
+    chartDataGender: {
+      // immediate: true, // Se ejecuta apenas se crea el componente
+      handler (newData) {
+        // console.log('chartDataGender --> ', newData)
+        if (newData && newData.length > 0) {
+          // this.renderCharts({ type: 'bar', data: newData })
+          this.renderCharts({ type: 'bar', data: newData, labelKey: 'gender' })
+          this.activeIndex = 1
+        } else {
+          this.activeIndex = null
+        }
+      }
+    },
+    chartDataState: {
+      // immediate: true, // Se ejecuta apenas se crea el componente
+      handler (newData) {
+        // console.log('chartDataState --> ', newData)
+        if (newData && newData.length > 0) {
+          // this.renderCharts({ type: 'bar', data: newData })
+          this.renderCharts({ type: 'bar', data: newData, labelKey: 'state' })
+          this.activeIndex = 2
         } else {
           this.activeIndex = null
         }
@@ -163,7 +193,7 @@ export default {
     },
     // CHARTS ========================================================================================================
     async renderCharts (element) {
-      // console.log('renderCharts --> ', element)
+      console.log('renderCharts --> ', element)
       // // 1. Instancias tu clase
       const chartProcessor = new Charts()
 
@@ -215,13 +245,38 @@ export default {
       }
 
       // // 3. Generar la Data Simulada (Mock Data) según el tipo
-      if (element.type === 'bar') {
-        await chartProcessor.setBarComparative(element.data)
+      // if (element.type === 'refresh') {
+      //   // setRefreshChart
+      //   await chartProcessor.setRefreshChart()
+      // } else if (element.type === 'bar') {
+      //   // await chartProcessor.setBarComparative(element.data)
+      //   await chartProcessor.setGenderBar(element.data)
+      //   this.myChartOptions = optionsBarLine
+      // } else if (element.type === 'line') {
+      //   await chartProcessor.setComparativeLine(element.data)
+      //   this.myChartOptions = optionsBarLine
+      // }
+
+      if (element.type === 'refresh') {
+        await chartProcessor.setRefreshChart()
+      } else if (element.type === 'line' && element.labelKey === 'year') {
+        await chartProcessor.setBarLine(element.data, element.labelKey)
         this.myChartOptions = optionsBarLine
-      } else if (element.type === 'line') {
-        await chartProcessor.setComparativeLine(element.data)
+      } else if (element.type === 'bar' && element.labelKey === 'state') {
+        await chartProcessor.setBarLine(element.data, element.labelKey)
+        this.myChartOptions = optionsBarLine
+      } else if (element.type === 'bar' && element.labelKey === 'gender') {
+        await chartProcessor.setGenderBar(element.data)
         this.myChartOptions = optionsBarLine
       }
+
+      // else if (element.type === 'bar') {
+      //   await chartProcessor.setGenderBar(element.data)
+      //   this.myChartOptions = optionsBarLine
+      // } else if (element.type === 'line') {
+      //   await chartProcessor.setBarLine(element.data, element.labelKey)
+      //   this.myChartOptions = optionsBarLine
+      // }
 
       await this.setSleep(100)
       // // 4. Inyectar datos al componente Vue
@@ -234,7 +289,9 @@ export default {
   beforeCreate () {},
   created () {},
   beforeMount () {},
-  mounted () {},
+  mounted () {
+
+  },
   beforeUpdate () {},
   updated () {},
   beforeDestroy () {},

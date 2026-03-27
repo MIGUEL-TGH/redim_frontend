@@ -197,6 +197,7 @@ export default {
           this.frmData.category_id = []
           this.$emit('clear-categories')
           this.categoriesExpanded = false
+          this.activeToggle = false
         })
       }
     },
@@ -217,7 +218,6 @@ export default {
     },
     'frmData.category_id' (val) {
       if (this.isUpdatingCategory) return
-      console.log('frmData.category_id', val)
       this.isUpdatingCategory = true
 
       if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"

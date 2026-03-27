@@ -81,7 +81,7 @@ class ChartsOBJ {
     await CHARTS[type] ? CHARTS[type]() : console.log('chart not found!')
   }
 
-  // =========================================================================================================
+  // testCharts.vue =========================================================================================================
   async setComparativeLine (items) {
     try {
       // Ordenamos por año para asegurar que la línea fluya de izquierda a derecha
@@ -228,6 +228,91 @@ class ChartsOBJ {
         ]
       }
     } catch (error) { console.log(error) }
+  }
+
+  // GLOBAL=========================================================================================================
+  async setRefreshChart () {
+    this.attributes = {
+      labels: [],
+      datasets: []
+    }
+  }
+
+  async setGenderBar (items) {
+    try {
+      // 1. Extraer años únicos para los labels del eje X
+      const years = [...new Set(items.map(item => item.year))].sort()
+
+      // 2. Mapear la sumatoria (PI + PS) separada por género para los datasets
+      const femaleData = years.map(y => {
+        const match = items.find(i => i.year === y && i.gender === 'Mujer')
+        return match ? (parseInt(match.PI) + parseInt(match.PS)) : 0
+      })
+
+      const maleData = years.map(y => {
+        const match = items.find(i => i.year === y && i.gender === 'Hombre')
+        return match ? (parseInt(match.PI) + parseInt(match.PS)) : 0
+      })
+
+      // 3. Formatear para ChartComp
+      this.attributes = {
+        labels: years,
+        datasets: [
+          {
+            label: 'Mujeres',
+            backgroundColor: 'rgba(227, 12, 126, 0.7)',
+            data: femaleData
+          },
+          {
+            label: 'Hombres',
+            backgroundColor: 'rgba(33, 150, 243, 0.7)',
+            data: maleData
+          }
+        ]
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async setBarLine (items, labelKey = 'year') {
+    try {
+      // Ordenamos por año para asegurar que la línea fluya de izquierda a derecha
+      // items.sort((a, b) => a.year - b.year)
+
+      this.attributes = {
+        // labels: items.map(item => item.year),
+        labels: items.map(item => item[labelKey]),
+        datasets: [
+          {
+            label: 'Población Internada',
+            borderColor: '#e30c7e',
+            backgroundColor: 'rgba(227, 12, 126, 0.1)',
+            pointBackgroundColor: '#e30c7e',
+            pointBorderColor: '#ffffff',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            borderWidth: 3, // Grosor de las líneas
+            fill: false,
+            data: items.map(item => item.PI)
+          },
+          {
+            label: 'Población Señalada',
+            borderColor: '#2e91ce',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            pointBackgroundColor: '#2e91ce',
+            pointBorderColor: '#ffffff',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            borderWidth: 3, // Grosor de las líneas
+            fill: false,
+            data: items.map(item => item.PS)
+          }
+        ]
+      }
+    } catch (error) {
+      console.log('Error procesando datos para Line Chart:', error)
+    }
   }
 }
 

@@ -33,9 +33,9 @@
         <stack-cards
           ref="stackCardsRef"
           :chartDataYear="chartDataYear"
+          :chartDataGender="chartDataGender"
+          :chartDataState="chartDataState"
 
-          :chart-data-gender="chartDataGender"
-          :chart-data-state="chartDataState"
           @toggle-card="handleCardOpened"
         />
       </div>
@@ -101,21 +101,18 @@ export default {
   data () {
     return {
       // LeftFilterDeck =======================================================================
-      category_details: [],
-
+      category_details: [], // X
       indicators: [],
       categories: [],
       years: [],
       genders: [],
       states: [],
-      // StackCards =======================================================================
-      // 🟢 1. Variable para guardar los filtros que llegan de LeftFilterDeck
-      // currentFilters: {},
 
-      // 🟢 2. Variables independientes para almacenar los datos de cada gráfico
+      // StackCards =======================================================================
       chartDataYear: null,
       chartDataGender: null,
       chartDataState: null,
+
       // =========================================================================
       // map
       vectors: [
@@ -568,7 +565,6 @@ export default {
       }
     },
 
-    // 🟢 5. El método maestro que arma el payload y llama al Backend
     async fetchGroupedData (payload) {
       try {
         const formData = { ...payload }
@@ -633,22 +629,18 @@ export default {
           this.$refs.filterDeck.activeToggle = true
         }
 
-        console.log(result)
+        console.log('result data charts --> ', formData.group_by, result)
 
         // Dependiendo del group_by, procesas los datos y los asignas a su variable
         switch (formData.group_by) {
           case 'year':
-            // Lógica con tu clase ChartsOBJ para setear chartDataYear
-            // await this.chartsProcessor.setBar(data);
-            // this.chartDataYear = this.chartsProcessor.attributes;
             this.chartDataYear = result
-            console.log(this.chartDataYear)
             break
           case 'gender':
-            // Lógica para setear chartDataGender
+            this.chartDataGender = result
             break
           case 'state':
-            // Lógica para setear chartDataState
+            this.chartDataState = result
             break
         }
       } catch (error) {
@@ -657,18 +649,12 @@ export default {
         // Ocultar loader
       }
     },
-
-    // 🟢 4. El método que reacciona a los clics (mdi-plus) de StackCards
     async handleCardOpened (index) {
-      // console.log('handleCardOpened', index)
-      // Mapeamos el índice de la tarjeta con el valor de 'group_by' que espera PHP
-      // (Ajusta estos índices según el orden de tus tarjetas en StackCards)
-
       const groupByMap = {
         0: 'year',
         1: 'gender',
-        2: 'state',
-        3: 'center'
+        2: 'state'
+        // 3: 'center'
       }
 
       const targetGroup = groupByMap[index]
@@ -685,32 +671,17 @@ export default {
 
         if (!frmData.category_id.length || !frmData.indicator_id.length || !activeToggle) { return }
 
-        console.log('handleCardOpened', index, payload)
-        // await this.fetchGroupedData(payload)
+        // console.log('handleCardOpened --> ', index, payload)
+        console.log('handleCardOpened --> ')
+        await this.fetchGroupedData(payload)
       }
     },
-
-    // 🟢 3. El método original que llama LeftFilterDeck
     async handleSubmit (frmData) {
       const payload = {
         ...frmData,
         group_by: 'year'
       }
-
-      // console.log('handleSubmit', payload)
-
-      // console.log('handleSubmit', filtersData)
-      // Clonamos y guardamos los filtros base para usarlos más tarde
-      // this.currentFilters = JSON.parse(JSON.stringify(filtersData))
-
-      // Forzamos que la pestaña activa inicial en StackCards sea la 0 (Años)
-      // if (this.$refs.stackCardsRef) {
-      //   this.$refs.stackCardsRef.activeIndex = 0
-      // }
-
-      // console.log('handleSubmit', this.$refs.stackCardsRef.activeIndex)
-
-      // Llamamos a la primera variante por defecto: 'year'
+      console.log('handleSubmit --> ')
       await this.fetchGroupedData(payload)
     },
 
@@ -925,7 +896,8 @@ export default {
     top: 20px;
     right: 20px;
     z-index: 50;
-    width: 400px; /* Ancho en escritorio */
+    /*width: 400px;*/ /* Ancho en escritorio */
+    width: 450px; /* Ancho en escritorio */
     max-width: calc(100vw - 40px); /* Evita que desborde si la pantalla es menor a 440px */
   }
   /* Tablets (hasta 960px) */
