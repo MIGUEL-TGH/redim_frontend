@@ -62,7 +62,8 @@ export default {
 
   // 2️⃣ Propiedades de entrada
   props: {
-    category_details: { type: Array, default: () => [] }
+    // category_details: { type: Array, default: () => [] },
+    chartDataYear: { type: Array, default: () => [] }
   },
   mixins: {},
   extends: {},
@@ -108,10 +109,10 @@ export default {
 
   // 4️⃣ Observadores
   watch: {
-    category_details: {
+    chartDataYear: {
       immediate: true, // Se ejecuta apenas se crea el componente
       handler (newData) {
-        // console.log('category_details --> ', newData)
+        // console.log('chartDataYear --> ', newData)
         if (newData && newData.length > 0) {
           this.renderCharts({ type: 'line', data: newData })
           this.activeIndex = 0
@@ -129,7 +130,15 @@ export default {
     ]),
     toggle (index) {
       // console.log(index)
-      this.activeIndex = this.activeIndex === index ? null : index
+      // this.activeIndex = this.activeIndex === index ? null : index
+      // =====================================================================================
+      if (this.activeIndex === index) {
+        this.activeIndex = -1 // Cierra si se vuelve a hacer clic en el mismo
+      } else {
+        this.activeIndex = index // Abre la tarjeta actual
+        // 🟢 NUEVO: Emitimos un evento al padre avisando qué tarjeta se abrió
+        this.$emit('toggle-card', index)
+      }
     },
     getItemStyle (index) {
       const isFirst = index === 0

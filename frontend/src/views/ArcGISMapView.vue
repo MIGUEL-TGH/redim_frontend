@@ -29,7 +29,15 @@
 
       <!-- PANEL ESTADÍSTICO -->
       <div class="stats-panel">
-        <stack-cards :category_details="category_details"/>
+        <!-- <stack-cards :category_details="category_details"/> -->
+        <stack-cards
+          ref="stackCardsRef"
+          :chartDataYear="chartDataYear"
+
+          :chart-data-gender="chartDataGender"
+          :chart-data-state="chartDataState"
+          @toggle-card="handleCardOpened"
+        />
       </div>
     </div>
 
@@ -92,13 +100,22 @@ export default {
   // 3️⃣ Datos reactivas
   data () {
     return {
-      // data form =======================================================================
+      // LeftFilterDeck =======================================================================
       category_details: [],
+
       indicators: [],
       categories: [],
       years: [],
       genders: [],
       states: [],
+      // StackCards =======================================================================
+      // 🟢 1. Variable para guardar los filtros que llegan de LeftFilterDeck
+      // currentFilters: {},
+
+      // 🟢 2. Variables independientes para almacenar los datos de cada gráfico
+      chartDataYear: null,
+      chartDataGender: null,
+      chartDataState: null,
       // =========================================================================
       // map
       vectors: [
@@ -473,7 +490,7 @@ export default {
         console.log(error)
       }
     },
-    async handleSubmit (formData) {
+    async handleSubmit_V1 (formData) {
       // console.log('submit-->', formData)
       this.dialog_loader.actived = true
       this.dialog_loader.message = 'Por favor espere...'
@@ -537,6 +554,7 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
         const response = await axios.post(url, sendData)
+        console.log(response.data)
         if (response.data.status === 200) {
           // await this.setSleep(1000)
           this.category_details = response.data.result
@@ -548,6 +566,152 @@ export default {
         this.dialog_loader.actived = false
         this.dialog_loader.message = ''
       }
+    },
+
+    // 🟢 5. El método maestro que arma el payload y llama al Backend
+    async fetchGroupedData (payload) {
+      try {
+        const formData = { ...payload }
+
+        const sendData = {
+          group_by: formData.group_by,
+          category_id: [],
+          state_id: [],
+          year_id: [],
+          gender_id: []
+        }
+
+        if (formData.state_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
+          const ids = this.states
+            .filter(item => item.id !== 0)
+            .map(item => item.id)
+
+          sendData.state_id = ids
+        } else {
+          sendData.state_id = formData.state_id
+        }
+
+        if (formData.year_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
+          const ids = this.years
+            .filter(item => item.id !== 0)
+            .map(item => item.id)
+
+          sendData.year_id = ids
+        } else {
+          sendData.year_id = formData.year_id
+        }
+
+        if (formData.gender_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
+          const ids = this.genders
+            .filter(item => item.id !== 0)
+            .map(item => item.id)
+
+          sendData.gender_id = ids
+        } else {
+          sendData.gender_id = formData.gender_id
+        }
+
+        const categoryIds = formData.category_id
+          .filter(item => item !== 0)
+          .map(item => item)
+
+        if (!categoryIds.length) {
+          this.$store.dispatch('storeNotif/error', {
+            message: '¡Favor de seleccionar al menos una de las categorías disponobles!'
+          })
+          return
+        }
+        sendData.category_id = categoryIds
+
+        const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
+        const response = await axios.post(url, sendData)
+        let result = []
+
+        if (response.data.status === 200) {
+          // await this.setSleep(1000)
+          result = response.data.result
+          this.$refs.filterDeck.activeToggle = true
+        }
+
+        console.log(result)
+
+        // Dependiendo del group_by, procesas los datos y los asignas a su variable
+        switch (formData.group_by) {
+          case 'year':
+            // Lógica con tu clase ChartsOBJ para setear chartDataYear
+            // await this.chartsProcessor.setBar(data);
+            // this.chartDataYear = this.chartsProcessor.attributes;
+            this.chartDataYear = result
+            console.log(this.chartDataYear)
+            break
+          case 'gender':
+            // Lógica para setear chartDataGender
+            break
+          case 'state':
+            // Lógica para setear chartDataState
+            break
+        }
+      } catch (error) {
+        console.error('Error obteniendo datos agrupados:', error)
+      } finally {
+        // Ocultar loader
+      }
+    },
+
+    // 🟢 4. El método que reacciona a los clics (mdi-plus) de StackCards
+    async handleCardOpened (index) {
+      // console.log('handleCardOpened', index)
+      // Mapeamos el índice de la tarjeta con el valor de 'group_by' que espera PHP
+      // (Ajusta estos índices según el orden de tus tarjetas en StackCards)
+
+      const groupByMap = {
+        0: 'year',
+        1: 'gender',
+        2: 'state',
+        3: 'center'
+      }
+
+      const targetGroup = groupByMap[index]
+
+      if (targetGroup) {
+        const activeToggle = this.$refs.filterDeck.activeToggle
+
+        const frmData = this.$refs.filterDeck.frmData
+
+        const payload = {
+          ...frmData,
+          group_by: targetGroup
+        }
+
+        if (!frmData.category_id.length || !frmData.indicator_id.length || !activeToggle) { return }
+
+        console.log('handleCardOpened', index, payload)
+        // await this.fetchGroupedData(payload)
+      }
+    },
+
+    // 🟢 3. El método original que llama LeftFilterDeck
+    async handleSubmit (frmData) {
+      const payload = {
+        ...frmData,
+        group_by: 'year'
+      }
+
+      // console.log('handleSubmit', payload)
+
+      // console.log('handleSubmit', filtersData)
+      // Clonamos y guardamos los filtros base para usarlos más tarde
+      // this.currentFilters = JSON.parse(JSON.stringify(filtersData))
+
+      // Forzamos que la pestaña activa inicial en StackCards sea la 0 (Años)
+      // if (this.$refs.stackCardsRef) {
+      //   this.$refs.stackCardsRef.activeIndex = 0
+      // }
+
+      // console.log('handleSubmit', this.$refs.stackCardsRef.activeIndex)
+
+      // Llamamos a la primera variante por defecto: 'year'
+      await this.fetchGroupedData(payload)
     },
 
     // ======================================================================================================================================

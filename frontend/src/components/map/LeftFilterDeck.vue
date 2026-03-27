@@ -162,6 +162,7 @@ export default {
       isOpen: true, // Controla el panel completo vs la cinta
       categoriesExpanded: false, // Controla si la tarjeta blanca está visible
       frmData: {
+        // group_by: '',
         indicator_id: [],
         category_id: [],
         year_id: [],
@@ -175,7 +176,8 @@ export default {
       isUpdatingCategory: false,
       isUpdatingGender: false,
       isUpdatingState: false,
-      btnSend: false
+      btnSend: false,
+      activeToggle: false
     }
   },
   computed: {},
@@ -215,7 +217,7 @@ export default {
     },
     'frmData.category_id' (val) {
       if (this.isUpdatingCategory) return
-
+      console.log('frmData.category_id', val)
       this.isUpdatingCategory = true
 
       if (val.includes(0) && val.length > 1) { // Caso 1: Se selecciona "Todos"
@@ -226,6 +228,7 @@ export default {
 
       this.$nextTick(() => {
         this.isUpdatingCategory = false
+        this.activeToggle = false
       })
     },
     'frmData.state_id' (val) {
@@ -313,6 +316,7 @@ export default {
       this.btnSend = true
       this.$emit('clear-categories')
       this.categoriesExpanded = false
+      this.activeToggle = false
     },
 
     // ==============================================
