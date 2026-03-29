@@ -17,24 +17,27 @@
           </div>
           <v-form ref="form_item">
             <v-row dense class="ma-0">
+
               <v-col cols="12" class="py-1 pr-1 pl-1">
                 <label class="white--text font-weight-bold caption mb-1 d-block">Población*:</label>
                 <v-select
                   v-model="frmData.indicator_id" :items="indicators" multiple item-value="id" item-text="name" :rules="[v => (v && v.length > 0) || 'Campo obligatorio']"
-                  background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                  class="frm-select" item-color="#b62b86" light solo flat dense hide-details="auto"
+                  :menu-props="{ zIndex: '9999', offsetY: true, contentClass: 'menu-indicadores' }"
+                >
                   <template v-slot:selection="{ item, index }">
-                    <v-chip v-if="index < 4" small label close color="#246257" class="white--text chip-select" @click:close="removeIndicator(item.id)">
-                      <span>{{ item.id }}</span>
+                    <v-chip v-if="index < 2" small label color="#b62b86" class="white--text chip-select" close @click:close="removeIndicator(item.id)">
+                       <span>{{ truncateText(removeEnumerator(item.name), 8) }}</span>
                     </v-chip>
-                    <span v-if="index === 4" class="grey--text text-caption ml-1 font-weight-medium">
-                      (+{{ frmData.indicator_id.length - 4 }} más)
+                    <span v-if="index === 2" class="grey--text text-caption ml-1 font-weight-medium">
+                      (+{{ frmData.indicator_id.length - 2 }} más)
                     </span>
                   </template>
 
                   <template v-slot:append-outer>
-                    <v-icon large color="#dedddc" class="BtnHover mt-n1" @click="getCategories" title="Cargar categorías">
-                      mdi-arrow-right-bold-box
-                    </v-icon>
+                    <v-btn dark small outlined class="btn-closed" @click="getCategories" title="Cargar categorías">
+                        Aplicar
+                    </v-btn>
                   </template>
 
                   <template v-slot:message="{ message }">
@@ -46,16 +49,18 @@
               <v-col cols="4" class="py-1 pl-1 pr-1">
                 <label class="white--text font-weight-bold caption mb-1 d-block">Estado*:</label>
                   <v-select v-model="frmData.state_id" :items="states" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isStateDisabled"
-                    class="select" background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                    class="frm-select" item-color="#b62b86" light solo flat dense hide-details="auto"
+                    :menu-props="{ zIndex: '9999', offsetY: true, contentClass: 'menu-indicadores' }"
+                  >
                     <template v-slot:selection="{ item, index }">
-                      <v-chip v-if="item.id === 0" small label color="#246257" class="chip-select" text-color="white">
+                      <v-chip v-if="item.id === 0" small label color="#b62b86" class="chip-select" text-color="white">
                         <span>{{ item.title }}</span>
                       </v-chip>
-                      <v-chip v-else-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                      <v-chip v-else-if="index === 0" small label color="#b62b86" class="chip-select" text-color="white">
                         <span>{{ item.iso_code }}</span>
                       </v-chip>
                       <span v-if="index === 1" class="grey--text span-select">
-                        (+{{ frmData.state_id.length - 1 }} más)
+                        (+{{ frmData.state_id.length - 1 }})
                       </span>
                     </template>
 
@@ -68,9 +73,11 @@
               <v-col cols="4" class="py-1 pr-1 pl-1">
                 <label class="white--text font-weight-bold caption mb-1 d-block">Año*:</label>
                 <v-select v-model="frmData.year_id" :items="years" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isYearDisabled"
-                  class="select" background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                  class="frm-select" item-color="#b62b86" light solo flat dense hide-details="auto"
+                  :menu-props="{ zIndex: '9999', offsetY: true, contentClass: 'menu-indicadores' }"
+                >
                   <template v-slot:selection="{ item, index }">
-                    <v-chip v-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                    <v-chip v-if="index === 0" small label color="#b62b86" class="chip-select" text-color="white">
                       <span>{{ item.title }}</span>
                     </v-chip>
                     <span v-if="index === 1" class="grey--text span-select">
@@ -86,12 +93,14 @@
               <v-col cols="4" class="py-1 pl-1 pr-1">
                 <label class="white--text font-weight-bold caption mb-1 d-block">Sexo*:</label>
                 <v-select v-model="frmData.gender_id" :items="genders" multiple item-value="id" item-text="title" :rules="[v => !!v.length || 'Campo obligatorio']" :item-disabled="isGenderDisabled"
-                    class="select" background-color="#dedddc" light solo flat dense hide-details="auto" :menu-props="{ zIndex: '9999', offsetY: true }">
+                    class="frm-select" item-color="#b62b86" light solo flat dense hide-details="auto"
+                    :menu-props="{ zIndex: '9999', offsetY: true, contentClass: 'menu-indicadores' }"
+                  >
                     <template v-slot:selection="{ item, index }">
-                      <v-chip v-if="item.id === 0" small label color="#246257" class="chip-select" text-color="white">
+                      <v-chip v-if="item.id === 0" small label color="#b62b86" class="chip-select" text-color="white">
                         <span>{{ item.title }}</span>
                       </v-chip>
-                      <v-chip v-else-if="index === 0" small label color="#246257" class="chip-select" text-color="white">
+                      <v-chip v-else-if="index === 0" small label color="#b62b86" class="chip-select" text-color="white">
                         <span>{{ truncateText(item.title, 2) }}</span>
                       </v-chip>
                       <span v-if="index === 1" class="grey--text span-select">
@@ -110,8 +119,8 @@
 
         <div class="card-white-wrapper">
           <div class="card-white" :class="{ 'is-expanded': categoriesExpanded, 'elevation-2': categoriesExpanded }">
-            <div class="pa-4 pt-6"> <h4 class="mb-2" style="color: #6a3d8f;">Tipo de delito:</h4>
-              <v-treeview
+            <div class="pa-4 pt-6"> <h4 class="mb-2" style="color: #6a3d8f;">TIPO DE DELITO:</h4>
+              <!-- <v-treeview
                 selectable
                 v-model="frmData.category_id"
                 :items="categories"
@@ -120,7 +129,22 @@
                 class="tree-compact custom-tree"
                 selected-color="#b62b86"
                 dense>
+              </v-treeview> -->
+
+              <v-treeview
+                selectable
+                v-model="frmData.category_id"
+                :items="categories"
+                item-text="title"
+                item-key="id"
+                class="tree-compact custom-tree"
+                selected-color="#b62b86"
+                on-icon="mdi-minus"
+                off-icon="mdi-plus"
+                indeterminate-icon="mdi-minus"
+                dense>
               </v-treeview>
+
               <div class="d-flex justify-end mt-2">
                 <v-btn color="#342a83" elevation="5" @click="submitFilters" class="white--text btn-consult" :disabled="btnSend">
                   CONSULTAR
@@ -160,7 +184,7 @@ export default {
   data () {
     return {
       isOpen: true, // Controla el panel completo vs la cinta
-      categoriesExpanded: false, // Controla si la tarjeta blanca está visible
+      categoriesExpanded: true, // Controla si la tarjeta blanca está visible
       frmData: {
         // group_by: '',
         indicator_id: [],
@@ -302,6 +326,9 @@ export default {
 
   // 5️⃣ Métodos
   methods: {
+    removeEnumerator (text) {
+      return text.replace(/^\d+\.\s*/, '')
+    },
     truncateText (text, maxLength) {
       if (text.length > maxLength) {
         return text.substring(0, maxLength) + '...'
@@ -558,7 +585,7 @@ export default {
     margin-left: 2px !important;
   }
 
-  /* --------------------------------treeview------------------------------------------------ */
+  /* ================================ treeview ================================ */
   /* Label tipo v-text-field */
   .tree-label {
     display: block;
@@ -573,7 +600,7 @@ export default {
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 4px;
-    max-height: 150px;
+    max-height: 190px;
     overflow-y: auto;
   }
 
@@ -588,22 +615,49 @@ export default {
     font-size: 12px;
     line-height: 1.2 !important;
   }
-  /* --------------------------------Checkbox------------------------------------------------ */
+  /* ================================ Checkbox ================================ */
   /* Checkbox */
-  .tree-compact ::v-deep .v-input--selection-controls {
+  /* .tree-compact ::v-deep .v-input--selection-controls {
     margin-top: 0 !important;
     padding-top: 0 !important;
-  }
+  } */
 
   /* Iconos (expand + checkbox) */
-  .tree-compact ::v-deep .v-icon {
+  /* .tree-compact ::v-deep .v-icon {
     font-size: 20px !important;
+  } */
+
+  /* .tree-compact ::v-deep .v-treeview-node__checkbox {
+    width: 10px !important;
+    transform: scale(0.85) !important;
+  } */
+
+  /* ================================ Checkbox (Píldoras UX) ================================ */
+  /* 1. Damos forma de "píldora" directamente al checkbox */
+  .tree-compact ::v-deep .v-treeview-node__checkbox {
+    width: 36px !important;       /* Ancho del botón */
+    height: 18px !important;      /* Alto del botón */
+    border-radius: 10px !important; /* Bordes redondos */
+    font-size: 14px !important;   /* Tamaño del signo + o - */
+    display: inline-flex !important; /* inline-flex ayuda a centrar mejor el icono */
+    align-items: center !important;
+    justify-content: center !important;
+    margin-right: 8px !important; /* Separación con el texto del delito */
+    transform: none !important;   /* Evita que Vuetify lo haga pequeño */
   }
 
-  .tree-compact ::v-deep .v-treeview-node__checkbox {
-    width: 10px !important;
-    /* font-size: 25px !important; */
-    transform: scale(0.85) !important;
+  /* 2. Estado NO SELECCIONADO (Icono +). Nota: SIN ESPACIO entre las clases */
+  .tree-compact ::v-deep .v-treeview-node__checkbox.mdi-plus {
+    background-color: #efeee8 !important;
+    border: 1px solid rgba(0, 0, 0, 0.2) !important; /* Borde negro al 20% */
+    color: rgba(0, 0, 0, 0.4) !important; /* Signo + en gris oscuro */
+  }
+
+  /* 3. Estado SELECCIONADO e INDETERMINADO (Icono -). Nota: SIN ESPACIO entre las clases */
+  .tree-compact ::v-deep .v-treeview-node__checkbox.mdi-minus {
+    background-color: #f44336 !important; /* Rojo */
+    border: 1px solid #f44336 !important;
+    color: #ffffff !important; /* Signo - en blanco */
   }
 
   /* -------------------------------------------------------------------------------- */
@@ -664,20 +718,38 @@ export default {
   }
 
   /* v-select ============================================================================================================ */
+  .frm-select ::v-deep .v-input__control>.v-input__slot {
+    padding: 0 0 0 5px !important;
+    background-color: #dedddc !important;
+
+  }
   .chip-select {
     font-size: 11px !important;
-    padding: 0 5px;
+    padding: 0 10px;
     margin: 0 1px !important;
     text-overflow: ellipsis;
-    border-radius: 4px !important;
+    border-radius: 10px !important;
   }
   .span-select {
-    font-size: 10px;
+    font-size: 12px;
     padding: 0 0 0 2px !important;
   }
 
-  .select ::v-deep .v-input__control>.v-input__slot {
-    padding: 0 0 0 5px !important;
+</style>
+<style>
+   /* 1. Aplicamos tu color con la opacidad de 0.2 (20%) */
+  .menu-indicadores .v-list-item--active {
+    background-color: rgba(182, 43, 134, 0.2) !important;
   }
+  /* 2. Quitamos el cuadro gris por defecto de Vuetify */
+  .menu-indicadores .v-list-item--active::before {
+    display: none !important;
+  }
+  /* 3. Aseguramos el color magenta del texto */
+  .menu-indicadores .v-list-item--active .v-list-item__title,
+  .menu-indicadores .v-list-item--active .v-list-item__content {
+    color: #b62b86 !important;
+  }
+  /* ========================================================================================= */
 
 </style>

@@ -193,7 +193,7 @@ export default {
     },
     // CHARTS ========================================================================================================
     async renderCharts (element) {
-      console.log('renderCharts --> ', element)
+      // console.log('renderCharts --> ', element)
       // // 1. Instancias tu clase
       const chartProcessor = new Charts()
 
@@ -243,19 +243,6 @@ export default {
           backgroundColor: 'rgba(33,75,148,0.8)'
         }
       }
-
-      // // 3. Generar la Data Simulada (Mock Data) según el tipo
-      // if (element.type === 'refresh') {
-      //   // setRefreshChart
-      //   await chartProcessor.setRefreshChart()
-      // } else if (element.type === 'bar') {
-      //   // await chartProcessor.setBarComparative(element.data)
-      //   await chartProcessor.setGenderBar(element.data)
-      //   this.myChartOptions = optionsBarLine
-      // } else if (element.type === 'line') {
-      //   await chartProcessor.setComparativeLine(element.data)
-      //   this.myChartOptions = optionsBarLine
-      // }
 
       if (element.type === 'refresh') {
         await chartProcessor.setRefreshChart()

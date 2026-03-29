@@ -448,7 +448,7 @@ export default {
           })
           return
         }
-
+        // console.log('getCategories', sendData)
         const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
         const response = await axios.post(url, { indicator_ids: sendData })
         // console.log('getCategories() --> ', response.data.result)
@@ -629,7 +629,7 @@ export default {
           this.$refs.filterDeck.activeToggle = true
         }
 
-        console.log('result data charts --> ', formData.group_by, result)
+        // console.log('result data charts --> ', formData.group_by, result)
 
         // Dependiendo del group_by, procesas los datos y los asignas a su variable
         switch (formData.group_by) {
@@ -681,7 +681,7 @@ export default {
         ...frmData,
         group_by: 'year'
       }
-      console.log('handleSubmit --> ')
+      // console.log('handleSubmit --> ')
       await this.fetchGroupedData(payload)
     },
 
@@ -757,7 +757,7 @@ export default {
           this.getStates(),
           this.getYears(),
           this.getGenders()
-          // this.getCategories([1, 2, 3, 4])
+          // this.getCategories([1, 2])
         ])
       } catch (error) {
         console.error('Error cargando catálogos:', error)
