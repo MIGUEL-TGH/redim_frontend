@@ -11,7 +11,8 @@
           <v-spacer></v-spacer>
           <v-text-field type="text" label="Buscar:" v-model="dataTable.search" append-icon="mdi-magnify" color="#246257" hide-details class="search-field">
             <template v-slot:append-outer>
-              <v-btn class="mr-2 text-white" color="#246257" elevation="5" small @click="reset({task:'new_item'})">Nuevo</v-btn>
+              <!-- <v-btn class="mr-2 text-white" color="#246257" elevation="5" small @click="reset({task:'new_item'})">Nuevo</v-btn> -->
+              <v-btn v-if="hasWritePermission" class="mr-2 text-white" color="#246257" elevation="5" small @click="reset({task:'new_item'})">Nuevo</v-btn>
             </template>
           </v-text-field>
         </v-card-title>
@@ -19,11 +20,21 @@
         <v-data-table :headers="dataTable.headers" :items="dataTable.items" :search="dataTable.search"
           :items-per-page="10" :mobile-breakpoint="0" class="elevation-5">
 
-              <template v-slot:item.acc="{item}">
+              <!-- <template v-slot:item.acc="{item}">
                 <v-icon dense @click="reset({task:'get_item', item})" class="BtnHover" color="green"> mdi-pencil </v-icon>
               </template>
               <template v-slot:item.status="{item}">
                 <v-switch v-model="item.status" @change="submit({task:'status_item', id:item.id, status: $event})"
+                  dense hide-details color="#246257" style="padding: 0px 0px 10px 0px !important;" label="">
+                </v-switch>
+              </template> -->
+
+              <template v-slot:item.acc="{item}">
+                <v-icon v-if="hasWritePermission" dense @click="reset({task:'get_item', item})" class="BtnHover" color="green"> mdi-pencil </v-icon>
+              </template>
+
+              <template v-slot:item.status="{item}">
+                <v-switch :disabled="!hasWritePermission" v-model="item.status" @change="submit({task:'status_item', id:item.id, status: $event})"
                   dense hide-details color="#246257" style="padding: 0px 0px 10px 0px !important;" label="">
                 </v-switch>
               </template>
@@ -80,6 +91,7 @@
     </v-container>
 </template>
 <script>
+import { jwtDecode } from 'jwt-decode'
 import axios from 'axios'
 import { mapState, mapActions } from 'vuex'
 import crudMixin from '@/mixins/crudMixin'
@@ -154,7 +166,29 @@ export default {
   computed: {
     ...mapState([
       'dialog_loader'
-    ])
+    ]),
+
+    hasWritePermission () {
+      try {
+        // Obtenemos el token desde Vuex
+        const token = this.$store.state.storeDB.token
+        if (!token) return false
+
+        const decoded = jwtDecode(token)
+
+        // Accedemos al arreglo de permisos según la estructura de tu token
+        const permissions = decoded.data.permissions || []
+
+        // Buscamos el permiso específico para este módulo ('states')
+        const modulePerm = permissions.find(p => p.module === 'states')
+
+        // Retornamos true solo si existe y es 'read-write'
+        return modulePerm && modulePerm.permission === 'read-write'
+      } catch (error) {
+        console.error('Error al decodificar token para permisos:', error)
+        return false
+      }
+    }
   },
 
   // 4️⃣ Observadores
@@ -235,7 +269,7 @@ export default {
       RESET_[value.task] ? RESET_[value.task]() : console.log('¡Reset not found!')
     },
     submit (action) {
-      // console.log('submit -->' ,value)
+      // console.log('submit -->', action)
       const SUBMIT = {
         send_item: async () => {
           if (!this.$refs.form_item.validate()) {

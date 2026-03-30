@@ -21,7 +21,7 @@
 
       <v-list dense nav>
         <!-- <v-list-item v-for="item in allowedMenu" :key="item.module" :to="item.route" link> -->
-        <v-list-item v-for="item in allowedMenu" :key="item.module" :to="item.route" link>
+        <v-list-item v-for="item in allowedMenu" :key="item.module" :to="item.route" link exact>
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -115,9 +115,6 @@ export default {
       ],
 
       // Variables para inactividad
-      // maxIdleTime: 600, // 10 minutos en segundos
-      // maxIdleTime: 180, // 10 minutos en segundos
-      // currentIdleTime: 180, // 600
       maxIdleTime: maxIdle,
       currentIdleTime: maxIdle,
       idleInterval: null,
@@ -196,6 +193,7 @@ export default {
         if (newToken) {
           try {
             const decoded = jwtDecode(newToken)
+            // console.log(decoded)
             this.tokenIat = decoded.iat
             this.tokenExp = decoded.exp
             this.isRefreshingToken = false // Se apaga la bandera al recibir el nuevo token
@@ -321,4 +319,7 @@ export default {
 </script>
 <style scoped>
   /* Personalizar estilos aquí */
+  ::v-deep .v-list-item {
+    text-decoration: none !important;
+  }
 </style>

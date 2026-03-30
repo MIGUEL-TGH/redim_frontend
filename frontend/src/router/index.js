@@ -12,27 +12,32 @@ const routes = [
   // {
   //   path: '/',
   //   name: 'home',
-  //   component: HomeView
+  //   component: HomeView,
+  //   meta: { title: 'Inicio' }
   // },
   // {
   //   path: '/mapa',
   //   name: 'MapView',
-  //   component: () => import('../views/ArcGISMapView.vue')
+  //   component: () => import('../views/ArcGISMapView.vue'),
+  //   meta: { title: 'Mapa' }
   // },
   {
     path: '/',
     name: 'home',
-    component: MapView
+    component: MapView,
+    meta: { title: 'Mapa' }
   },
   {
     path: '/administrator',
     name: 'LoginView',
-    component: () => import('../views/LoginView.vue')
+    component: () => import('../views/LoginView.vue'),
+    meta: { title: 'Administrador' }
   },
   {
     path: '/charts',
     name: 'ChartsView',
-    component: () => import('../views/testCharts.vue')
+    component: () => import('../views/testCharts.vue'),
+    meta: { title: 'Gráficos' }
   },
   // --------------------------------------------------------------------------------
   // RUTA 404 (COMODÍN) - DEBE IR SIEMPRE AL FINAL
@@ -40,7 +45,8 @@ const routes = [
   {
     path: '*',
     name: 'NotFound',
-    component: () => import('../views/NotFoundView.vue')
+    component: () => import('../views/NotFoundView.vue'),
+    meta: { title: 'No Encontrado' }
   }
 ]
 
@@ -50,7 +56,27 @@ const router = new VueRouter({
   routes
 })
 
-// Guardián de navegación global
+// ======================================================================================================================================================
+// Definimos el nombre base de tu sistema en una sola variable para facilitar su mantenimiento y consistencia en el título de las páginas
+const baseTitle = 'Niñez Primero - REDIM' // 'Niños, Niñas y Adolescentes en México - REDIM'
+
+router.beforeEach((to, from, next) => {
+  // Verificamos si la ruta a la que vamos tiene un título en su meta
+  const pageTitle = to.meta.title
+
+  // Si tiene título, lo concatenamos. Si no, dejamos solo el base.
+  if (pageTitle) {
+    document.title = `${pageTitle} | ${baseTitle}`
+  } else {
+    document.title = baseTitle
+  }
+
+  // ¡Muy importante! Siempre debes llamar a next() para que la vista cargue
+  next()
+})
+
+// ======================================================================================================================================================
+// Guardián de navegación global para proteger rutas que requieren autenticación
 router.beforeEach((to, from, next) => {
   // 1. Obtenemos el estado de autenticación usando el namespace correcto 'storeDB'
   const isAuthenticated = store.getters['storeDB/isAuthenticated']

@@ -33,7 +33,8 @@ export default {
       } catch (error) {
         console.log(error.response?.data.message || error.message || error)
         console.log(error)
-        this.$store.dispatch('error', {
+
+        this.$store.dispatch('storeNotif/error', {
           // message: error.message || 'Error en la operación'
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })
@@ -117,7 +118,7 @@ export default {
         saved_item: () => {
           // this.dataTable.items.unshift({ ...this.forms, id: result.id })
           this.dataTable.items.unshift(result.item)
-          this.$store.dispatch('success', {
+          this.$store.dispatch('storeNotif/success', {
             message: this.entityConfig.messages.saved
           })
         },
@@ -133,7 +134,7 @@ export default {
             this.$set(this.dataTable.items, index, result.item)
           }
 
-          this.$store.dispatch('success', {
+          this.$store.dispatch('storeNotif/success', {
             message: this.entityConfig.messages.updated
           })
         },
@@ -147,7 +148,7 @@ export default {
             this.dataTable.items[index].status = result.status
           }
 
-          this.$store.dispatch('success', {
+          this.$store.dispatch('storeNotif/success', {
             message: this.entityConfig.messages.status
           })
         }

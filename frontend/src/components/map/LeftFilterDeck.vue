@@ -184,7 +184,7 @@ export default {
   data () {
     return {
       isOpen: true, // Controla el panel completo vs la cinta
-      categoriesExpanded: true, // Controla si la tarjeta blanca está visible
+      categoriesExpanded: false, // Controla si la tarjeta blanca está visible
       frmData: {
         // group_by: '',
         indicator_id: [],
