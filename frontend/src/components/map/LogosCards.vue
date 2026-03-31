@@ -114,9 +114,9 @@ export default {
   }
 
   .map-card-right {
-    /* bottom: -30px; */
-    bottom: 0px;
+    bottom: -25px;
     right: 0px;
+    /* border-radius: 20px 20px 0px 20px; */
   }
 
   /* ===============================

@@ -90,7 +90,8 @@ export default {
 
   /* Estado: NO VISIBLE (Azul, borde blanco, redondo) */
   .btn-closed {
-    background-color: #276acc !important;
+    /* background-color: #276acc !important; */
+    background-color: transparent !important;
     color: white !important;
     border: 2px solid white !important;
   }

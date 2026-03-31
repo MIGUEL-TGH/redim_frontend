@@ -778,7 +778,7 @@ export default {
       }
 
       // 3. Cargar catálogos base
-      await this.loadCatalogs()
+      // await this.loadCatalogs()
 
       // 4. MODALIDAD 2: validar parámetros
       await this.evaluateUrlParams()
@@ -882,7 +882,9 @@ export default {
   .map-wrapper {
     position: relative;
     width: 100%;
-    height: 93vh;
+    /* height: 93vh; */
+    height: calc(100vh - 64px); /* Resto del alto de la AppBar */
+    overflow: hidden;
   }
 
   #viewDiv {
