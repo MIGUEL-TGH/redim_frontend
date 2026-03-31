@@ -17,7 +17,7 @@ export default new Vuex.Store({
 
   },
   actions: {
-    // -------------------------------------------------------------------
+    // ======================================================================
     async setSleep (context, ms) {
       try {
         return new Promise(resolve => setTimeout(resolve, ms))

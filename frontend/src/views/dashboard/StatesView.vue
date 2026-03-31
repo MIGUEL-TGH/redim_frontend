@@ -11,7 +11,6 @@
           <v-spacer></v-spacer>
           <v-text-field type="text" label="Buscar:" v-model="dataTable.search" append-icon="mdi-magnify" color="#246257" hide-details class="search-field">
             <template v-slot:append-outer>
-              <!-- <v-btn class="mr-2 text-white" color="#246257" elevation="5" small @click="reset({task:'new_item'})">Nuevo</v-btn> -->
               <v-btn v-if="hasWritePermission" class="mr-2 text-white" color="#246257" elevation="5" small @click="reset({task:'new_item'})">Nuevo</v-btn>
             </template>
           </v-text-field>
@@ -19,15 +18,6 @@
 
         <v-data-table :headers="dataTable.headers" :items="dataTable.items" :search="dataTable.search"
           :items-per-page="10" :mobile-breakpoint="0" class="elevation-5">
-
-              <!-- <template v-slot:item.acc="{item}">
-                <v-icon dense @click="reset({task:'get_item', item})" class="BtnHover" color="green"> mdi-pencil </v-icon>
-              </template>
-              <template v-slot:item.status="{item}">
-                <v-switch v-model="item.status" @change="submit({task:'status_item', id:item.id, status: $event})"
-                  dense hide-details color="#246257" style="padding: 0px 0px 10px 0px !important;" label="">
-                </v-switch>
-              </template> -->
 
               <template v-slot:item.acc="{item}">
                 <v-icon v-if="hasWritePermission" dense @click="reset({task:'get_item', item})" class="BtnHover" color="green"> mdi-pencil </v-icon>
@@ -39,7 +29,7 @@
                 </v-switch>
               </template>
 
-          </v-data-table>
+        </v-data-table>
       </section>
 
       <template>

@@ -81,7 +81,7 @@
                       <span>{{ item.title }}</span>
                     </v-chip>
                     <span v-if="index === 1" class="grey--text span-select">
-                      (+{{ frmData.year_id.length - 1 }} más)
+                      (+{{ frmData.year_id.length - 1 }})
                     </span>
                   </template>
                   <template v-slot:message="{ message }">
@@ -104,7 +104,7 @@
                         <span>{{ truncateText(item.title, 2) }}</span>
                       </v-chip>
                       <span v-if="index === 1" class="grey--text span-select">
-                        (+{{ frmData.gender_id.length - 1 }} más)
+                        (+{{ frmData.gender_id.length - 1 }})
                       </span>
                     </template>
                     <template v-slot:message="{ message }">
