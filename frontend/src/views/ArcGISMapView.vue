@@ -157,6 +157,8 @@ export default {
       'setSleep',
       'getParams'
     ]),
+
+    // ======================================================================================================================================
     // map
     throttle (func, limit) {
       let lastCall = 0
@@ -400,7 +402,7 @@ export default {
     // ======================================================================================================================================
     async getGenders () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}map?type=genders`
+        const url = `${process.env.VUE_APP_API_SERVER}genders?type=getdatabysector`
         const response = await axios.get(url)
         if (response.data.status === 200) {
           this.genders = response.data.result
@@ -413,8 +415,9 @@ export default {
     },
     async getYears () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}map?type=years`
+        const url = `${process.env.VUE_APP_API_SERVER}years?type=getdatabysector`
         const response = await axios.get(url)
+        // console.log('result', response.data)
         if (response.data.status === 200) {
           this.years = response.data.result
           this.years.unshift({ id: 0, title: 'Todos' })
@@ -426,14 +429,12 @@ export default {
     },
     async getStates () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}map?type=states`
+        const url = `${process.env.VUE_APP_API_SERVER}states?type=getdatabysector`
         const response = await axios.get(url)
         // console.log('result', response.data)
         if (response.data.status === 200) {
           this.states = response.data.result
           this.states.unshift({ id: 0, title: 'Todos' })
-          // this.frmData.state_id = [0]
-          // console.log(this.states)
         }
       } catch (error) {
         console.log(error)
@@ -449,7 +450,7 @@ export default {
           return
         }
         // console.log('getCategories', sendData)
-        const url = `${process.env.VUE_APP_API_SERVER}map?type=categories`
+        const url = `${process.env.VUE_APP_API_SERVER}indicator_categories?type=categoriesnode`
         const response = await axios.post(url, { indicator_ids: sendData })
         // console.log('getCategories() --> ', response.data.result)
 
@@ -778,7 +779,7 @@ export default {
       }
 
       // 3. Cargar catálogos base
-      // await this.loadCatalogs()
+      await this.loadCatalogs()
 
       // 4. MODALIDAD 2: validar parámetros
       await this.evaluateUrlParams()

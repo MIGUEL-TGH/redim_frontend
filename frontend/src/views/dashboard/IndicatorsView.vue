@@ -92,12 +92,12 @@ export default {
           status: '¡Estatus actualizado correctamente!'
         }
       },
-      title: 'Indicadores',
+      title: 'Población',
       dataTable: {
         search: '',
         headers: [
           { text: 'ID', value: 'id', class: 'bg-dark white--text', width: '10%' },
-          { text: 'Indicadores', value: 'name', class: 'bg-dark white--text' },
+          { text: 'Población', value: 'name', class: 'bg-dark white--text' },
           { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' },
           { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
         ],

@@ -20,6 +20,7 @@
 
               <v-col cols="12" class="py-1 pr-1 pl-1">
                 <label class="white--text font-weight-bold caption mb-1 d-block">Población*:</label>
+                <!-- <label class="white--text font-weight-bold caption mb-1 d-block">Delitos*:</label> -->
                 <v-select
                   v-model="frmData.indicator_id" :items="indicators" multiple item-value="id" item-text="name" :rules="[v => (v && v.length > 0) || 'Campo obligatorio']"
                   class="frm-select" item-color="#b62b86" light solo flat dense hide-details="auto"

@@ -107,12 +107,12 @@ export default {
           status: '¡Estatus actualizado correctamente!'
         }
       },
-      title: 'Categorías de indicadores',
+      title: 'Tipo de Delitos',
       dataTable: {
         search: '',
         headers: [
           { text: 'ID', value: 'id', class: 'bg-dark white--text', width: '10%' },
-          { text: 'Indicador', value: 'indicator_name', class: 'bg-dark white--text' },
+          { text: 'Población', value: 'indicator_name', class: 'bg-dark white--text' },
           { text: 'Categoría padre', value: 'parent_name', class: 'bg-dark white--text' },
           { text: 'Categoría hijo', value: 'name', class: 'bg-dark white--text' },
           { text: 'nivel', value: 'level', class: 'bg-dark white--text' },
@@ -198,7 +198,7 @@ export default {
     },
     async getIndicators () {
       try {
-        const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getactive`
+        const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getdatabysector`
         const response = await axios.get(url)
         // console.log(response.data.result)
         if (response.data.success) {
