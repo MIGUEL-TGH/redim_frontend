@@ -1,0 +1,389 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": []
+            },
+            "properties": {
+                "CVEGEO": "01",
+                "CVE_ENT": "01",
+                "NOMGEO": "Aguascalientes"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "02",
+                "CVE_ENT": "02",
+                "NOMGEO": "Baja California"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "03",
+                "CVE_ENT": "03",
+                "NOMGEO": "Baja California Sur"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "04",
+                "CVE_ENT": "04",
+                "NOMGEO": "Campeche"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "05",
+                "CVE_ENT": "05",
+                "NOMGEO": "Coahuila de Zaragoza"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "06",
+                "CVE_ENT": "06",
+                "NOMGEO": "Colima"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "07",
+                "CVE_ENT": "07",
+                "NOMGEO": "Chiapas"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "08",
+                "CVE_ENT": "08",
+                "NOMGEO": "Chihuahua"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "09",
+                "CVE_ENT": "09",
+                "NOMGEO": "Ciudad de México"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "10",
+                "CVE_ENT": "10",
+                "NOMGEO": "Durango"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "11",
+                "CVE_ENT": "11",
+                "NOMGEO": "Guanajuato"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "12",
+                "CVE_ENT": "12",
+                "NOMGEO": "Guerrero"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "13",
+                "CVE_ENT": "13",
+                "NOMGEO": "Hidalgo"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "14",
+                "CVE_ENT": "14",
+                "NOMGEO": "Jalisco"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "15",
+                "CVE_ENT": "15",
+                "NOMGEO": "México"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "16",
+                "CVE_ENT": "16",
+                "NOMGEO": "Michoacán de Ocampo"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "17",
+                "CVE_ENT": "17",
+                "NOMGEO": "Morelos"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "18",
+                "CVE_ENT": "18",
+                "NOMGEO": "Nayarit"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "19",
+                "CVE_ENT": "19",
+                "NOMGEO": "Nuevo León"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "20",
+                "CVE_ENT": "20",
+                "NOMGEO": "Oaxaca"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "21",
+                "CVE_ENT": "21",
+                "NOMGEO": "Puebla"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "22",
+                "CVE_ENT": "22",
+                "NOMGEO": "Querétaro"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "23",
+                "CVE_ENT": "23",
+                "NOMGEO": "Quintana Roo"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "24",
+                "CVE_ENT": "24",
+                "NOMGEO": "San Luis Potosí"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "25",
+                "CVE_ENT": "25",
+                "NOMGEO": "Sinaloa"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "26",
+                "CVE_ENT": "26",
+                "NOMGEO": "Sonora"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "27",
+                "CVE_ENT": "27",
+                "NOMGEO": "Tabasco"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "28",
+                "CVE_ENT": "28",
+                "NOMGEO": "Tamaulipas"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "29",
+                "CVE_ENT": "29",
+                "NOMGEO": "Tlaxcala"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "30",
+                "CVE_ENT": "30",
+                "NOMGEO": "Veracruz de Ignacio de la Llave"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "31",
+                "CVE_ENT": "31",
+                "NOMGEO": "Yucatán"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [ ]
+            },
+            "properties": {
+                "CVEGEO": "32",
+                "CVE_ENT": "32",
+                "NOMGEO": "Zacatecas"
+            }
+        }
+    ]
+}

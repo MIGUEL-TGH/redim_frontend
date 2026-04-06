@@ -39,6 +39,30 @@
           @toggle-card="handleCardOpened"
         />
       </div>
+
+      <div ref="hoverPopup" v-show="hoverInfo.show" class="custom-hover-popup elevation-5" style="position: absolute; top: 0; left: 0; will-change: transform;" >
+        <div class="font-weight-bold">{{ hoverInfo.data ? hoverInfo.data.name : '...' }}</div>
+        <!-- <div class="font-weight-bold"> SESNSP, Trata de personas de 0 a 17 años en México, 2025 </div> -->
+         <v-divider class="my-1"></v-divider>
+        <div class="caption">
+          <strong> SESNSP, Trata de personas de 0 a 17 años en México, 2025 </strong> <br>
+          <!-- <strong> {{ hoverInfo.data ? hoverInfo.data.name : '...' }} </strong> <br> -->
+          Hombres: {{ hoverInfo.data ? hoverInfo.data.man : 0 }}<br>
+          Mujeres: {{ hoverInfo.data ? hoverInfo.data.woman : 0 }}
+        </div>
+      </div>
+
+      <div style="position: absolute; bottom: 20px; left: 20px; z-index: 90; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 8px;" class="elevation-4">
+        <div class="caption font-weight-bold mb-2">Modo de Rendimiento (Hover)</div>
+        <v-switch
+          v-model="usarOptimizacion"
+          :label="usarOptimizacion ? 'Optimizado (generalize)' : 'Pesado (Geometría cruda)'"
+          color="success"
+          hide-details
+          dense
+        ></v-switch>
+      </div>
+
     </div>
 
     <loader-comp />
@@ -63,12 +87,13 @@ import Map from '@arcgis/core/Map'
 import MapView from '@arcgis/core/views/MapView'
 // import Expand from '@arcgis/core/widgets/Expand'
 // import * as reactiveUtils from '@arcgis/core/core/reactiveUtils'
-// import Graphic from '@arcgis/core/Graphic'
-// import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
+import Graphic from '@arcgis/core/Graphic'
+import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
 // import Point from '@arcgis/core/geometry/Point'
 import GeoJSONLayer from '@arcgis/core/layers/GeoJSONLayer'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
 import Basemap from '@arcgis/core/Basemap'
+import * as geometryEngine from '@arcgis/core/geometry/geometryEngine'
 
 // import Tables from '@/js/20242030/tables.js'
 // import Charts from '@/js/charts.js'
@@ -135,8 +160,21 @@ export default {
       ],
       view: undefined,
       map: undefined,
+      capaEstados: null,
+      lastHoveredId: null,
+
       stopWatchHandle: null,
-      graphicsLayer: null
+
+      graphicsLayer: null,
+      hoverLayer: null,
+      hoverInfo: {
+        show: false,
+        x: 0,
+        y: 0,
+        data: null
+      },
+      usarOptimizacion: true,
+      dataStates: []
       // vue
     }
   },
@@ -199,6 +237,46 @@ export default {
         )
       }
     },
+
+    async loadDataMap () {
+      // SESNSP, Trata de personas de 0 a 17 años en México, 2025
+      const data = [
+        { id: 1, name: 'Aguascalientes', man: 0, woman: 1, cve_ent: 1 },
+        { id: 2, name: 'Baja California', man: 4, woman: 12, cve_ent: 2 },
+        { id: 3, name: 'Baja California Sur', man: 3, woman: 4, cve_ent: 3 },
+        { id: 4, name: 'Campeche', man: 0, woman: 1, cve_ent: 4 },
+        { id: 5, name: 'Chiapas', man: 2, woman: 4, cve_ent: 7 },
+        { id: 6, name: 'Chihuahua', man: 13, woman: 21, cve_ent: 8 },
+        { id: 7, name: 'Ciudad de México', man: 6, woman: 16, cve_ent: 9 },
+        { id: 8, name: 'Coahuila de Zaragoza', man: 1, woman: 2, cve_ent: 5 },
+        { id: 9, name: 'Colima', man: 0, woman: 0, cve_ent: 6 },
+        { id: 10, name: 'Durango', man: 0, woman: 0, cve_ent: 10 },
+        { id: 11, name: 'Guanajuato', man: 2, woman: 3, cve_ent: 11 },
+        { id: 12, name: 'Guerrero', man: 3, woman: 12, cve_ent: 12 },
+        { id: 13, name: 'Hidalgo', man: 0, woman: 3, cve_ent: 13 },
+        { id: 14, name: 'Jalisco', man: 5, woman: 0, cve_ent: 14 },
+        { id: 15, name: 'México', man: 11, woman: 31, cve_ent: 15 },
+        { id: 16, name: 'Michoacán de Ocampo', man: 0, woman: 1, cve_ent: 16 },
+        { id: 17, name: 'Morelos', man: 0, woman: 3, cve_ent: 17 },
+        { id: 18, name: 'Nayarit', man: 0, woman: 1, cve_ent: 18 },
+        { id: 19, name: 'Nuevo León', man: 0, woman: 7, cve_ent: 19 },
+        { id: 20, name: 'Oaxaca', man: 3, woman: 6, cve_ent: 20 },
+        { id: 21, name: 'Puebla', man: 5, woman: 5, cve_ent: 21 },
+        { id: 22, name: 'Querétaro', man: 0, woman: 0, cve_ent: 22 },
+        { id: 23, name: 'Quintana Roo', man: 17, woman: 53, cve_ent: 23 },
+        { id: 24, name: 'San Luis Potosí', man: 0, woman: 11, cve_ent: 24 },
+        { id: 25, name: 'Sinaloa', man: 0, woman: 0, cve_ent: 25 },
+        { id: 26, name: 'Sonora', man: 1, woman: 2, cve_ent: 26 },
+        { id: 27, name: 'Tabasco', man: 0, woman: 5, cve_ent: 27 },
+        { id: 28, name: 'Tamaulipas', man: 0, woman: 3, cve_ent: 28 },
+        { id: 29, name: 'Tlaxcala', man: 0, woman: 0, cve_ent: 29 },
+        { id: 30, name: 'Veracruz de Ignacio de la Llave', man: 2, woman: 2, cve_ent: 30 },
+        { id: 31, name: 'Yucatán', man: 0, woman: 0, cve_ent: 31 },
+        { id: 32, name: 'Zacatecas', man: 2, woman: 12, cve_ent: 32 }
+      ]
+
+      this.dataStates = data
+    },
     async AddGeoJSONLayer (item) {
       // console.log('AddGeoJSONLayer() -->', item)
       const layerOptions = {
@@ -213,8 +291,8 @@ export default {
             }
           }
         },
-        title: 'GeoJSON Layer',
-        zIndex: 10, // Asegura que esté debajo de los gráficos
+        title: 'GeoJSON_Layer',
+        zIndex: 10,
         effect: item.effect || null
       }
 
@@ -223,15 +301,45 @@ export default {
           new Blob([JSON.stringify(item.data)], { type: 'application/json' })
         )
       } else if (item.type === 'files') {
+        layerOptions.outFields = ['*'] // Asegura que todas las propiedades estén disponibles en el hitTest
         layerOptions.url = item.url
       }
 
+      // ======================================================================================================================================
       // console.log('layerOptions -->', layerOptions)
       const geojsonLayer = new GeoJSONLayer(layerOptions)
+      this.capaEstados = geojsonLayer
       this.map.add(geojsonLayer)
+
+      // await this.setSleep(1000)
+      // console.log('Nueva capa de hover:')
+      // layerOptions.effect = null
+      // const geojsonLayerHover = new GeoJSONLayer(layerOptions)
+      // const geojsonLayerHover = { ...geojsonLayer }
+      // geojsonLayerHover.effect = null
+      // this.capaEstados = geojsonLayerHover
+
+      // ======================================================================================================================================
+      // Capa ultra ligera para cuando el mapa está muy lejos (Zoom out)
+      // const capaNacional = new GeoJSONLayer({
+      //   ...layerOptions,
+      //   url: '/assets/WGS84_04_05.json',
+      //   minScale: 0,
+      //   maxScale: 3000000
+      // })
+
+      // // Capa detallada para cuando te acercas a un estado (Zoom in)
+      // const capaEstatal = new GeoJSONLayer({
+      //   url: '/assets/WGS84_04.json',
+      //   minScale: 3000000,
+      //   maxScale: 0
+      // })
+      // this.capaEstados = capaNacional
+      // this.map.addMany([capaNacional, capaEstatal])
+      // // this.map.addMany([capaNacional])
     },
     async AddGeoJSONLayerV1 (item) { // Resaltar capa
-      // console.log('AddGeoJSONLayer() -->', item)
+      // console.log('AddGeoJSONLayerV1() -->', item)
       const layerOptions = {
         renderer: {
           type: 'simple',
@@ -244,7 +352,7 @@ export default {
             }
           }
         },
-        title: 'GeoJSON Layer',
+        title: 'GeoJSON_Layer',
         zIndex: 10 // Asegura que esté debajo de los gráficos
       }
 
@@ -275,7 +383,7 @@ export default {
       await this.view.whenLayerView(geojsonLayer).then((lv) => {
         layerView = lv
       })
-
+      console.log('layerView', layerView)
       // --------------------------------------------------------------------------------
       // 4. Handler de hover (SIN throttle aquí)
       const pointerMoveHandler = async (event) => {
@@ -286,6 +394,7 @@ export default {
         })
 
         const graphic = hit.results[0]?.graphic
+        console.log('graphic', graphic)
 
         // Cursor fuera de la capa
         if (!graphic) {
@@ -322,6 +431,98 @@ export default {
         'pointer-move',
         this.throttle(pointerMoveHandler, 50) // ~16 FPS
       )
+    },
+    async hoverLayers () {
+      // Agregar la capa de gráficos para el resaltado oscuro
+      this.hoverLayer = new GraphicsLayer({ title: 'CapaHover' })
+      this.map.add(this.hoverLayer)
+
+      let isThrottled = false
+
+      this.view.on('pointer-move', (event) => {
+        if (!this.capaEstados) { return }
+
+        // A. Movimiento hiper-rápido del Pop-up (fuera de la reactividad de Vue)
+        if (this.hoverInfo.show && this.$refs.hoverPopup) {
+          // translate es acelerado por la GPU, a diferencia de top/left
+          this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
+        }
+
+        // B. Throttle para el cálculo pesado (HitTest)
+        if (isThrottled) return
+        isThrottled = true
+        setTimeout(() => { isThrottled = false }, 50) // 40
+
+        // C. HitTest optimizado: solo buscar en la capa de estados, no en todo el mapa
+        const hitTestOptions = { include: [this.capaEstados] } // Pasa la referencia a tu GeoJSONLayer aquí
+
+        this.view.hitTest(event, hitTestOptions).then((response) => {
+          if (response.results.length > 0) {
+            const graphic = response.results[0].graphic
+            const cveEnt = graphic.attributes.CVE_ENT
+
+            // Solo redibujar el contorno y buscar datos en Vue SI cambiamos de estado
+            if (this.lastHoveredId !== cveEnt) {
+              this.lastHoveredId = cveEnt
+              this.hoverLayer.removeAll()
+
+              // this.capaEstados.effect = null
+
+              const geometriaOriginal = graphic.geometry
+              let newGraphic = null
+
+              if (this.usarOptimizacion) { // Modo Rápido: Simplificamos
+                const maxDeviation = this.view.resolution * 2
+                newGraphic = geometryEngine.generalize(geometriaOriginal, maxDeviation, true)
+                // console.log('Modo Rápido: Simplificamos')
+              } else { // Modo Lento: Geometría cruda original (sin hacer nada)
+                newGraphic = geometriaOriginal
+                // console.log('Modo Lento: Geometría cruda original (sin hacer nada)')
+              }
+
+              // ==================================================================================
+
+              // ==================================================================================
+
+              // 4. Crear el borde oscuro
+              const highlightGraphic = new Graphic({
+                geometry: newGraphic,
+                symbol: {
+                  type: 'simple-fill',
+                  color: [0, 0, 0, 0],
+                  outline: { color: '#333333', width: 2.5 }
+                }
+              })
+
+              this.hoverLayer.add(highlightGraphic)
+
+              // ======================================================================================================================================
+              // Actualizar los datos reactivos del Pop-up
+              const cveEntNum = Number(cveEnt) // Aseguramos que sea numérico para la comparación
+              const stateData = this.dataStates.find(s => s.cve_ent === cveEntNum)
+              this.hoverInfo.data = stateData || { name: graphic.attributes.NOMGEO }
+              // Mostrar el popup
+              if (!stateData) {
+                this.hoverInfo.show = false
+                return
+              }
+
+              this.view.container.style.cursor = 'pointer'
+              this.hoverInfo.show = true
+              this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
+            }
+          } else {
+            // D. Salimos de los estados
+            if (this.lastHoveredId !== null) {
+              this.hoverLayer.removeAll()
+              this.lastHoveredId = null
+              this.hoverInfo.show = false
+              this.view.container.style.cursor = 'default'
+              // this.capaEstados.effect = 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))'
+            }
+          }
+        })
+      })
     },
     async initMap () {
       // 1. Creamos la capa de todos los países (Tierra)
@@ -386,17 +587,45 @@ export default {
 
       // 5. Agregamos la capa de México con el efecto de SOMBRA
       await this.AddGeoJSONLayer({
-        url: '/assets/WGS84_04.json',
+        // url: '/assets/WGS84_04.json',
+        url: '/assets/WGS84_04_10.json',
+        // url: '/assets/WGS84_04_05.json',
+        // url: '/assets/WGS84_04_2ent.json',
         color: '#b8ab9b', // Relleno de los estados
         outlineColor: '#efeee8', // Color del contorno
         type: 'files',
         effect: 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))' // Efecto sombreado
       })
 
+      // const dataLayears =
+      //   {"type":"FeatureCollection", "features": [
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"03","CVE_ENT":"03","NOMGEO":"Baja California Sur"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"02","CVE_ENT":"02","NOMGEO":"Baja California"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"03","CVE_ENT":"03","NOMGEO":"Baja California Sur"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"04","CVE_ENT":"04","NOMGEO":"Campeche"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"05","CVE_ENT":"05","NOMGEO":"Chiapas"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"06","CVE_ENT":"06","NOMGEO":"Chihuahua"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"07","CVE_ENT":"07","NOMGEO":"Ciudad de México"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"08","CVE_ENT":"08","NOMGEO":"Coahuila de Zaragoza"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"09","CVE_ENT":"09","NOMGEO":"Colima"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"10","CVE_ENT":"10","NOMGEO":"Durango"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"11","CVE_ENT":"11","NOMGEO":"Guanajuato"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"12","CVE_ENT":"12","NOMGEO":"Guerrero"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"13","CVE_ENT":"13","NOMGEO":"Hidalgo"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"14","CVE_ENT":"14","NOMGEO":"Jalisco"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"15","CVE_ENT":"15","NOMGEO":"México"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"16","CVE_ENT ":"16","NOMGEO ":"Michoacán de Ocampo"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"17","CVE_ENT":"17","NOMGEO":"Morelos"}},
+      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"18","CVE_ENT":"18","NOMGEO":"Nayarit"}}
+      //   ]}
+      // ======================================================================================================================================
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [184, 171, 155, 0.9], type: 'files' })
       // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+
+      // ======================================================================================================================================
+      await this.hoverLayers()
     },
 
     // ======================================================================================================================================
@@ -794,6 +1023,11 @@ export default {
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
   async created () {
+    // this.map = null
+    // this.view = null
+    // this.capaEstados = null
+    // this.hoverLayer = null
+
     // console.log('created')
     // ======================================================================================================================================
     // this.getIndicators()
@@ -850,8 +1084,9 @@ export default {
   },
   beforeMount () {},
   async mounted () {
+    await this.loadDataMap()
     await this.initMap()
-    await this.initApplication()
+    // await this.initApplication()
   },
   beforeUpdate () {},
   updated () {},
@@ -903,6 +1138,20 @@ export default {
     width: 450px; /* Ancho en escritorio */
     max-width: calc(100vw - 40px); /* Evita que desborde si la pantalla es menor a 440px */
   }
+
+  /* ===============================  MAPA  =============================== */
+
+  .custom-hover-popup {
+    position: absolute;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    pointer-events: none; /* Importante: para que no interfiera con el mouse */
+    z-index: 1000;
+    border-left: 4px solid #ed712c;
+    min-width: 150px;
+  }
+
   /* Tablets (hasta 960px) */
   @media (max-width: 960px) {
     .stats-panel {
