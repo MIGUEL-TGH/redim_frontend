@@ -162,7 +162,9 @@ export default {
       map: undefined,
       capaEstados: null,
       lastHoveredId: null,
-
+      // Opciones: 'generalized-outline', 'raw-outline', 'native-highlight'
+      hoverStrategy: 'generalized-outline',
+      capasInteractivas: [],
       stopWatchHandle: null,
 
       graphicsLayer: null,
@@ -277,67 +279,7 @@ export default {
 
       this.dataStates = data
     },
-    async AddGeoJSONLayer (item) {
-      // console.log('AddGeoJSONLayer() -->', item)
-      const layerOptions = {
-        renderer: {
-          type: 'simple',
-          symbol: {
-            type: 'simple-fill',
-            color: item.color,
-            outline: {
-              width: 1.2,
-              color: item.outlineColor || 'gray' // black
-            }
-          }
-        },
-        title: 'GeoJSON_Layer',
-        zIndex: 10,
-        effect: item.effect || null
-      }
 
-      if (item.type === 'rendered') {
-        layerOptions.url = URL.createObjectURL(
-          new Blob([JSON.stringify(item.data)], { type: 'application/json' })
-        )
-      } else if (item.type === 'files') {
-        layerOptions.outFields = ['*'] // Asegura que todas las propiedades estén disponibles en el hitTest
-        layerOptions.url = item.url
-      }
-
-      // ======================================================================================================================================
-      // console.log('layerOptions -->', layerOptions)
-      const geojsonLayer = new GeoJSONLayer(layerOptions)
-      this.capaEstados = geojsonLayer
-      this.map.add(geojsonLayer)
-
-      // await this.setSleep(1000)
-      // console.log('Nueva capa de hover:')
-      // layerOptions.effect = null
-      // const geojsonLayerHover = new GeoJSONLayer(layerOptions)
-      // const geojsonLayerHover = { ...geojsonLayer }
-      // geojsonLayerHover.effect = null
-      // this.capaEstados = geojsonLayerHover
-
-      // ======================================================================================================================================
-      // Capa ultra ligera para cuando el mapa está muy lejos (Zoom out)
-      // const capaNacional = new GeoJSONLayer({
-      //   ...layerOptions,
-      //   url: '/assets/WGS84_04_05.json',
-      //   minScale: 0,
-      //   maxScale: 3000000
-      // })
-
-      // // Capa detallada para cuando te acercas a un estado (Zoom in)
-      // const capaEstatal = new GeoJSONLayer({
-      //   url: '/assets/WGS84_04.json',
-      //   minScale: 3000000,
-      //   maxScale: 0
-      // })
-      // this.capaEstados = capaNacional
-      // this.map.addMany([capaNacional, capaEstatal])
-      // // this.map.addMany([capaNacional])
-    },
     async AddGeoJSONLayerV1 (item) { // Resaltar capa
       // console.log('AddGeoJSONLayerV1() -->', item)
       const layerOptions = {
@@ -383,7 +325,7 @@ export default {
       await this.view.whenLayerView(geojsonLayer).then((lv) => {
         layerView = lv
       })
-      console.log('layerView', layerView)
+      // console.log('layerView', layerView)
       // --------------------------------------------------------------------------------
       // 4. Handler de hover (SIN throttle aquí)
       const pointerMoveHandler = async (event) => {
@@ -394,7 +336,7 @@ export default {
         })
 
         const graphic = hit.results[0]?.graphic
-        console.log('graphic', graphic)
+        // console.log('graphic', graphic)
 
         // Cursor fuera de la capa
         if (!graphic) {
@@ -413,7 +355,7 @@ export default {
         if (objectId === currentObjectId) return
 
         currentObjectId = objectId
-        console.log(currentObjectId)
+        // console.log(currentObjectId)
 
         // Limpiar highlight anterior
         if (highlightHandle) highlightHandle.remove()
@@ -432,7 +374,8 @@ export default {
         this.throttle(pointerMoveHandler, 50) // ~16 FPS
       )
     },
-    async hoverLayers () {
+
+    async hoverLayersV1 () {
       // Agregar la capa de gráficos para el resaltado oscuro
       this.hoverLayer = new GraphicsLayer({ title: 'CapaHover' })
       this.map.add(this.hoverLayer)
@@ -524,6 +467,164 @@ export default {
         })
       })
     },
+
+    async hoverLayers () {
+      console.log('hoverLayers')
+
+      // Asegurarnos de que el arreglo de capas interactivas existe
+      if (!this.capasInteractivas || this.capasInteractivas.length === 0) return
+      // Variables para controlar el Highlight Nativo
+      let activeHighlightHandle = null
+      let activeLayerView = null
+
+      this.view.on('pointer-move', (event) => {
+        // Movimiento fluido del Pop-up (Vue bypass)
+        if (this.hoverInfo.show && this.$refs.hoverPopup) {
+          this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
+        }
+
+        // HitTest buscando en todas las capas interactivas (nacional y estatal)
+        this.view.hitTest(event, { include: this.capasInteractivas }).then(async (response) => {
+          if (response.results.length > 0) {
+            const result = response.results[0]
+            const graphic = result.graphic
+            const cveEnt = graphic.attributes.CVE_ENT
+            const currentLayer = graphic.layer // Sabremos exactamente si es la nacional o la estatal
+
+            if (this.lastHoveredId !== cveEnt) {
+              this.lastHoveredId = cveEnt
+              // Limpieza de modos anteriores
+              this.hoverLayer.removeAll()
+              if (activeHighlightHandle) {
+                activeHighlightHandle.remove()
+                activeHighlightHandle = null
+              }
+
+              // === EVALUACIÓN DE LAS 3 MODALIDADES ===
+
+              // Modalidad 1: Highlight Nativo de ArcGIS (Relleno completo)
+              if (this.hoverStrategy === 'native-highlight') {
+                // Necesitamos el layerView para aplicar el highlight
+                activeLayerView = await this.view.whenLayerView(currentLayer)
+                activeHighlightHandle = activeLayerView.highlight(graphic)
+              } else { // Modalidad 2 y 3: Borde Dibujado (GraphicsLayer)
+                let geometriaParaDibujar = graphic.geometry
+
+                if (this.hoverStrategy === 'generalized-outline') {
+                  // Modo Rápido (Simplificado)
+                  const maxDeviation = this.view.resolution * 2
+                  geometriaParaDibujar = geometryEngine.generalize(graphic.geometry, maxDeviation, true)
+                }
+                // Si es 'raw-outline', usa la geometriaParaDibujar original
+
+                const highlightGraphic = new Graphic({
+                  geometry: geometriaParaDibujar,
+                  symbol: {
+                    type: 'simple-fill',
+                    color: [0, 0, 0, 0], // Transparente adentro
+                    outline: { color: '#333333', width: 2.5 }
+                  }
+                })
+                this.hoverLayer.add(highlightGraphic)
+              }
+
+              // --- Actualización de la Información del Pop-up ---
+              const stateData = this.dataStates.find(s => s.id === cveEnt || s.cve_ent === cveEnt)
+              this.hoverInfo.data = stateData || { nombre: graphic.attributes.NOMGEO }
+              this.hoverInfo.show = true
+            }
+          } else {
+            // Salida del mouse: Limpiar todo
+            if (this.lastHoveredId !== null) {
+              this.hoverLayer.removeAll()
+              if (activeHighlightHandle) {
+                activeHighlightHandle.remove()
+                activeHighlightHandle = null
+              }
+              this.lastHoveredId = null
+              this.hoverInfo.show = false
+            }
+          }
+        })
+      })
+    },
+    async addGeoJSONLayer (item) {
+      // console.log('addGeoJSONLayer() -->', item)
+      const layerOptions = {
+        renderer: {
+          type: 'simple',
+          symbol: {
+            type: 'simple-fill',
+            color: item.color || 'black',
+            outline: {
+              width: 1.2,
+              color: item.outlineColor || 'gray' // black
+            }
+          }
+        },
+        title: 'GeoJSON_Layer',
+        zIndex: 10,
+        effect: item.effect || null
+      }
+
+      // ======================================================================================================================================
+      if (item.layerType === 'rendered') {
+        layerOptions.url = URL.createObjectURL(
+          new Blob([JSON.stringify(item.data)], { type: 'application/json' })
+        )
+      }
+
+      if (item.layerType === 'files' && item.uploadType === 'states') {
+        layerOptions.outFields = ['*'] // Asegura que todas las propiedades estén disponibles en el hitTest
+        layerOptions.url = item.url
+      }
+
+      if (item.layerType === 'files' && item.uploadType === 'background') {
+        layerOptions.url = item.url
+      }
+
+      // ======================================================================================================================================
+      // Lógica para capas que siempre se muestran sin importar la escala
+      if (item.layerMode === 'one') {
+        const geojsonLayer = new GeoJSONLayer(layerOptions)
+        this.map.add(geojsonLayer)
+
+        if (item.uploadType === 'states') {
+          this.capaEstados = geojsonLayer
+        }
+      }
+
+      // Lógica para capas basadas en escala
+      if (item.layerMode === 'scale') {
+        // Capa ultra ligera para cuando el mapa está muy lejos (Zoom out)
+        const capaNacional = new GeoJSONLayer({
+          ...layerOptions,
+          url: '/assets/WGS84_04_05.json',
+          minScale: 0,
+          maxScale: 3000000
+        })
+
+        // Capa detallada para cuando te acercas a un estado (Zoom in)
+        const capaEstatal = new GeoJSONLayer({
+          ...layerOptions,
+          url: '/assets/WGS84_04_100.json',
+          minScale: 3000000,
+          maxScale: 0
+        })
+
+        this.capasInteractivas = [capaNacional, capaEstatal]
+        this.map.addMany(this.capasInteractivas)
+
+        // this.capaEstados = capaNacional
+        // this.map.addMany([capaNacional, capaEstatal])
+        // this.map.addMany([capaNacional])
+      }
+
+      // ======================================================================================================================================
+      // ======================================================================================================================================
+      // await this.setSleep(1000)
+      // ======================================================================================================================================
+    },
     async initMap () {
       // 1. Creamos la capa de todos los países (Tierra)
       const worldLayer = new FeatureLayer({
@@ -559,7 +660,9 @@ export default {
         map: this.map,
         // longitude, latitude
         // center: [-102.37592182483502, 24.097127823504444],
-        center: [-106.98709444156532, 23.88462442879944], // La Cruz Sinaloa
+        // center: [-106.98709444156532, 23.88462442879944], // La Cruz Sinaloa
+        center: [-104.24355191297404, 23.847865996045297], // Nombre de Dios, Durango
+
         // zoom: 4.4,
         scale: 15000000, // ajusta hasta que quede perfecto visualmente
         constraints: {
@@ -586,15 +689,26 @@ export default {
       await this.view.when()
 
       // 5. Agregamos la capa de México con el efecto de SOMBRA
-      await this.AddGeoJSONLayer({
-        // url: '/assets/WGS84_04.json',
-        url: '/assets/WGS84_04_10.json',
-        // url: '/assets/WGS84_04_05.json',
-        // url: '/assets/WGS84_04_2ent.json',
+      await this.addGeoJSONLayer({
+        url: '/assets/Mexico_WGS84_04.json',
+        color: '#dfdad0', // Relleno de los estados
+        outlineColor: '#dfdad0', // Color del contorno
+        effect: 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))', // Efecto sombreado
+
+        layerType: 'files',
+        uploadType: 'background', // background
+        layerMode: 'one' // one   scale
+      })
+
+      await this.addGeoJSONLayer({
+        url: '/assets/WGS84_04_10.json', // WGS84_04_100  WGS84_04_10  WGS84_04_05  WGS84_04_2ent
         color: '#b8ab9b', // Relleno de los estados
         outlineColor: '#efeee8', // Color del contorno
-        type: 'files',
-        effect: 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))' // Efecto sombreado
+        effect: null,
+
+        layerType: 'files',
+        uploadType: 'states', // background
+        layerMode: 'one' // one   scale
       })
 
       // const dataLayears =
@@ -622,7 +736,7 @@ export default {
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [184, 171, 155, 0.9], type: 'files' })
-      // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04.json', color: [130, 130, 130, 0.1], type: 'files' })
+      // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04_100.json', color: [130, 130, 130, 0.1], type: 'files' })
 
       // ======================================================================================================================================
       await this.hoverLayers()
