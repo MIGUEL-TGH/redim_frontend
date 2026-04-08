@@ -52,22 +52,86 @@
         </div>
       </div>
 
-      <div style="position: absolute; bottom: 20px; left: 20px; z-index: 90; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 8px;" class="elevation-4">
-        <div class="caption font-weight-bold mb-2">Modo de Rendimiento (Hover)</div>
-        <v-switch
-          v-model="usarOptimizacion"
-          :label="usarOptimizacion ? 'Optimizado (generalize)' : 'Pesado (Geometría cruda)'"
-          color="success"
-          hide-details
-          dense
-        ></v-switch>
+      <v-dialog v-model="dialog_rules.actived" scrollable max-width="800px">
+          <v-card>
+            <!-- <v-card-text> -->
+              <!-- <img :src="dialog_rules.image" style="max-width: 100%; height: auto;" elevation="5"> -->
+              <img src="@/assets/logos/Tutorial.jpg" style="max-width: 100%; height: auto;">
+              <!-- <img src="https://picsum.photos/200/300?random=1" style="max-width: 100%; height: auto;"> -->
+            <!-- </v-card-text> -->
+          </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="dialogState" max-width="900" :fullscreen="$vuetify.breakpoint.smAndDown">
+        <v-card v-if="selectedStateData">
+          <v-toolbar color="#342a83" dark flat>
+            <v-toolbar-title>Información: {{ selectedStateData.state_name }}</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon @click="dialogState = false"><v-icon>mdi-close</v-icon></v-btn>
+          </v-toolbar>
+
+          <v-card-text v-if="!selectedStateData.has_content" class="text-center py-10">
+            <v-icon size="64" color="grey lighten-1">mdi-information-off-outline</v-icon>
+            <h3 class="grey--text mt-4">Información no disponible por el momento para este estado.</h3>
+          </v-card-text>
+
+          <v-tabs v-else v-model="tab" color="#ed712c" centered>
+            <v-tab>Boletín</v-tab>
+            <v-tab :disabled="!selectedStateData.gallery.length">Galería</v-tab>
+            <v-tab :disabled="!selectedStateData.videos.length">Videos</v-tab>
+
+            <v-tabs-items v-model="tab">
+              <v-tab-item>
+                <v-card flat class="pa-4">
+                  <h2 class="mb-2">{{ selectedStateData.bulletin.title }}</h2>
+                  <p class="caption grey--text">{{ selectedStateData.bulletin.date }}</p>
+                  <v-img v-if="selectedStateData.bulletin.cover_image" :src="selectedStateData.bulletin.cover_image" height="300" class="mb-4 rounded"></v-img>
+                  <p class="font-weight-bold">{{ selectedStateData.bulletin.summary }}</p>
+                  <div v-html="selectedStateData.bulletin.body"></div> </v-card>
+              </v-tab-item>
+
+              <v-tab-item>
+                <v-card flat class="pa-4">
+                  <v-row>
+                    <v-col v-for="(img, i) in selectedStateData.gallery" :key="i" cols="12" sm="6" md="4">
+                      <v-card hover>
+                        <v-img :src="img.url" height="200" contain></v-img>
+                        <v-card-subtitle class="text-center">{{ img.caption }}</v-card-subtitle>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-tab-item>
+
+              <v-tab-item>
+                <v-card flat class="pa-4">
+                  <v-row>
+                    <v-col v-for="(vid, i) in selectedStateData.videos" :key="i" cols="12" md="6">
+                      <iframe width="100%" height="250" :src="vid.url_iframe" frameborder="0" allowfullscreen></iframe>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-tab-item>
+            </v-tabs-items>
+          </v-tabs>
+        </v-card>
+      </v-dialog>
+
+      <!-- MODO DESARROLLO -->
+      <div style="position: absolute; bottom: 20px; left: 20px; z-index: 90; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px;" class="elevation-4">
+        <div class="caption font-weight-bold mb-2">Estrategia de Hover (Pruebas)</div>
+        <v-radio-group v-model="hoverStrategy" hide-details class="mt-0">
+          <v-radio label="Relleno Nativo (Highlight)" value="native-highlight"></v-radio>
+          <v-radio label="Contorno Simplificado (Rápido)" value="generalized-outline"></v-radio>
+          <v-radio label="Contorno Crudo (Pesado)" value="raw-outline"></v-radio>
+        </v-radio-group>
       </div>
 
     </div>
 
     <loader-comp />
     <view-notifications-comp ref="notifier"/>
-
+    <!-- <h1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis ipsum cumque aspernatur amet nesciunt alias reiciendis! Ab eum officiis laudantium earum velit iure totam quod beatae dolorem! Nam, ex cumque.</h1> -->
   </div>
 </template>
 
@@ -160,24 +224,51 @@ export default {
       ],
       view: undefined,
       map: undefined,
-      capaEstados: null,
-      lastHoveredId: null,
-      // Opciones: 'generalized-outline', 'raw-outline', 'native-highlight'
-      hoverStrategy: 'generalized-outline',
-      capasInteractivas: [],
-      stopWatchHandle: null,
-
-      graphicsLayer: null,
       hoverLayer: null,
+      capasInteractivas: [],
+      lastHoveredId: null,
+      hoverStrategy: 'generalized-outline', // 'generalized-outline', 'raw-outline', 'native-highlight'
       hoverInfo: {
         show: false,
         x: 0,
         y: 0,
         data: null
       },
-      usarOptimizacion: true,
-      dataStates: []
+      dataStates: [],
+      // =========================================================================
       // vue
+      dialog_rules: {
+        actived: false,
+        message: '',
+        image: '@/assets/logos/NiñezPrimero-Placa.png'
+      },
+      // =========================================================================
+      // vue data test
+      tab: null,
+      dialogState: true,
+      selectedStateData: {
+        state_id: 15,
+        state_name: 'Estado de México',
+        has_content: true,
+        bulletin: {
+          title: 'Avances en la protección integral',
+          date: '2025-10-20',
+          summary: 'Lorem ipsum dolor sit amet consectetur adipisicing elit',
+          body: 'Cuerpo completo de la noticia separado por párrafos... Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+          cover_image: 'https://picsum.photos/200/300?random=1'
+        },
+        gallery: [
+          { url: 'https://picsum.photos/200/300?random=2', caption: 'Reunión de comité' },
+          { url: 'https://picsum.photos/200/300?random=3', caption: 'Taller formativo' },
+          { url: 'https://picsum.photos/200/300?random=4', caption: 'Evento comunitario' },
+          { url: 'https://picsum.photos/200/300?random=5', caption: 'Campaña de difusión' },
+          { url: 'https://picsum.photos/200/300?random=6', caption: 'Firma de convenio' },
+          { url: 'https://picsum.photos/200/300?random=7', caption: 'Capacitación a policías' }
+        ],
+        videos: [
+          { title: 'Campaña 2025', url_iframe: 'https://www.youtube.com/embed/J4jLgauOUPs?list=RDJ4jLgauOUPs' }
+        ]
+      }
     }
   },
   computed: {
@@ -198,18 +289,7 @@ export default {
       'getParams'
     ]),
 
-    // ======================================================================================================================================
-    // map
-    throttle (func, limit) {
-      let lastCall = 0
-      return function (...args) {
-        const now = Date.now()
-        if (now - lastCall >= limit) {
-          lastCall = now
-          func.apply(this, args)
-        }
-      }
-    },
+    // map ======================================================================================================================================
     handleZoomIn () { // +
       if (this.view) {
         // this.view.goTo({ scale: this.view.scale * 0.8 })
@@ -279,203 +359,20 @@ export default {
 
       this.dataStates = data
     },
+    async hoverLayers () {
+      // console.log('hoverLayers()')
 
-    async AddGeoJSONLayerV1 (item) { // Resaltar capa
-      // console.log('AddGeoJSONLayerV1() -->', item)
-      const layerOptions = {
-        renderer: {
-          type: 'simple',
-          symbol: {
-            type: 'simple-fill',
-            color: item.color,
-            outline: {
-              width: 1.2,
-              color: 'gray' // black
-            }
-          }
-        },
-        title: 'GeoJSON_Layer',
-        zIndex: 10 // Asegura que esté debajo de los gráficos
-      }
+      // Asegurarnos de que el arreglo de capas interactivas existe
+      if (!this.capasInteractivas || this.capasInteractivas.length === 0) return
 
-      if (item.type === 'rendered') {
-        layerOptions.url = URL.createObjectURL(
-          new Blob([JSON.stringify(item.data)], { type: 'application/json' })
-        )
-      } else if (item.type === 'files') {
-        layerOptions.url = item.url
-        layerOptions.renderer.symbol.outline = {
-          width: 1,
-          color: 'black' // gray
-        }
-      }
-
-      // console.log('layerOptions -->', layerOptions)
-      const geojsonLayer = new GeoJSONLayer(layerOptions)
-      this.map.add(geojsonLayer)
-
-      // --------------------------------------------------------------------------------
-      // 2. Variables de control para hover
-      let layerView = null
-      let highlightHandle = null
-      let currentObjectId = null
-
-      // --------------------------------------------------------------------------------
-      // 3. Obtener LayerView (una sola vez)
-      await this.view.whenLayerView(geojsonLayer).then((lv) => {
-        layerView = lv
-      })
-      // console.log('layerView', layerView)
-      // --------------------------------------------------------------------------------
-      // 4. Handler de hover (SIN throttle aquí)
-      const pointerMoveHandler = async (event) => {
-        if (!layerView) return
-
-        const hit = await this.view.hitTest(event, {
-          include: geojsonLayer
-        })
-
-        const graphic = hit.results[0]?.graphic
-        // console.log('graphic', graphic)
-
-        // Cursor fuera de la capa
-        if (!graphic) {
-          if (highlightHandle) {
-            highlightHandle.remove()
-            highlightHandle = null
-          }
-          currentObjectId = null
-          this.view.container.style.cursor = 'default'
-          return
-        }
-
-        const objectId = graphic.attributes.__OBJECTID
-
-        // ❗ Si sigue sobre el mismo estado, no reprocesar
-        if (objectId === currentObjectId) return
-
-        currentObjectId = objectId
-        // console.log(currentObjectId)
-
-        // Limpiar highlight anterior
-        if (highlightHandle) highlightHandle.remove()
-
-        // Aplicar nuevo highlight (rápido)
-        highlightHandle = layerView.highlight(graphic)
-
-        // Cambiar cursor
-        this.view.container.style.cursor = 'pointer'
-      }
-
-      // --------------------------------------------------------------------------------
-      // 5. Registrar evento con throttle (CLAVE de rendimiento)
-      this.view.on(
-        'pointer-move',
-        this.throttle(pointerMoveHandler, 50) // ~16 FPS
-      )
-    },
-
-    async hoverLayersV1 () {
       // Agregar la capa de gráficos para el resaltado oscuro
       this.hoverLayer = new GraphicsLayer({ title: 'CapaHover' })
       this.map.add(this.hoverLayer)
 
-      let isThrottled = false
-
-      this.view.on('pointer-move', (event) => {
-        if (!this.capaEstados) { return }
-
-        // A. Movimiento hiper-rápido del Pop-up (fuera de la reactividad de Vue)
-        if (this.hoverInfo.show && this.$refs.hoverPopup) {
-          // translate es acelerado por la GPU, a diferencia de top/left
-          this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
-        }
-
-        // B. Throttle para el cálculo pesado (HitTest)
-        if (isThrottled) return
-        isThrottled = true
-        setTimeout(() => { isThrottled = false }, 50) // 40
-
-        // C. HitTest optimizado: solo buscar en la capa de estados, no en todo el mapa
-        const hitTestOptions = { include: [this.capaEstados] } // Pasa la referencia a tu GeoJSONLayer aquí
-
-        this.view.hitTest(event, hitTestOptions).then((response) => {
-          if (response.results.length > 0) {
-            const graphic = response.results[0].graphic
-            const cveEnt = graphic.attributes.CVE_ENT
-
-            // Solo redibujar el contorno y buscar datos en Vue SI cambiamos de estado
-            if (this.lastHoveredId !== cveEnt) {
-              this.lastHoveredId = cveEnt
-              this.hoverLayer.removeAll()
-
-              // this.capaEstados.effect = null
-
-              const geometriaOriginal = graphic.geometry
-              let newGraphic = null
-
-              if (this.usarOptimizacion) { // Modo Rápido: Simplificamos
-                const maxDeviation = this.view.resolution * 2
-                newGraphic = geometryEngine.generalize(geometriaOriginal, maxDeviation, true)
-                // console.log('Modo Rápido: Simplificamos')
-              } else { // Modo Lento: Geometría cruda original (sin hacer nada)
-                newGraphic = geometriaOriginal
-                // console.log('Modo Lento: Geometría cruda original (sin hacer nada)')
-              }
-
-              // ==================================================================================
-
-              // ==================================================================================
-
-              // 4. Crear el borde oscuro
-              const highlightGraphic = new Graphic({
-                geometry: newGraphic,
-                symbol: {
-                  type: 'simple-fill',
-                  color: [0, 0, 0, 0],
-                  outline: { color: '#333333', width: 2.5 }
-                }
-              })
-
-              this.hoverLayer.add(highlightGraphic)
-
-              // ======================================================================================================================================
-              // Actualizar los datos reactivos del Pop-up
-              const cveEntNum = Number(cveEnt) // Aseguramos que sea numérico para la comparación
-              const stateData = this.dataStates.find(s => s.cve_ent === cveEntNum)
-              this.hoverInfo.data = stateData || { name: graphic.attributes.NOMGEO }
-              // Mostrar el popup
-              if (!stateData) {
-                this.hoverInfo.show = false
-                return
-              }
-
-              this.view.container.style.cursor = 'pointer'
-              this.hoverInfo.show = true
-              this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
-            }
-          } else {
-            // D. Salimos de los estados
-            if (this.lastHoveredId !== null) {
-              this.hoverLayer.removeAll()
-              this.lastHoveredId = null
-              this.hoverInfo.show = false
-              this.view.container.style.cursor = 'default'
-              // this.capaEstados.effect = 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))'
-            }
-          }
-        })
-      })
-    },
-
-    async hoverLayers () {
-      console.log('hoverLayers')
-
-      // Asegurarnos de que el arreglo de capas interactivas existe
-      if (!this.capasInteractivas || this.capasInteractivas.length === 0) return
       // Variables para controlar el Highlight Nativo
       let activeHighlightHandle = null
       let activeLayerView = null
+      let isThrottled = false
 
       this.view.on('pointer-move', (event) => {
         // Movimiento fluido del Pop-up (Vue bypass)
@@ -483,7 +380,12 @@ export default {
           this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
         }
 
-        // HitTest buscando en todas las capas interactivas (nacional y estatal)
+        // Throttle para el cálculo pesado (HitTest)
+        if (isThrottled) return
+        isThrottled = true
+        setTimeout(() => { isThrottled = false }, 50) // 40
+
+        // HitTest buscando en todas las capas interactivas
         this.view.hitTest(event, { include: this.capasInteractivas }).then(async (response) => {
           if (response.results.length > 0) {
             const result = response.results[0]
@@ -502,21 +404,19 @@ export default {
 
               // === EVALUACIÓN DE LAS 3 MODALIDADES ===
 
-              // Modalidad 1: Highlight Nativo de ArcGIS (Relleno completo)
-              if (this.hoverStrategy === 'native-highlight') {
+              if (this.hoverStrategy === 'native-highlight') { // Modalidad 1: Highlight Nativo de ArcGIS (Relleno completo)
                 // Necesitamos el layerView para aplicar el highlight
                 activeLayerView = await this.view.whenLayerView(currentLayer)
                 activeHighlightHandle = activeLayerView.highlight(graphic)
               } else { // Modalidad 2 y 3: Borde Dibujado (GraphicsLayer)
                 let geometriaParaDibujar = graphic.geometry
 
-                if (this.hoverStrategy === 'generalized-outline') {
-                  // Modo Rápido (Simplificado)
+                if (this.hoverStrategy === 'generalized-outline') { // Modo Rápido (Simplificado)
                   const maxDeviation = this.view.resolution * 2
                   geometriaParaDibujar = geometryEngine.generalize(graphic.geometry, maxDeviation, true)
                 }
-                // Si es 'raw-outline', usa la geometriaParaDibujar original
 
+                // Si es 'raw-outline', usa la geometriaParaDibujar original
                 const highlightGraphic = new Graphic({
                   geometry: geometriaParaDibujar,
                   symbol: {
@@ -529,7 +429,8 @@ export default {
               }
 
               // --- Actualización de la Información del Pop-up ---
-              const stateData = this.dataStates.find(s => s.id === cveEnt || s.cve_ent === cveEnt)
+              const cveEntNum = Number(cveEnt)
+              const stateData = this.dataStates.find(s => s.cve_ent === cveEntNum)
               this.hoverInfo.data = stateData || { nombre: graphic.attributes.NOMGEO }
               this.hoverInfo.show = true
             }
@@ -567,35 +468,35 @@ export default {
         effect: item.effect || null
       }
 
-      // ======================================================================================================================================
-      if (item.layerType === 'rendered') {
+      // dataSource --> 'files': para cargar desde archivos locales, 'rendered': para cargar desde datos ya en memoria
+      if (item.dataSource === 'rendered') {
         layerOptions.url = URL.createObjectURL(
           new Blob([JSON.stringify(item.data)], { type: 'application/json' })
         )
       }
 
-      if (item.layerType === 'files' && item.uploadType === 'states') {
+      if (item.dataSource === 'files' && item.layerRole === 'interactive') {
         layerOptions.outFields = ['*'] // Asegura que todas las propiedades estén disponibles en el hitTest
         layerOptions.url = item.url
       }
 
-      if (item.layerType === 'files' && item.uploadType === 'background') {
+      if (item.dataSource === 'files' && item.layerRole === 'background-shadow') {
         layerOptions.url = item.url
       }
 
       // ======================================================================================================================================
       // Lógica para capas que siempre se muestran sin importar la escala
-      if (item.layerMode === 'one') {
+      if (item.renderingStrategy === 'static') {
         const geojsonLayer = new GeoJSONLayer(layerOptions)
         this.map.add(geojsonLayer)
 
-        if (item.uploadType === 'states') {
-          this.capaEstados = geojsonLayer
+        if (item.layerRole === 'interactive') {
+          this.capasInteractivas = [geojsonLayer]
         }
       }
 
       // Lógica para capas basadas en escala
-      if (item.layerMode === 'scale') {
+      if (item.renderingStrategy === 'scale-dependent') {
         // Capa ultra ligera para cuando el mapa está muy lejos (Zoom out)
         const capaNacional = new GeoJSONLayer({
           ...layerOptions,
@@ -614,15 +515,11 @@ export default {
 
         this.capasInteractivas = [capaNacional, capaEstatal]
         this.map.addMany(this.capasInteractivas)
-
-        // this.capaEstados = capaNacional
-        // this.map.addMany([capaNacional, capaEstatal])
-        // this.map.addMany([capaNacional])
       }
 
       // ======================================================================================================================================
       // ======================================================================================================================================
-      // await this.setSleep(1000)
+      // ======================================================================================================================================
       // ======================================================================================================================================
     },
     async initMap () {
@@ -688,6 +585,7 @@ export default {
       // 4. Esperar a que la vista esté lista antes de agregar el componente
       await this.view.when()
 
+      // ============================================================================================================
       // 5. Agregamos la capa de México con el efecto de SOMBRA
       await this.addGeoJSONLayer({
         url: '/assets/Mexico_WGS84_04.json',
@@ -695,9 +593,9 @@ export default {
         outlineColor: '#dfdad0', // Color del contorno
         effect: 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))', // Efecto sombreado
 
-        layerType: 'files',
-        uploadType: 'background', // background
-        layerMode: 'one' // one   scale
+        dataSource: 'files', // 'files' 'rendered'
+        layerRole: 'background-shadow', // 'interactive' 'background-shadow'
+        renderingStrategy: 'static' // 'static' 'scale-dependent'
       })
 
       await this.addGeoJSONLayer({
@@ -706,32 +604,11 @@ export default {
         outlineColor: '#efeee8', // Color del contorno
         effect: null,
 
-        layerType: 'files',
-        uploadType: 'states', // background
-        layerMode: 'one' // one   scale
+        dataSource: 'files', // 'files' 'rendered'
+        layerRole: 'interactive', // 'interactive' 'background-shadow'
+        renderingStrategy: 'static' // 'static' 'scale-dependent'
       })
 
-      // const dataLayears =
-      //   {"type":"FeatureCollection", "features": [
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"03","CVE_ENT":"03","NOMGEO":"Baja California Sur"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"02","CVE_ENT":"02","NOMGEO":"Baja California"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"03","CVE_ENT":"03","NOMGEO":"Baja California Sur"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"04","CVE_ENT":"04","NOMGEO":"Campeche"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"05","CVE_ENT":"05","NOMGEO":"Chiapas"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"06","CVE_ENT":"06","NOMGEO":"Chihuahua"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"07","CVE_ENT":"07","NOMGEO":"Ciudad de México"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"08","CVE_ENT":"08","NOMGEO":"Coahuila de Zaragoza"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"09","CVE_ENT":"09","NOMGEO":"Colima"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"10","CVE_ENT":"10","NOMGEO":"Durango"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"11","CVE_ENT":"11","NOMGEO":"Guanajuato"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"12","CVE_ENT":"12","NOMGEO":"Guerrero"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"13","CVE_ENT":"13","NOMGEO":"Hidalgo"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"14","CVE_ENT":"14","NOMGEO":"Jalisco"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"15","CVE_ENT":"15","NOMGEO":"México"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"16","CVE_ENT ":"16","NOMGEO ":"Michoacán de Ocampo"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"17","CVE_ENT":"17","NOMGEO":"Morelos"}},
-      //     {"type":"Feature","geometry":{"type":"Polygon","coordinates":[]},"properties":{"CVEGEO":"18","CVE_ENT":"18","NOMGEO":"Nayarit"}}
-      //   ]}
       // ======================================================================================================================================
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
       // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
@@ -740,6 +617,20 @@ export default {
 
       // ======================================================================================================================================
       await this.hoverLayers()
+      // ======================================================================================================================================
+
+      this.view.on('click', (event) => {
+        console.log('click', event)
+        // this.view.hitTest(event).then((response) => {
+        //   const results = response.results.filter(r => r.layer.title === 'Estados');
+        //   if (results.length > 0) {
+        //     const stateId = results[0].graphic.attributes.id
+        //     // Aquí llamas a tu API/backend (ej. axios.get(`/api/estado/${stateId}`))
+        //     // this.fetchStateDetails(stateId)
+        //   }
+        // })
+      })
+      // ======================================================================================================================================
     },
 
     // ======================================================================================================================================
@@ -760,7 +651,6 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}years?type=getdatabysector`
         const response = await axios.get(url)
-        // console.log('result', response.data)
         if (response.data.status === 200) {
           this.years = response.data.result
           this.years.unshift({ id: 0, title: 'Todos' })
@@ -774,7 +664,6 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}states?type=getdatabysector`
         const response = await axios.get(url)
-        // console.log('result', response.data)
         if (response.data.status === 200) {
           this.states = response.data.result
           this.states.unshift({ id: 0, title: 'Todos' })
@@ -1137,11 +1026,6 @@ export default {
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
   async created () {
-    // this.map = null
-    // this.view = null
-    // this.capaEstados = null
-    // this.hoverLayer = null
-
     // console.log('created')
     // ======================================================================================================================================
     // this.getIndicators()
