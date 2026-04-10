@@ -244,7 +244,7 @@ export default {
       // =========================================================================
       // vue
       dialog_rules: {
-        actived: false,
+        actived: true,
         message: '',
         image: '@/assets/logos/NiñezPrimero-Placa.png'
       },
