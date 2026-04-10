@@ -195,13 +195,13 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}states?type=getdata`
         const response = await axios.get(url)
-        // console.log(response.data.result)
+        console.log('getStatus()', response.data.result)
         if (response.data.success) {
           this.dataTable.items = response.data.result
         }
       } catch (error) {
-        // console.log(error.response.data)
-        // console.log(error)
+        console.log('getStatus()', error.response.data)
+        console.log('getStatus()', error)
         this.$store.dispatch('error', {
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })

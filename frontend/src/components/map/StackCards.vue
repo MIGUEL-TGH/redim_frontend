@@ -67,6 +67,7 @@ export default {
     chartDataYear: { type: Array, default: () => [] },
     chartDataGender: { type: Array, default: () => [] },
     chartDataState: { type: Array, default: () => [] }
+    // isShowCards: { type: Boolean, default: false }
   },
   mixins: {},
   extends: {},

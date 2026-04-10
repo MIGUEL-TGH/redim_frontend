@@ -203,6 +203,7 @@ export default {
       isUpdatingState: false,
       btnSend: false,
       activeToggle: false
+
     }
   },
   computed: {},
@@ -223,6 +224,7 @@ export default {
           this.$emit('clear-categories')
           this.categoriesExpanded = false
           this.activeToggle = false
+          this.$emit('show-cards', false)
         })
       }
     },
@@ -337,6 +339,7 @@ export default {
       return text
     },
     removeIndicator (idToRemove) {
+      // console.log('removeIndicator')
       // Filtramos el array del v-model para excluir el ID que el usuario cerró
       this.frmData.indicator_id = this.frmData.indicator_id.filter(
         id => id !== idToRemove
@@ -345,6 +348,7 @@ export default {
       this.$emit('clear-categories')
       this.categoriesExpanded = false
       this.activeToggle = false
+      this.$emit('show-cards', false) // Emitimos el evento para ocultar las tarjetas si se quita un indicador
     },
 
     // ==============================================

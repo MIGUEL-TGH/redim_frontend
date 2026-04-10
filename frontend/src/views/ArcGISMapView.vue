@@ -17,21 +17,26 @@
 
       <left-filter-deck
         ref="filterDeck"
+
         :indicators="indicators"
         :states="states"
         :years="years"
         :genders="genders"
         :categories="categories"
+
         @fetch-categories="getCategories"
         @submit="handleSubmit"
         @clear-categories="categories = []"
+        @show-cards="setShowCards"
       />
 
       <!-- PANEL ESTADÍSTICO -->
       <div class="stats-panel">
         <!-- <stack-cards :category_details="category_details"/> -->
         <stack-cards
+          v-show="isCardOpen"
           ref="stackCardsRef"
+
           :chartDataYear="chartDataYear"
           :chartDataGender="chartDataGender"
           :chartDataState="chartDataState"
@@ -118,14 +123,14 @@
       </v-dialog>
 
       <!-- MODO DESARROLLO -->
-      <div style="position: absolute; bottom: 20px; left: 20px; z-index: 90; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px;" class="elevation-4">
+      <!-- <div style="position: absolute; bottom: 20px; left: 20px; z-index: 90; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px;" class="elevation-4">
         <div class="caption font-weight-bold mb-2">Estrategia de Hover (Pruebas)</div>
         <v-radio-group v-model="hoverStrategy" hide-details class="mt-0">
           <v-radio label="Relleno Nativo (Highlight)" value="native-highlight"></v-radio>
           <v-radio label="Contorno Simplificado (Rápido)" value="generalized-outline"></v-radio>
           <v-radio label="Contorno Crudo (Pesado)" value="raw-outline"></v-radio>
         </v-radio-group>
-      </div>
+      </div> -->
 
     </div>
 
@@ -198,6 +203,7 @@ export default {
       states: [],
 
       // StackCards =======================================================================
+      isCardOpen: false,
       chartDataYear: null,
       chartDataGender: null,
       chartDataState: null,
@@ -245,7 +251,7 @@ export default {
       // =========================================================================
       // vue data test
       tab: null,
-      dialogState: true,
+      dialogState: false,
       selectedStateData: {
         state_id: 15,
         state_name: 'Estado de México',
@@ -360,63 +366,85 @@ export default {
       this.dataStates = data
     },
     async hoverLayers () {
-      // console.log('hoverLayers()')
+      // console.log('hoverLayers() --> N1')
 
       // Asegurarnos de que el arreglo de capas interactivas existe
       if (!this.capasInteractivas || this.capasInteractivas.length === 0) return
-
-      // Agregar la capa de gráficos para el resaltado oscuro
-      this.hoverLayer = new GraphicsLayer({ title: 'CapaHover' })
-      this.map.add(this.hoverLayer)
 
       // Variables para controlar el Highlight Nativo
       let activeHighlightHandle = null
       let activeLayerView = null
       let isThrottled = false
 
-      this.view.on('pointer-move', (event) => {
-        // Movimiento fluido del Pop-up (Vue bypass)
+      // Agregar la capa de gráficos para el resaltado oscuro
+      this.hoverLayer = new GraphicsLayer({ title: 'CapaHover' })
+      this.map.add(this.hoverLayer)
+
+      this.view.on('pointer-move', async (event) => {
+        // console.log('hoverLayers() --> N2', event)
+
+        // 1. Mover el popup suavemente (Bypass a Vue)
         if (this.hoverInfo.show && this.$refs.hoverPopup) {
           this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
         }
 
-        // Throttle para el cálculo pesado (HitTest)
-        if (isThrottled) return
-        isThrottled = true
-        setTimeout(() => { isThrottled = false }, 50) // 40
+        // 2. THROTTLE INTELIGENTE (Solo limita si ya estamos navegando por un estado)
+        if (this.lastHoveredId !== null) {
+          if (isThrottled) return
+          isThrottled = true
+          setTimeout(() => { isThrottled = false }, 40) // 40ms = movimiento súper fluido
+        }
 
-        // HitTest buscando en todas las capas interactivas
+        // 3. Ejecutar HitTest buscando en las capas
         this.view.hitTest(event, { include: this.capasInteractivas }).then(async (response) => {
+          // Filtramos para asegurar que encontramos un gráfico válido con el atributo CVE_ENT
+          const validResults = response.results.filter(
+            r => r.graphic && r.graphic.attributes && r.graphic.attributes.CVE_ENT
+          )
+
+          if (validResults.length === 0) {
+            if (this.lastHoveredId !== null) {
+              this.hoverLayer.removeAll()
+              if (activeHighlightHandle) {
+                activeHighlightHandle.remove()
+                activeHighlightHandle = null
+              }
+              this.lastHoveredId = null
+              this.hoverInfo.show = false
+            }
+
+            return
+          }
+
+          // console.log('hoverLayers() --> N3')
+
           if (response.results.length > 0) {
             const result = response.results[0]
             const graphic = result.graphic
             const cveEnt = graphic.attributes.CVE_ENT
-            const currentLayer = graphic.layer // Sabremos exactamente si es la nacional o la estatal
+            const currentLayer = graphic.layer
 
             if (this.lastHoveredId !== cveEnt) {
               this.lastHoveredId = cveEnt
-              // Limpieza de modos anteriores
+              // 4.1. Limpieza de modos anteriores
               this.hoverLayer.removeAll()
               if (activeHighlightHandle) {
                 activeHighlightHandle.remove()
                 activeHighlightHandle = null
               }
 
-              // === EVALUACIÓN DE LAS 3 MODALIDADES ===
-
-              if (this.hoverStrategy === 'native-highlight') { // Modalidad 1: Highlight Nativo de ArcGIS (Relleno completo)
-                // Necesitamos el layerView para aplicar el highlight
+              if (this.hoverStrategy === 'native-highlight') { // 4.2. Modalidad 1: Highlight Nativo de ArcGIS (Relleno completo)
                 activeLayerView = await this.view.whenLayerView(currentLayer)
                 activeHighlightHandle = activeLayerView.highlight(graphic)
-              } else { // Modalidad 2 y 3: Borde Dibujado (GraphicsLayer)
+              } else { // 4.3. Modalidad 2 y 3: Borde Dibujado (GraphicsLayer)
                 let geometriaParaDibujar = graphic.geometry
 
-                if (this.hoverStrategy === 'generalized-outline') { // Modo Rápido (Simplificado)
-                  const maxDeviation = this.view.resolution * 2
+                if (this.hoverStrategy === 'generalized-outline') { // 4.4. Modo Rápido (Simplificado)
+                  const maxDeviation = this.view.resolution * 2 // 2
                   geometriaParaDibujar = geometryEngine.generalize(graphic.geometry, maxDeviation, true)
                 }
 
-                // Si es 'raw-outline', usa la geometriaParaDibujar original
+                // 5. Si es 'raw-outline', usa la geometriaParaDibujar original
                 const highlightGraphic = new Graphic({
                   geometry: geometriaParaDibujar,
                   symbol: {
@@ -428,11 +456,13 @@ export default {
                 this.hoverLayer.add(highlightGraphic)
               }
 
-              // --- Actualización de la Información del Pop-up ---
+              // 6. Actualización de la Información del Pop-up
+              this.view.container.style.cursor = 'pointer'
               const cveEntNum = Number(cveEnt)
               const stateData = this.dataStates.find(s => s.cve_ent === cveEntNum)
               this.hoverInfo.data = stateData || { nombre: graphic.attributes.NOMGEO }
               this.hoverInfo.show = true
+              this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
             }
           } else {
             // Salida del mouse: Limpiar todo
@@ -444,6 +474,7 @@ export default {
               }
               this.lastHoveredId = null
               this.hoverInfo.show = false
+              this.view.container.style.cursor = 'default'
             }
           }
         })
@@ -620,19 +651,97 @@ export default {
       // ======================================================================================================================================
 
       this.view.on('click', (event) => {
-        console.log('click', event)
+        // console.log('click', event)
         // this.view.hitTest(event).then((response) => {
-        //   const results = response.results.filter(r => r.layer.title === 'Estados');
+        //   const results = response.results.filter(r => r.layer.title === 'Estados')
         //   if (results.length > 0) {
         //     const stateId = results[0].graphic.attributes.id
         //     // Aquí llamas a tu API/backend (ej. axios.get(`/api/estado/${stateId}`))
-        //     // this.fetchStateDetails(stateId)
+        //     this.fetchStateDetails(stateId)
         //   }
         // })
       })
       // ======================================================================================================================================
     },
 
+    // ======================================================================================================================================
+    async handleSubmit_V1 (formData) {
+      // console.log('submit-->', formData)
+      this.dialog_loader.actived = true
+      this.dialog_loader.message = 'Por favor espere...'
+
+      this.category_details = []
+      await this.setSleep(500)
+
+      const sendData = {
+      // category_id: [1, 2, 3],
+      // state_id: [1, 2, 3]
+      // year_id: [24, 25, 26],
+      // gender_id: [1, 2],
+        category_id: [],
+        state_id: [],
+        year_id: [],
+        gender_id: []
+      }
+
+      if (formData.state_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
+        const ids = this.states
+          .filter(item => item.id !== 0)
+          .map(item => item.id)
+
+        sendData.state_id = ids
+      } else {
+        sendData.state_id = formData.state_id
+      }
+
+      if (formData.year_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
+        const ids = this.years
+          .filter(item => item.id !== 0)
+          .map(item => item.id)
+
+        sendData.year_id = ids
+      } else {
+        sendData.year_id = formData.year_id
+      }
+
+      if (formData.gender_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
+        const ids = this.genders
+          .filter(item => item.id !== 0)
+          .map(item => item.id)
+
+        sendData.gender_id = ids
+      } else {
+        sendData.gender_id = formData.gender_id
+      }
+
+      const categoryIds = formData.category_id
+        .filter(item => item !== 0)
+        .map(item => item)
+
+      if (!categoryIds.length) {
+        this.$store.dispatch('storeNotif/error', {
+          message: '¡Favor de seleccionar al menos una de las categorías disponobles!'
+        })
+        return
+      }
+      sendData.category_id = categoryIds
+      // console.log(sendData)
+      try {
+        const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
+        const response = await axios.post(url, sendData)
+        console.log(response.data)
+        if (response.data.status === 200) {
+          // await this.setSleep(1000)
+          this.category_details = response.data.result
+        }
+      } catch (error) {
+        console.log(error)
+        console.log(error.response.data)
+      } finally {
+        this.dialog_loader.actived = false
+        this.dialog_loader.message = ''
+      }
+    },
     // ======================================================================================================================================
     async getGenders () {
       try {
@@ -720,84 +829,11 @@ export default {
         console.log(error)
       }
     },
-    async handleSubmit_V1 (formData) {
-      // console.log('submit-->', formData)
-      this.dialog_loader.actived = true
-      this.dialog_loader.message = 'Por favor espere...'
 
-      this.category_details = []
-      await this.setSleep(500)
-
-      const sendData = {
-      // category_id: [1, 2, 3],
-      // state_id: [1, 2, 3]
-      // year_id: [24, 25, 26],
-      // gender_id: [1, 2],
-        category_id: [],
-        state_id: [],
-        year_id: [],
-        gender_id: []
-      }
-
-      if (formData.state_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
-        const ids = this.states
-          .filter(item => item.id !== 0)
-          .map(item => item.id)
-
-        sendData.state_id = ids
-      } else {
-        sendData.state_id = formData.state_id
-      }
-
-      if (formData.year_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
-        const ids = this.years
-          .filter(item => item.id !== 0)
-          .map(item => item.id)
-
-        sendData.year_id = ids
-      } else {
-        sendData.year_id = formData.year_id
-      }
-
-      if (formData.gender_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
-        const ids = this.genders
-          .filter(item => item.id !== 0)
-          .map(item => item.id)
-
-        sendData.gender_id = ids
-      } else {
-        sendData.gender_id = formData.gender_id
-      }
-
-      const categoryIds = formData.category_id
-        .filter(item => item !== 0)
-        .map(item => item)
-
-      if (!categoryIds.length) {
-        this.$store.dispatch('storeNotif/error', {
-          message: '¡Favor de seleccionar al menos una de las categorías disponobles!'
-        })
-        return
-      }
-      sendData.category_id = categoryIds
-      // console.log(sendData)
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
-        const response = await axios.post(url, sendData)
-        console.log(response.data)
-        if (response.data.status === 200) {
-          // await this.setSleep(1000)
-          this.category_details = response.data.result
-        }
-      } catch (error) {
-        console.log(error)
-        console.log(error.response.data)
-      } finally {
-        this.dialog_loader.actived = false
-        this.dialog_loader.message = ''
-      }
+    setShowCards (type) {
+      // console.log('setShowCards --> ', type)
+      this.isCardOpen = type
     },
-
     async fetchGroupedData (payload) {
       try {
         const formData = { ...payload }
@@ -857,7 +893,9 @@ export default {
         let result = []
 
         if (response.data.status === 200) {
-          // await this.setSleep(1000)
+          this.setShowCards(true)
+
+          await this.setSleep(100)
           result = response.data.result
           this.$refs.filterDeck.activeToggle = true
         }
@@ -905,7 +943,7 @@ export default {
         if (!frmData.category_id.length || !frmData.indicator_id.length || !activeToggle) { return }
 
         // console.log('handleCardOpened --> ', index, payload)
-        console.log('handleCardOpened --> ')
+        // console.log('handleCardOpened --> ')
         await this.fetchGroupedData(payload)
       }
     },
@@ -990,6 +1028,7 @@ export default {
           this.getStates(),
           this.getYears(),
           this.getGenders()
+
           // this.getCategories([1, 2])
         ])
       } catch (error) {
@@ -1019,7 +1058,6 @@ export default {
       this.dialog_loader.actived = false
       this.dialog_loader.message = ''
     }
-
     // ======================================================================================================================================
   },
 
@@ -1028,12 +1066,6 @@ export default {
   async created () {
     // console.log('created')
     // ======================================================================================================================================
-    // this.getIndicators()
-    // this.getStates()
-    // this.getYears()
-    // this.getGenders()
-    // this.getCategories([1, 2, 3, 4])
-
     // ======================================================================================================================================
     // this.dialog_loader.actived = true
     // this.dialog_loader.message = 'Por favor espere...'
@@ -1084,7 +1116,7 @@ export default {
   async mounted () {
     await this.loadDataMap()
     await this.initMap()
-    // await this.initApplication()
+    await this.initApplication()
   },
   beforeUpdate () {},
   updated () {},
