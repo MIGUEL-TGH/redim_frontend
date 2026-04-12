@@ -23,8 +23,8 @@ const getInitialState = () => {
       user = decoded.data
       permissions = decoded.data.permissions || []
       // Dejamos configurado axios
-      // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      axios.defaults.headers.common.Authorization = `Bearer ${token}`
+      // axios.defaults.headers.common.Authorization = `Bearer ${token}`
+      axios.defaults.headers.common['X-Authorization'] = `Bearer ${token}`
     } catch (e) {
       localStorage.removeItem('token')
       return { token: '', user: null, permissions: [], notifications: [] }
