@@ -28,6 +28,7 @@ export default {
           data: result
         }
       } catch (error) {
+        // ========================================================================================================================
         // console.log(error.response?.data.message || error.message || error)
         // console.log(error)
 
@@ -41,38 +42,36 @@ export default {
         //   error
         // }
 
-        console.error('API Error:', error.response?.data || error.message || error)
+        // ========================================================================================================================
+        // console.error('API Error:', error.response?.data || error.message || error)
 
-        let errorMessage = 'Error inesperado en la operación'
-        let notificationType = 'error' // Por defecto mandamos alerta roja
+        // let errorMessage = 'Error inesperado en la operación'
+        // let notificationType = 'error' // Por defecto mandamos alerta roja
 
-        // Si el error viene con una respuesta del servidor (Backend PHP)
-        if (error.response) {
-          const status = error.response.status
-          // Tomamos el mensaje que definiste en tu ApiException de PHP
-          errorMessage = error.response.data?.message || errorMessage
+        // // Si el error viene con una respuesta del servidor (Backend PHP)
+        // if (error.response) {
+        //   const status = error.response.status
+        //   // Tomamos el mensaje que definiste en tu ApiException de PHP
+        //   errorMessage = error.response.data?.message || errorMessage
 
-          if (status === 401) {
-            // 401 Unauthorized: Token expirado, inválido o no enviado
-            errorMessage = 'Tu sesión ha expirado o no es válida. Por favor, inicia sesión de nuevo.'
-          } else if (status === 403) {
-            // 403 Forbidden: El usuario intentó hacer algo para lo que no tiene permiso
-            notificationType = 'warning'
-          }
-        } else if (error.message) {
-          // Si es un error de red (el servidor está caído, sin internet, etc.)
-          errorMessage = 'Error de conexión con el servidor.'
-        }
+        //   if (status === 401) {
+        //     // 401 Unauthorized: Token expirado, inválido o no enviado
+        //     errorMessage = 'Tu sesión ha expirado o no es válida. Por favor, inicia sesión de nuevo.'
+        //   } else if (status === 403) {
+        //     // 403 Forbidden: El usuario intentó hacer algo para lo que no tiene permiso
+        //     notificationType = 'warning'
+        //   }
+        // } else if (error.message) {
+        //   // Si es un error de red (el servidor está caído, sin internet, etc.)
+        //   errorMessage = 'Error de conexión con el servidor.'
+        // }
 
-        // Despachamos la notificación a Vuex de forma dinámica según el tipo de error
-        this.$store.dispatch(`storeNotif/${notificationType}`, {
-          message: errorMessage
-        })
+        // // Despachamos la notificación a Vuex de forma dinámica según el tipo de error
+        // this.$store.dispatch(`storeNotif/${notificationType}`, {
+        //   message: errorMessage
+        // })
 
-        return {
-          success: false,
-          error
-        }
+        return { success: false, error }
       } finally {
         this.dialog_loader.message = ''
         this.dialog_loader.actived = false
@@ -170,12 +169,13 @@ export default {
         },
 
         status_updated: () => {
-          const index = this.dataTable.items.findIndex(
-            item => item.id === result.id
-          )
+          // const index = this.dataTable.items.findIndex(item => item.id === result.id)
+          const index = this.dataTable.items.findIndex(item => item.id === result.id)
 
           if (index !== -1) {
-            this.dataTable.items[index].status = result.status
+            // this.dataTable.items[index].status = result.status
+            const updatedItem = { ...this.dataTable.items[index], status: result.status }
+            this.$set(this.dataTable.items, index, updatedItem)
           }
 
           this.$store.dispatch('storeNotif/success', {

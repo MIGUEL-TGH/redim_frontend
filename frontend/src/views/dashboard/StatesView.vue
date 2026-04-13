@@ -195,7 +195,7 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}states?type=getdata`
         const response = await axios.get(url)
-        console.log('getStatus()', response.data.result)
+        // console.log('getStatus()', response.data.result)
         if (response.data.success) {
           this.dataTable.items = response.data.result
         }

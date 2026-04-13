@@ -4,11 +4,17 @@ export default [
     component: () => import('@/layouts/dashboard.vue'),
     meta: { requiresAuth: true },
     children: [
+      // {
+      //   path: '',
+      //   name: 'DBInitView',
+      //   component: () => import('@/views/dashboard/InitView.vue'),
+      //   meta: { moduleName: 'welcome', title: 'Inicio - Panel' }
+      // },
       {
         path: '',
-        name: 'DBInitView',
-        component: () => import('@/views/dashboard/InitView.vue'),
-        meta: { moduleName: 'welcome', title: 'Inicio - Panel' }
+        name: 'DBMyProfileView',
+        component: () => import('@/views/dashboard/MyProfile.vue'),
+        meta: { moduleName: 'welcome', title: 'Mi Perfil - Panel' }
       },
       {
         path: '/dashboard/years',

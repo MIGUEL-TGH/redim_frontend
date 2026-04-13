@@ -744,43 +744,43 @@ export default {
     },
     // ======================================================================================================================================
     async getGenders () {
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}genders?type=getdatabysector`
-        const response = await axios.get(url)
-        if (response.data.status === 200) {
-          this.genders = response.data.result
-          this.genders.unshift({ id: 0, title: 'Todos' })
-        }
-      } catch (error) {
-        console.log(error.response.data)
-        console.log(error)
+      // try {
+      const url = `${process.env.VUE_APP_API_SERVER}genders?type=getdatabysector`
+      const response = await axios.get(url)
+      if (response.data.status === 200) {
+        this.genders = response.data.result
+        this.genders.unshift({ id: 0, title: 'Todos' })
       }
+      // } catch (error) {
+      //   console.log(error.response.data)
+      //   console.log(error)
+      // }
     },
     async getYears () {
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}years?type=getdatabysector`
-        const response = await axios.get(url)
-        if (response.data.status === 200) {
-          this.years = response.data.result
-          this.years.unshift({ id: 0, title: 'Todos' })
-        }
-      } catch (error) {
-        console.log(error.response.data)
-        console.log(error)
+      // try {
+      const url = `${process.env.VUE_APP_API_SERVER}years?type=getdatabysector`
+      const response = await axios.get(url)
+      if (response.data.status === 200) {
+        this.years = response.data.result
+        this.years.unshift({ id: 0, title: 'Todos' })
       }
+      // } catch (error) {
+      //   console.log(error.response.data)
+      //   console.log(error)
+      // }
     },
     async getStates () {
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}states?type=getdatabysector`
-        const response = await axios.get(url)
-        if (response.data.status === 200) {
-          this.states = response.data.result
-          this.states.unshift({ id: 0, title: 'Todos' })
-        }
-      } catch (error) {
-        console.log(error)
-        console.log(error.response.data)
+      // try {
+      const url = `${process.env.VUE_APP_API_SERVER}states?type=getdatabysector`
+      const response = await axios.get(url)
+      if (response.data.status === 200) {
+        this.states = response.data.result
+        this.states.unshift({ id: 0, title: 'Todos' })
       }
+      // } catch (error) {
+      //   console.log(error)
+      //   console.log(error.response.data)
+      // }
     },
     async getCategories (sendData) {
       try {
@@ -818,16 +818,17 @@ export default {
       }
     },
     async getIndicators () {
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getwithdata`
-        const response = await axios.get(url)
-        if (response.data.success) {
-          this.indicators = response.data.result
-          // console.log('getIndicators ', this.indicators)
-        }
-      } catch (error) {
-        console.log(error)
+      // try {
+      const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getwithdata`
+      const response = await axios.get(url)
+      if (response.data.success) {
+        this.indicators = response.data.result
+        // console.log('getIndicators ', this.indicators)
       }
+      // }
+      // catch (error) {
+      //   console.log(error)
+      // }
     },
 
     setShowCards (type) {
