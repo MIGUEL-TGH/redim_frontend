@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h1> InitComp Welcome </h1>
+    <h1> TemplateView Welcome </h1>
   </div>
 </template>
-<script>
 
+<script>
 export default {
   // 1️⃣ Identificación
-  name: 'InitComp',
+  name: 'TemplateView',
   components: {}, // Importación de componentes hijos
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -43,6 +43,7 @@ export default {
   // beforeRouteEnter() {}, etc.
 }
 </script>
+
 <style scoped>
   /* Personalizar estilos aquí */
 </style>

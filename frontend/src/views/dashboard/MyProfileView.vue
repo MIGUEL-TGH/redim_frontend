@@ -118,16 +118,13 @@ export default {
   // 3️⃣ Datos reactivas
   data () {
     return {
-      // Datos leídos del token
       userData: {
         name: '',
         email: '',
         role: '',
         permissions: []
       },
-      // Control visual del formulario
       showPasswordForm: false,
-      // Modelo del formulario
       pwdData: {
         current: '',
         new: '',
@@ -143,14 +140,10 @@ export default {
   // 5️⃣ Métodos
   methods: {
     extractDataFromToken () {
-      // Obtenemos el token de donde lo estés guardando (localStorage o Vuex)
       const token = localStorage.getItem('token')
-      // console.log('token', token)
       if (token) {
         try {
           const decoded = jwtDecode(token)
-          // console.log('decoded', decoded)
-          // Mapeamos los datos del payload del JWT hacia nuestra vista
           this.userData.name = decoded.data.name || 'Usuario Desconocido'
           this.userData.email = decoded.data.email || 'Sin correo'
           this.userData.role = decoded.data.role || 'Sin rol asignado'
@@ -159,35 +152,29 @@ export default {
           console.error('Error al decodificar el token:', error)
         }
       } else {
-        // Datos Mock (falsos) de prueba por si recargas y no hay token en desarrollo
-        // this.userData = {
-        //   name: 'Juan Pérez (Modo Prueba)',
-        //   email: 'juan.perez@ninezprimero.org',
-        //   role: 'Administrador',
-        //   permissions: [
-        //     { module: 'indicators', permission: 'read-write' },
-        //     { module: 'states', permission: 'read-only' }
-        //   ]
-        // }
+        this.$store.dispatch('storeNotif/error', {
+          message: 'No se encontró token de autenticación. Por favor, inicia sesión nuevamente.'
+        })
       }
     },
     async submitPasswordUpdate () {
-      // Validamos visualmente las reglas de los text-fields
-      if (!this.$refs.form_password.validate()) {
-        return // Si no pasa la validación (ej. contraseñas no coinciden), detenemos todo
-      }
-
-      // Consola de prueba temporal hasta que hagamos el backend
-      console.log('Datos de contraseña listos para el backend:', this.pwdData)
-
-      // Aquí a futuro llamaremos a Axios (ej. this.executeCrud('update_password'))
-      // Una vez que sea exitoso, ocultamos y reseteamos:
-      // this.showPasswordForm = false;
-      // this.$refs.form_password.reset();
+      if (!this.$refs.form_password.validate()) { return }
 
       const url = `${process.env.VUE_APP_API_SERVER}auth/update_my_profile_password`
       const response = await axios.post(url, this.pwdData)
-      console.log(response.data)
+      if (response.data.success) {
+        const result = response.data.result
+        this.showPasswordForm = false
+        this.$refs.form_password.reset()
+
+        this.$store.dispatch('storeNotif/success', {
+          message: result.message || 'Contraseña actualizada exitosamente.'
+        })
+      } else {
+        this.$store.dispatch('storeNotif/error', {
+          message: response.data.message || 'Error al actualizar la contraseña.'
+        })
+      }
     }
   },
 
@@ -207,12 +194,4 @@ export default {
   // beforeRouteEnter() {}, etc.
 }
 </script>
-<style scoped>
-  /* Personalizar estilos aquí */
-  /* .title-mod h2 {
-    color: #3c3c3b;
-    border-bottom: 2px solid #ed712c;
-    padding-bottom: 5px;
-    display: inline-block;
-  } */
-</style>
+<style scoped></style>

@@ -10,11 +10,17 @@ export default [
       //   component: () => import('@/views/dashboard/InitView.vue'),
       //   meta: { moduleName: 'welcome', title: 'Inicio - Panel' }
       // },
+      // {
+      //   path: '',
+      //   name: 'DBMyProfileView',
+      //   component: () => import('@/views/dashboard/MyProfileView.vue'),
+      //   meta: { moduleName: 'welcome', title: 'Mi Perfil - Panel' }
+      // },
       {
         path: '',
-        name: 'DBMyProfileView',
-        component: () => import('@/views/dashboard/MyProfile.vue'),
-        meta: { moduleName: 'welcome', title: 'Mi Perfil - Panel' }
+        name: 'DBUsersView',
+        component: () => import('@/views/dashboard/UsersView.vue'),
+        meta: { moduleName: 'welcome', title: 'Usuarios - Panel' }
       },
       {
         path: '/dashboard/years',
