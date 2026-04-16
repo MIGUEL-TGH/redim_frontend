@@ -231,8 +231,7 @@ export default {
   // 5️⃣ Métodos
   methods: {
     async getUsers () {
-      // const response = await this.$axios.get('users')
-      const url = `${process.env.VUE_APP_API_SERVER}states?type=getdata`
+      const url = `${process.env.VUE_APP_API_SERVER}users?type=getdata`
       const response = await axios.get(url)
       console.log(response.data.result)
 
@@ -333,7 +332,7 @@ export default {
     await this.getUsers()
     // await this.getRoles()
 
-    // this.dialog_loader.actived = false
+    this.dialog_loader.actived = false
   },
   beforeMount () {},
   mounted () {},
