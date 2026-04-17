@@ -13,79 +13,33 @@
       <v-card-title class="content-title">
         <p>{{ dataTable.items.length }} usuarios registrados</p>
         <v-spacer></v-spacer>
-        <v-text-field
-          v-model="dataTable.search"
-          type="text"
-          label="Buscar usuario..."
-          append-icon="mdi-magnify"
-          color="#246257"
-          hide-details
-          class="search-field"
-        >
+        <v-text-field v-model="dataTable.search" type="text" label="Buscar usuario..." append-icon="mdi-magnify" color="#246257" hide-details class="search-field">
           <template v-slot:append-outer>
-            <v-btn
-              v-if="hasWritePermission"
-              class="mr-2 text-white"
-              color="#246257"
-              elevation="5"
-              small
-              @click="reset({ task: 'new_item' })"
-            >
-              Nuevo Usuario
-            </v-btn>
+            <v-btn v-if="hasWritePermission" class="mr-2 text-white" color="#246257" elevation="5" small @click="reset({ task: 'new_item' })"> Nuevo Usuario </v-btn>
           </template>
         </v-text-field>
       </v-card-title>
 
-      <v-data-table
-        :headers="dataTable.headers"
-        :items="dataTable.items"
-        :search="dataTable.search"
-        :items-per-page="10"
-        class="elevation-5"
-      >
+      <v-data-table :headers="dataTable.headers" :items="dataTable.items" :search="dataTable.search" :items-per-page="10" class="elevation-5">
         <template v-slot:item.acc="{ item }">
           <div class="d-flex">
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  v-if="hasWritePermission"
-                  v-bind="attrs"
-                  v-on="on"
-                  dense
-                  class="mr-2"
-                  color="green"
-                  @click="reset({ task: 'get_item', item })"
-                >mdi-pencil</v-icon>
+                <v-icon v-if="hasWritePermission" v-bind="attrs" v-on="on" dense class="mr-2" color="green" @click="reset({ task: 'get_item', item })">mdi-pencil</v-icon>
               </template>
               <span>Editar Usuario</span>
             </v-tooltip>
 
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  v-if="hasWritePermission"
-                  v-bind="attrs"
-                  v-on="on"
-                  dense
-                  class="mr-2"
-                  color="orange"
-                  @click="openResetPassword(item)"
-                >mdi-lock-reset</v-icon>
+                <v-icon v-if="hasWritePermission" v-bind="attrs" v-on="on" dense class="mr-2" color="orange" @click="openResetPassword(item)">mdi-lock-reset</v-icon>
               </template>
               <span>Restaurar Contraseña</span>
             </v-tooltip>
 
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  v-if="hasWritePermission"
-                  v-bind="attrs"
-                  v-on="on"
-                  dense
-                  :color="item.status == 1 ? 'blue' : 'grey'"
-                  @click="reset({ task: 'status_item', item })"
-                >
+                <v-icon v-if="hasWritePermission" v-bind="attrs" v-on="on" dense :color="item.status == 1 ? 'blue' : 'grey'" @click="reset({ task: 'status_item', item })">
                   {{ item.status == 1 ? 'mdi-account-check' : 'mdi-account-off' }}
                 </v-icon>
               </template>
@@ -104,27 +58,30 @@
 
     <v-dialog v-model="dialog_item.actived" max-width="600px" persistent>
       <v-card>
-        <v-card-title class="headline white--text" style="background-color: #246257;">
-          {{ forms.id ? 'Editar Usuario' : 'Nuevo Usuario' }}
-          <v-spacer></v-spacer>
-          <v-btn icon dark @click="reset({ task: 'close_item' })">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
+        <v-toolbar class="white--text" color="#246257" dark style="height: 43px !important;">
+          <div style="height: 43px !important; padding: 0 16 0 0px;">
+            {{ forms.id ? 'Editar Usuario' : 'Nuevo Usuario' }}
+            <v-spacer></v-spacer>
+            <v-btn icon dark @click="reset({ task: 'close_item' })">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </div>
+        </v-toolbar>
 
-        <v-card-text class="mt-4">
+        <v-card-text class="dialog-body">
+          <!-- <br> -->
           <v-form ref="form_item" lazy-validation @submit.prevent="onSubmit">
-            <v-row>
-              <v-col cols="12" md="6">
+            <v-row no-gutters>
+              <v-col cols="12" md="6" class="pa-1">
                 <v-text-field v-model="forms.name" label="Nombre Completo*" outlined dense color="#246257" :rules="[v => !!v || 'Requerido']"></v-text-field>
               </v-col>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" class="pa-1">
                 <v-select v-model="forms.role_id" :items="roles" item-text="name" item-value="id" label="Rol*" outlined dense color="#246257" :rules="[v => !!v || 'Requerido']"></v-select>
               </v-col>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" class="pa-1">
                 <v-text-field v-model="forms.email" label="Correo Electrónico*" outlined dense color="#246257" :rules="[v => !!v || 'Requerido', v => /.+@.+\..+/.test(v) || 'Email no válido']"></v-text-field>
               </v-col>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="6" class="pa-1">
                 <v-text-field v-model="forms.username" label="Nombre de Usuario*" outlined dense color="#246257" :rules="[v => !!v || 'Requerido']"></v-text-field>
               </v-col>
               <v-col cols="12" v-if="!forms.id">
@@ -133,11 +90,11 @@
             </v-row>
           </v-form>
         </v-card-text>
-
+        <v-divider class="mx-4 pa-0 ma-1"></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="reset({ task: 'close_item' })">Cancelar</v-btn>
-          <v-btn color="#246257" class="white--text" @click="submit({ task: 'send_item' })">
+          <v-btn text @click="reset({ task: 'close_item' })" small>Cancelar</v-btn>
+          <v-btn color="#246257" class="white--text" @click="submit({ task: 'send_item' })" small>
             {{ forms.id ? 'Actualizar' : 'Guardar' }}
           </v-btn>
         </v-card-actions>
@@ -157,7 +114,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import axios from 'axios'
 import crudMixin from '@/mixins/crudMixin'
 export default {
@@ -187,18 +144,18 @@ export default {
       },
       dialog_item: {
         title: '',
-        actived: false
+        actived: true
       },
       // Datos de la tabla
       dataTable: {
         search: '',
         headers: [
-          { text: 'Acciones', value: 'acc', sortable: false, align: 'center', width: '120px' },
-          { text: 'Nombre', value: 'name' },
-          { text: 'Rol', value: 'role_name' },
-          { text: 'Correo', value: 'email' },
-          { text: 'Usuario', value: 'username' },
-          { text: 'Estado', value: 'status', align: 'center' }
+          { text: 'Acciones', value: 'acc', class: 'bg-dark white--text', sortable: false, align: 'center', width: '120px' },
+          { text: 'Nombre', value: 'name', class: 'bg-dark white--text' },
+          { text: 'Rol', value: 'role_name', class: 'bg-dark white--text' },
+          { text: 'Correo', value: 'email', class: 'bg-dark white--text' },
+          { text: 'Usuario', value: 'username', class: 'bg-dark white--text' },
+          { text: 'Estado', value: 'status', align: 'center', class: 'bg-dark white--text' }
         ],
         items: []
       },
@@ -211,6 +168,9 @@ export default {
         username: '',
         password: '',
         status: 1
+      },
+      params: {
+        id: '0'
       },
       roles: [] // Se cargará desde el backend
     }
@@ -230,31 +190,35 @@ export default {
 
   // 5️⃣ Métodos
   methods: {
+    ...mapActions([
+      'setSleep',
+      'truncateText'
+    ]),
     async getUsers () {
       const url = `${process.env.VUE_APP_API_SERVER}users?type=getdata`
       const response = await axios.get(url)
-      console.log(response.data.result)
-
-      // try {
-      //   const response = await this.$axios.get('users')
-      //   if (response.data.success) {
-      //     this.dataTable.items = response.data.result
-      //   }
-      // } catch (e) {
-      //   console.error('Error al cargar usuarios')
-      // }
+      // console.log(response.data.result)
+      if (response.data.success) {
+        this.dataTable.items = response.data.result
+      }
     },
 
     async getRoles () {
-      // Carga el catálogo de roles para el select
-      try {
-        const response = await this.$axios.get('roles')
-        if (response.data.success) {
-          this.roles = response.data.result
-        }
-      } catch (e) {
-        console.error('Error al cargar roles')
+      const url = `${process.env.VUE_APP_API_SERVER}users?type=getroles`
+      const response = await axios.get(url)
+      console.log(response.data.result)
+      if (response.data.success) {
+        this.roles = response.data.result
       }
+      // ------------------------------------------------------------------
+      // try {
+      //   const response = await this.$axios.get('roles')
+      //   if (response.data.success) {
+      //     this.roles = response.data.result
+      //   }
+      // } catch (e) {
+      //   console.error('Error al cargar roles')
+      // }
     },
 
     openResetPassword (item) {
@@ -265,58 +229,59 @@ export default {
     },
     async reset (value) {
       console.log('reset -->', value)
-      // const RESET_ = {
-      //   new_item: async () => {
-      //     this.params.id = 0
-      //     this.dialog_item.actived = true
-      //     this.dialog_item.title = 'Nuevo Estado:'
+      const RESET = {
+        new_item: async () => {
+          this.params.id = 0
+          this.dialog_item.actived = true
+          this.dialog_item.title = 'Nuevo Usuario:'
 
-      //     await this.setSleep(100)
-      //     this.$refs.form_item.reset()
-      //   },
-      //   get_item: async () => {
-      //     const { /* task, */ item } = value
-      //     Object.keys(item).forEach(key => {
-      //       const itemValue = item[key]
-      //       if (Object.prototype.hasOwnProperty.call(this.forms, key)) {
-      //         this.forms[key] = itemValue
-      //       }
-      //       // console.log('key: ' + key, ' ----- value: ' + itemValue)
-      //     })
+          await this.setSleep(100)
+          this.$refs.form_item.reset()
+        },
+        get_item: async () => {
+          const { /* task, */ item } = value
+          Object.keys(item).forEach(key => {
+            const itemValue = item[key]
+            if (Object.prototype.hasOwnProperty.call(this.forms, key)) {
+              this.forms[key] = itemValue
+            }
+            // console.log('key: ' + key, ' ----- value: ' + itemValue)
+          })
 
-      //     this.params.id = item.id
-      //     this.dialog_item.actived = true
-      //     const truncatedName = await this.truncateText({ text: item.name, maxLength: 45 })
-      //     this.dialog_item.title = 'Estado: ' + truncatedName
-      //   },
-      //   close_item: async () => {
-      //     if (this.$refs.form_item) {
-      //       this.$refs.form_item.reset()
-      //     }
-      //     this.dialog_item.actived = false
-      //   }
-      // }
-      // RESET_[value.task] ? RESET_[value.task]() : console.log('¡Reset not found!')
+          this.params.id = item.id
+          this.dialog_item.actived = true
+          // const truncatedName = await this.truncateText({ text: item.name, maxLength: 45 })
+          // this.dialog_item.title = 'Estado: ' + truncatedName
+        },
+        close_item: async () => {
+          if (this.$refs.form_item) {
+            this.$refs.form_item.reset()
+          }
+          this.dialog_item.actived = false
+        }
+      }
+      RESET[value.task] ? RESET[value.task]() : console.log('¡Reset not found!')
     },
     submit (action) {
       console.log('submit -->', action)
-      // const SUBMIT = {
-      //   send_item: async () => {
-      //     if (!this.$refs.form_item.validate()) return
-      //     const result = await this.executeCrud(action)
-      //     if (result.success) {
-      //       this.reset({ task: 'close_item' })
-      //       await this.getUsers() // Recargamos para ver cambios
-      //     }
-      //   },
-      //   status_item: async () => {
-      //     const result = await this.executeCrud(action)
-      //     if (result.success) {
-      //       // El mixin ya maneja el cambio visual del status
-      //     }
-      //   }
-      // }
-      // SUBMIT[action.task]?.()
+      const SUBMIT = {
+        send_item: async () => {
+          if (!this.$refs.form_item.validate()) return
+          console.log('Enviar datos')
+          // const result = await this.executeCrud(action)
+          // if (result.success) {
+          //   this.reset({ task: 'close_item' })
+          //   await this.getUsers() // Recargamos para ver cambios
+          // }
+        }
+        // status_item: async () => {
+        //   const result = await this.executeCrud(action)
+        //   if (result.success) {
+        //     // El mixin ya maneja el cambio visual del status
+        //   }
+        // }
+      }
+      SUBMIT[action.task]?.()
     },
     onSubmit (e) {
       e.preventDefault()
@@ -330,7 +295,7 @@ export default {
     this.dialog_loader.actived = true
 
     await this.getUsers()
-    // await this.getRoles()
+    await this.getRoles()
 
     this.dialog_loader.actived = false
   },
@@ -348,4 +313,9 @@ export default {
 
 <style scoped>
   /* Personalizar estilos aquí */
+  .dialog-body {
+    max-height: 300px;
+    padding: 20px 24px 0px !important;
+    overflow-y: auto;
+  }
 </style>

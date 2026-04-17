@@ -94,6 +94,7 @@ router.beforeEach((to, from, next) => {
     // 4. Protección a nivel de submódulo (si aplica)
     if (to.meta && to.meta.moduleName) {
       const hasAccess = store.getters['storeDB/hasModuleAccess'](to.meta.moduleName)
+      // console.log(hasAccess)
       if (hasAccess) {
         next()
       } else {

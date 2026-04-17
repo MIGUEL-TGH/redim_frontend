@@ -42,7 +42,7 @@
             </v-toolbar>
               <v-card-text style="max-height: 500px;">
                 <br>
-                <v-form ref="form_item" @submit="onSubmit">
+               <v-form v-form ref="form_item" @submit="onSubmit">
                   <v-row no-gutters>
                     <v-col cols="12" md="12" class="pa-1">
                       <v-autocomplete :items="countries" v-model="forms.country_id" :rules="rules.required" label="Países:*"
