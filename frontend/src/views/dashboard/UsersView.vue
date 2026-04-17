@@ -1,7 +1,4 @@
 <template>
-  <!-- <div>
-    <h1> InitComp Welcome </h1>
-  </div> -->
   <v-container>
     <section>
       <div class="title-mod">
@@ -69,24 +66,23 @@
         </v-toolbar>
 
         <v-card-text class="dialog-body">
-          <!-- <br> -->
           <v-form ref="form_item" lazy-validation @submit.prevent="onSubmit">
             <v-row no-gutters>
               <v-col cols="12" md="6" class="pa-1">
-                <v-text-field v-model="forms.name" label="Nombre Completo*" outlined dense color="#246257" :rules="[v => !!v || 'Requerido']"></v-text-field>
+                <v-text-field v-model="forms.name" label="Nombre Completo*" outlined dense color="#246257" :rules="rules.name" counter maxlength="100"></v-text-field>
               </v-col>
               <v-col cols="12" md="6" class="pa-1">
-                <v-select v-model="forms.role_id" :items="roles" item-text="name" item-value="id" label="Rol*" outlined dense color="#246257" :rules="[v => !!v || 'Requerido']"></v-select>
+                <v-select v-model="forms.role_id" :items="roles" item-text="name" item-value="id" label="Rol*" outlined dense color="#246257" :rules="rules.role_id"></v-select>
               </v-col>
               <v-col cols="12" md="6" class="pa-1">
-                <v-text-field v-model="forms.email" label="Correo Electrónico*" outlined dense color="#246257" :rules="[v => !!v || 'Requerido', v => /.+@.+\..+/.test(v) || 'Email no válido']"></v-text-field>
+                <v-text-field v-model="forms.email" label="Correo Electrónico*" outlined dense color="#246257" :rules="rules.email" counter maxlength="50"></v-text-field>
               </v-col>
               <v-col cols="12" md="6" class="pa-1">
-                <v-text-field v-model="forms.username" label="Nombre de Usuario*" outlined dense color="#246257" :rules="[v => !!v || 'Requerido']"></v-text-field>
+                <v-text-field v-model="forms.username" label="Nombre de Usuario*" outlined dense color="#246257" :rules="rules.username" counter maxlength="25"></v-text-field>
               </v-col>
-              <v-col cols="12" v-if="!forms.id">
-                <v-text-field v-model="forms.password" label="Contraseña Inicial*" type="password" outlined dense color="#246257" :rules="[v => !!v || 'Requerido']"></v-text-field>
-              </v-col>
+              <!-- <v-col cols="12" v-if="!forms.id">
+                <v-text-field v-model="forms.password" label="Contraseña Inicial*" type="password" outlined dense color="#246257" :rules="rules.required"></v-text-field>
+              </v-col> -->
             </v-row>
           </v-form>
         </v-card-text>
@@ -172,7 +168,26 @@ export default {
       params: {
         id: '0'
       },
-      roles: [] // Se cargará desde el backend
+      roles: [],
+      rules: {
+        // required: [v => !!v || 'Campo obligatorio.'],
+        name: [
+          v => !!v || 'El nombre es obligatorio.',
+          v => (v && v.length <= 100) || 'El nombre no debe exceder los 100 caracteres.',
+          v => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-_.,]+$/.test(v) || 'Formato inválido. Solo alfanuméricos, espacios y caracteres (- _ . ,)'
+        ],
+        role_id: [v => !!v || 'Debe seleccionar un rol para el usuario.'],
+        email: [
+          v => !!v || 'El correo electrónico es obligatorio.',
+          v => (v && v.length <= 50) || 'El correo no debe exceder los 50 caracteres.',
+          v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Debe ingresar un correo electrónico válido.'
+        ],
+        username: [
+          v => !!v || 'El nombre de usuario es obligatorio.',
+          v => (v && v.length <= 25) || 'Máximo 25 caracteres.',
+          v => /^[a-zA-Z0-9\-_.]+$/.test(v) || 'Solo alfanuméricos y caracteres (- _ .) sin espacios.'
+        ]
+      }
     }
   },
   computed: {
@@ -264,16 +279,64 @@ export default {
     },
     submit (action) {
       console.log('submit -->', action)
+
+      // if (result.success && result.pdf_url) {
+      //   this.storeNotif.success(result.message);
+      //   window.open(this.axios.defaults.baseURL.replace('/api', '') + result.pdf_url, '_blank');
+      // }
+
       const SUBMIT = {
+        // 1. Guardar un nuevo usuario o actualizar uno existente
         send_item: async () => {
           if (!this.$refs.form_item.validate()) return
-          console.log('Enviar datos')
+          console.log('submit --> send_item')
           // const result = await this.executeCrud(action)
           // if (result.success) {
           //   this.reset({ task: 'close_item' })
           //   await this.getUsers() // Recargamos para ver cambios
           // }
+
+          // =======================================================================
+          // if (!this.$refs.form_item.validate()) return
+
+          // // Ejecutamos el mixin de manera normal
+          // const result = await this.executeCrud(action)
+
+          // if (result.success) {
+          //   // Si el backend nos mandó un PDF (pasa al crear el usuario), lo abrimos
+          //   if (result.data && result.data.pdf_url) {
+          //     window.open(this.axios.defaults.baseURL.replace('/api', '') + result.data.pdf_url, '_blank')
+          //   }
+
+          //   // Cerramos el formulario. El mixin ya se encargó de actualizar la tabla reactivamente
+          //   this.reset({ task: 'close_item' })
+          // }
+        },
+        // 2. Acción específica para resetear contraseña
+        reset_password: async () => {
+          console.log('submit --> reset_password')
+          // Confirmación opcional antes de resetear
+          // if (!confirm('¿Estás seguro de generar una nueva contraseña para este usuario?')) return
+
+          // // Asumiendo que action.task = 'reset_password' y action.item trae el ID
+          // const result = await this.executeCrud(action)
+
+          // if (result.success) {
+          //   // Forzosamente el backend debe mandar el nuevo PDF
+          //   if (result.data && result.data.pdf_url) {
+          //     window.open(this.axios.defaults.baseURL.replace('/api', '') + result.data.pdf_url, '_blank')
+          //   }
+          // }
+        },
+        // 3. Cambio de estatus estándar
+        status_item: async () => {
+          console.log('submit --> status_item')
+          // const result = await this.executeCrud(action)
+          // if (result.success) {
+          //   this.reset({ task: 'close_item' })
+          // }
         }
+
         // status_item: async () => {
         //   const result = await this.executeCrud(action)
         //   if (result.success) {
