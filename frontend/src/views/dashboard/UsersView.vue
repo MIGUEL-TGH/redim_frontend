@@ -157,16 +157,22 @@ export default {
       },
       // Modelo del formulario
       forms: {
-        id: null,
-        name: '',
-        role_id: null,
-        email: '',
-        username: '',
-        password: '',
+        // id: null,
+        // name: '',
+        // role_id: null,
+        // email: '',
+        // username: '',
+        // password: '',
+        // status: 1
+
+        name: 'Estef REDIM',
+        role_id: 1,
+        email: 'estef@gmail.com',
+        username: 'AdminEstef',
         status: 1
       },
       params: {
-        id: '0'
+        id: 0
       },
       roles: [],
       rules: {
@@ -212,28 +218,16 @@ export default {
     async getUsers () {
       const url = `${process.env.VUE_APP_API_SERVER}users?type=getdata`
       const response = await axios.get(url)
-      // console.log(response.data.result)
       if (response.data.success) {
         this.dataTable.items = response.data.result
       }
     },
-
     async getRoles () {
       const url = `${process.env.VUE_APP_API_SERVER}users?type=getroles`
       const response = await axios.get(url)
-      console.log(response.data.result)
       if (response.data.success) {
         this.roles = response.data.result
       }
-      // ------------------------------------------------------------------
-      // try {
-      //   const response = await this.$axios.get('roles')
-      //   if (response.data.success) {
-      //     this.roles = response.data.result
-      //   }
-      // } catch (e) {
-      //   console.error('Error al cargar roles')
-      // }
     },
 
     openResetPassword (item) {
@@ -289,11 +283,12 @@ export default {
         // 1. Guardar un nuevo usuario o actualizar uno existente
         send_item: async () => {
           if (!this.$refs.form_item.validate()) return
-          console.log('submit --> send_item')
-          // const result = await this.executeCrud(action)
+          // this.params.id = 0 // test
+          const result = await this.executeCrud(action)
+          console.log('submit --> send_item', result)
           // if (result.success) {
           //   this.reset({ task: 'close_item' })
-          //   await this.getUsers() // Recargamos para ver cambios
+          //   // await this.getUsers() // Recargamos para ver cambios
           // }
 
           // =======================================================================

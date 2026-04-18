@@ -136,7 +136,7 @@ export default {
         status: true
       },
       params: {
-        id: '0'
+        id: 0
       },
       rules: {
         required: [v => !!v || 'Campo obligatorio'],

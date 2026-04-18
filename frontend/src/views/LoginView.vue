@@ -90,7 +90,6 @@ export default {
       try {
         // Ejecutamos la acción con el namespace 'dashboard'
         const success = await this.$store.dispatch('storeDB/login', this.credentials)
-
         if (success) {
           // Redirección exitosa al panel principal
           this.$router.push('/dashboard/')

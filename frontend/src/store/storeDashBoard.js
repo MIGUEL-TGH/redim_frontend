@@ -62,7 +62,6 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}auth/login` // Ajusta la URL
         const response = await axios.post(url, credentials)
-
         if (response.data.success) {
           const { token, user } = response.data.result
           const decodedToken = jwtDecode(token)
