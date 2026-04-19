@@ -9,18 +9,17 @@ export default {
         this.dialog_loader.actived = true
 
         const payload = this.buildPayload(action)
-        // console.log(payload)
 
         const inDeveloper = false
         if (inDeveloper) {
-          console.log(payload)
+          console.log('payload: ', payload)
           return {
             success: true
           }
         }
 
         const result = await this.sendRequest(payload)
-        console.log('result API REST:', result)
+        // console.log('result API REST:', result)
 
         await this.applyDomChange(result)
         return {
@@ -28,6 +27,7 @@ export default {
           data: result
         }
       } catch (error) {
+        // console.log(error)
         // this.$store.dispatch('storeNotif/error', {
         //   message: error.response?.data.message || error.message || error || 'Error en la operación'
         // })
@@ -54,7 +54,8 @@ export default {
       const TASKS = {
         INSERT: 'insert',
         UPDATE: 'update',
-        STATUS: 'status'
+        STATUS: 'status',
+        PASSWORD: 'password'
       }
 
       switch (action.task) {
@@ -76,6 +77,16 @@ export default {
             id: action.id,
             status: action.status ? 1 : 0
           }
+          break
+
+        case 'reset_password':
+          payload.task = TASKS.PASSWORD
+          payload.params = {
+            id: action.id,
+            name: action.name,
+            username: action.username
+          }
+
           break
 
         default:

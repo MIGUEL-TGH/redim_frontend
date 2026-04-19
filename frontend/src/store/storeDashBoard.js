@@ -105,7 +105,7 @@ export default {
           axios.defaults.headers.common['X-Authorization'] = `Bearer ${token}`
 
           commit('SET_AUTH', { token, user, permissions })
-          console.log('Token renovado silenciosamente en segundo plano.')
+          // console.log('Token renovado silenciosamente en segundo plano.')
           return true
         }
       } catch (error) {

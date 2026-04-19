@@ -6,13 +6,18 @@
       </div>
     </section>
 
+    <!-- <section>
+      <v-text-field v-model="dataTable.search" type="text" label="Buscar usuario..." append-icon="mdi-magnify" color="#246257" hide-details class="search-field"></v-text-field>
+      <v-data-table :headers="dataTable.headers" :items="dataTable.items" :search="dataTable.search" :items-per-page="10" class="elevation-5"></v-data-table>
+    </section> -->
+
     <section>
       <v-card-title class="content-title">
         <p>{{ dataTable.items.length }} usuarios registrados</p>
         <v-spacer></v-spacer>
-        <v-text-field v-model="dataTable.search" type="text" label="Buscar usuario..." append-icon="mdi-magnify" color="#246257" hide-details class="search-field">
+        <v-text-field v-model="searchInput" @input="debounceSearch" type="text" label="Buscar usuario..." append-icon="mdi-magnify" color="#246257" hide-details class="search-field">
           <template v-slot:append-outer>
-            <v-btn v-if="hasWritePermission" class="mr-2 text-white" color="#246257" elevation="5" small @click="reset({ task: 'new_item' })"> Nuevo Usuario </v-btn>
+            <v-btn v-if="hasWritePermission" class="mr-2 text-white" color="#246257" elevation="5" small @click="reset({ task: 'new_item' })"> Nuevo </v-btn>
           </template>
         </v-text-field>
       </v-card-title>
@@ -29,26 +34,36 @@
 
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-icon v-if="hasWritePermission" v-bind="attrs" v-on="on" dense class="mr-2" color="orange" @click="openResetPassword(item)">mdi-lock-reset</v-icon>
+                <v-icon v-if="hasWritePermission" v-bind="attrs" v-on="on" dense class="mr-2" color="orange" @click="submit({task:'reset_password', id:item.id, name: item.name, username: item.username})">mdi-lock-reset</v-icon>
               </template>
               <span>Restaurar Contraseña</span>
             </v-tooltip>
 
-            <v-tooltip bottom>
+            <!-- <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-icon v-if="hasWritePermission" v-bind="attrs" v-on="on" dense :color="item.status == 1 ? 'blue' : 'grey'" @click="reset({ task: 'status_item', item })">
+                <v-icon v-if="hasWritePermission" v-bind="attrs" v-on="on" dense :color="item.status == 1 ? 'blue' : 'grey'" @click="submit({task:'status_item', id:item.id, status: $event})">
                   {{ item.status == 1 ? 'mdi-account-check' : 'mdi-account-off' }}
                 </v-icon>
               </template>
               <span>{{ item.status == 1 ? 'Desactivar' : 'Activar' }}</span>
-            </v-tooltip>
+            </v-tooltip> -->
+
           </div>
         </template>
 
+        <!-- <template v-slot:item.status="{item}">
+          <v-switch :disabled="!hasWritePermission" v-model="item.status" @change="submit({task:'status_item', id:item.id, status: $event})"
+            dense hide-details color="#246257" style="padding: 0px 0px 10px 0px !important;" label="">
+          </v-switch>
+        </template> -->
+
         <template v-slot:item.status="{ item }">
-          <v-chip :color="item.status == 1 ? 'success' : 'error'" dark x-small>
+          <!-- <v-chip :color="item.status == 1 ? 'success' : 'error'" dark x-small>
             {{ item.status == 1 ? 'Activo' : 'Inactivo' }}
-          </v-chip>
+          </v-chip> -->
+          <v-switch :disabled="!hasWritePermission" v-model="item.status" @change="submit({task:'status_item', id:item.id, status: $event})"
+            dense hide-details color="#246257" style="padding: 0px 0px 10px 0px !important;" label="">
+          </v-switch>
         </template>
       </v-data-table>
     </section>
@@ -58,15 +73,11 @@
         <v-toolbar class="white--text" color="#246257" dark style="height: 43px !important;">
           <div style="height: 43px !important; padding: 0 16 0 0px;">
             {{ forms.id ? 'Editar Usuario' : 'Nuevo Usuario' }}
-            <v-spacer></v-spacer>
-            <v-btn icon dark @click="reset({ task: 'close_item' })">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
           </div>
         </v-toolbar>
 
         <v-card-text class="dialog-body">
-          <v-form ref="form_item" lazy-validation @submit.prevent="onSubmit">
+          <v-form ref="form_item" lazy-validation @submit="onSubmit">
             <v-row no-gutters>
               <v-col cols="12" md="6" class="pa-1">
                 <v-text-field v-model="forms.name" label="Nombre Completo*" outlined dense color="#246257" :rules="rules.name" counter maxlength="100"></v-text-field>
@@ -96,15 +107,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <!-- <v-dialog v-model="dialog_loader.actived" persistent max-width="300px">
-      <v-card color="#246257" dark class="pa-4 text-center">
-        <v-card-text>
-          {{ dialog_loader.message }}
-          <v-progress-linear indeterminate color="white" class="mb-0 mt-2"></v-progress-linear>
-        </v-card-text>
-      </v-card>
-    </v-dialog> -->
 
   </v-container>
 </template>
@@ -140,36 +142,31 @@ export default {
       },
       dialog_item: {
         title: '',
-        actived: true
+        actived: false
       },
       // Datos de la tabla
+      searchInput: '', // Guarda exactamente lo que el usuario está tecleando
+      searchTimeout: null, // Variable para guardar el temporizador
       dataTable: {
         search: '',
         headers: [
-          { text: 'Acciones', value: 'acc', class: 'bg-dark white--text', sortable: false, align: 'center', width: '120px' },
           { text: 'Nombre', value: 'name', class: 'bg-dark white--text' },
           { text: 'Rol', value: 'role_name', class: 'bg-dark white--text' },
           { text: 'Correo', value: 'email', class: 'bg-dark white--text' },
           { text: 'Usuario', value: 'username', class: 'bg-dark white--text' },
-          { text: 'Estado', value: 'status', align: 'center', class: 'bg-dark white--text' }
+          { text: 'Acciones', value: 'acc', class: 'bg-dark white--text', sortable: false, align: 'center', width: '80px' },
+          { text: 'Estado', value: 'status', class: 'bg-dark white--text', sortable: false, width: '1%', align: 'right' }
         ],
         items: []
       },
       // Modelo del formulario
       forms: {
-        // id: null,
-        // name: '',
-        // role_id: null,
-        // email: '',
-        // username: '',
-        // password: '',
-        // status: 1
-
-        name: 'Estef REDIM',
-        role_id: 1,
-        email: 'estef@gmail.com',
-        username: 'AdminEstef',
+        name: '',
+        role_id: null,
+        email: '',
+        username: '',
         status: 1
+
       },
       params: {
         id: 0
@@ -213,13 +210,29 @@ export default {
   methods: {
     ...mapActions([
       'setSleep',
-      'truncateText'
+      'truncateText',
+      'dowloadFile'
     ]),
+    debounceSearch (val) {
+      // 1. Si el usuario presiona otra tecla antes de que termine el tiempo,
+      // limpiamos/cancelamos el temporizador anterior.
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout)
+      }
+
+      // 2. Creamos un nuevo temporizador
+      this.searchTimeout = setTimeout(() => {
+        // 3. Solo cuando haya pasado el tiempo sin que el usuario teclee nada más,
+        // pasamos el texto al buscador real de la tabla.
+        this.dataTable.search = val
+      }, 500) // 500 milisegundos (medio segundo) de espera. Puedes ajustarlo a tu gusto.
+    },
     async getUsers () {
       const url = `${process.env.VUE_APP_API_SERVER}users?type=getdata`
       const response = await axios.get(url)
       if (response.data.success) {
         this.dataTable.items = response.data.result
+        // console.log(response.data.result)
       }
     },
     async getRoles () {
@@ -230,14 +243,8 @@ export default {
       }
     },
 
-    openResetPassword (item) {
-      // Aquí podrías abrir un pequeño prompt o diálogo para enviar una nueva contraseña
-      this.$store.dispatch('storeNotif/info', {
-        message: `Funcionalidad para restaurar contraseña de ${item.username} en desarrollo.`
-      })
-    },
     async reset (value) {
-      console.log('reset -->', value)
+      // console.log('reset -->', value)
       const RESET = {
         new_item: async () => {
           this.params.id = 0
@@ -271,78 +278,90 @@ export default {
       }
       RESET[value.task] ? RESET[value.task]() : console.log('¡Reset not found!')
     },
-    submit (action) {
-      console.log('submit -->', action)
-
-      // if (result.success && result.pdf_url) {
-      //   this.storeNotif.success(result.message);
-      //   window.open(this.axios.defaults.baseURL.replace('/api', '') + result.pdf_url, '_blank');
-      // }
+    async submit (action) {
+      // console.log('submit -->', action)
 
       const SUBMIT = {
         // 1. Guardar un nuevo usuario o actualizar uno existente
         send_item: async () => {
           if (!this.$refs.form_item.validate()) return
-          // this.params.id = 0 // test
           const result = await this.executeCrud(action)
-          console.log('submit --> send_item', result)
-          // if (result.success) {
-          //   this.reset({ task: 'close_item' })
-          //   // await this.getUsers() // Recargamos para ver cambios
-          // }
+          // console.log('submit --> send_item', result)
+          if (result.success) {
+            if (result.data?.pdf_data) {
+              const pdfData = result.data.pdf_data
+              // 'http://192.168.100.20/redim_backend/api/users?type=download_pdf&file=Responsiva_AdminEstef_1776571931.pdf'
+              const url = `${process.env.VUE_APP_API_SERVER}users?type=download_pdf&file=${pdfData.fileName}`
+              this.dowloadFile({
+                isPrivate: true,
+                // fileName: pdfData.newFileName,
+                fileName: pdfData.newFileName || pdfData.fileName, // Fallback por si newFileName no viene
+                url
+              })
+            }
 
-          // =======================================================================
-          // if (!this.$refs.form_item.validate()) return
+            await this.setSleep(500)
+            this.reset({ task: 'close_item' })
 
-          // // Ejecutamos el mixin de manera normal
-          // const result = await this.executeCrud(action)
-
-          // if (result.success) {
-          //   // Si el backend nos mandó un PDF (pasa al crear el usuario), lo abrimos
-          //   if (result.data && result.data.pdf_url) {
-          //     window.open(this.axios.defaults.baseURL.replace('/api', '') + result.data.pdf_url, '_blank')
-          //   }
-
-          //   // Cerramos el formulario. El mixin ya se encargó de actualizar la tabla reactivamente
-          //   this.reset({ task: 'close_item' })
-          // }
+            // ==============================================================================
+            // const ruta = 'multimedia/pdfs/Responsiva_AdminEstef_1776571931.pdf'
+            // const nombreArchivo = ruta.split('/').pop()
+            // console.log(nombreArchivo)
+          }
         },
         // 2. Acción específica para resetear contraseña
         reset_password: async () => {
-          console.log('submit --> reset_password')
-          // Confirmación opcional antes de resetear
-          // if (!confirm('¿Estás seguro de generar una nueva contraseña para este usuario?')) return
+          if (!confirm(`¿Estás seguro de generar una nueva contraseña para este usuario: ${action.username}?`)) { return }
 
           // // Asumiendo que action.task = 'reset_password' y action.item trae el ID
-          // const result = await this.executeCrud(action)
+          const result = await this.executeCrud(action)
 
-          // if (result.success) {
-          //   // Forzosamente el backend debe mandar el nuevo PDF
-          //   if (result.data && result.data.pdf_url) {
-          //     window.open(this.axios.defaults.baseURL.replace('/api', '') + result.data.pdf_url, '_blank')
-          //   }
-          // }
+          if (result.success) {
+            // console.log('¡Contraseña resetado correctamente!')
+            if (result.data?.pdf_data) {
+              const pdfData = result.data.pdf_data
+              // 'http://192.168.100.20/redim_backend/api/users?type=download_pdf&file=Responsiva_AdminEstef_1776571931.pdf'
+              const url = `${process.env.VUE_APP_API_SERVER}users?type=download_pdf&file=${pdfData.fileName}`
+              this.dowloadFile({
+                isPrivate: true,
+                // fileName: pdfData.newFileName,
+                fileName: pdfData.newFileName || pdfData.fileName, // Fallback por si newFileName no viene
+                url
+              })
+            }
+
+            // Forzosamente el backend debe mandar el nuevo PDF
+            // if (result.data && result.data.pdf_url) {
+            //   window.open(this.axios.defaults.baseURL.replace('/api', '') + result.data.pdf_url, '_blank')
+            // }
+          }
         },
-        // 3. Cambio de estatus estándar
+        // 3. Cambio de estatus del usuario
         status_item: async () => {
-          console.log('submit --> status_item')
-          // const result = await this.executeCrud(action)
-          // if (result.success) {
-          //   this.reset({ task: 'close_item' })
-          // }
+          const result = await this.executeCrud(action)
+          if (result.success) {
+            this.reset({ task: 'close_item' })
+          }
         }
 
-        // status_item: async () => {
-        //   const result = await this.executeCrud(action)
-        //   if (result.success) {
-        //     // El mixin ya maneja el cambio visual del status
-        //   }
-        // }
       }
       SUBMIT[action.task]?.()
     },
     onSubmit (e) {
       e.preventDefault()
+    },
+
+    async testFunctions () {
+      // const urlFile = 'multimedia/pdfs/Responsiva_AdminEstef_1776571931.pdf'
+      // const url = `${process.env.VUE_APP_API_SERVER}${urlFile}`
+      // console.log(url)
+      // ===================================================================================
+      // this.dowloadFile({ isPrivate: false, fileName: 'INDICADORES-ECONOMIA.xlsx', url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/excel/indicadores/1.ECONOMIA.xlsx' })
+      // this.dowloadFile({ isPrivate: false, fileName: 'Cotizacion_pagina_web.pdf', url: 'http://192.168.100.20/redim_backend/api/multimedia/otros/Cotizacion_pagina_web.pdf' })
+      // this.dowloadFile({ isPrivate: false, fileName: 'Cotizacion_pagina_web.pdf', url: 'http://192.168.100.20/redim_backend/api/multimedia/Cotizacion_pagina_web.pdf' })
+      // this.dowloadFile({ isPrivate: false, fileName: 'AdminEstef.pdf', url: 'http://192.168.100.20/redim_backend/api/multimedia/pdfs/users/Responsiva_AdminEstef_1776571931.pdf' })
+      // this.dowloadFile({ isPrivate: true,  fileName: 'AdminEstef.pdf', url: 'http://192.168.100.20/redim_backend/api/users?type=download_pdf&file=Responsiva_AdminEstef_1776571931.pdf' })
+      // ===================================================================================
     }
   },
 
@@ -354,6 +373,7 @@ export default {
 
     await this.getUsers()
     await this.getRoles()
+    // await this.testFunctions()
 
     this.dialog_loader.actived = false
   },
