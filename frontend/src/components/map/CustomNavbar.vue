@@ -9,9 +9,9 @@
     <v-expand-transition>
       <div v-show="isOpen" class="dropdown-panel elevation-10">
         <v-list class="nav-list" color="transparent" dark>
-          <v-list-item v-for="(item, i) in menuItems" :key="i" link class="nav-item" dense>
+          <v-list-item v-for="(item, i) in menuItems" :key="i" :to="item.to" exact link class="nav-item" dense @click="isOpen = false">
             <v-list-item-content>
-              <v-list-item-title class="nav-text">{{ item.text }}</v-list-item-title>
+              <v-list-item-title class="nav-text" :style="{ color: item.color }">{{ item.text }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -40,14 +40,15 @@ export default {
     return {
       isOpen: false,
       menuItems: [
-        { text: 'INICIO', to: '/' },
-        { text: 'CONOCE', to: '/conoce' },
-        { text: 'APRENDE', to: '/aprende' },
-        { text: 'CONTACTA', to: '/contacta' },
-        // { text: 'SOBRE NOSOTROS', to: '/contacta' },
-        // { text: 'COMO ESTAS', to: '/contacta' },
-        // { text: 'TEST DE DESARROLLO', to: '/contacta' },
-        { text: 'REDIM', to: '/redim' }
+        { text: 'INICIO', to: '/', color: '#efeee8' },
+        { text: 'CONTEXTO', to: '/contexto', color: '#efeee8' },
+        { text: 'MAPA INTERACTIVO', to: '/mapa', color: '#efeee8' },
+        { text: 'VOCES', to: '/voces', color: '#efeee8' },
+        { text: 'MIRADAS', to: '/miradas', color: '#efeee8' },
+        { text: 'TV NIÑEZ PRIMERO', to: '/tv-ninez-primero', color: '#efeee8' },
+        { text: 'ACTUAMOS', to: '/actuamos', color: '#efeee8' },
+        { text: 'RECURSOS', to: '/recursos', color: '#efeee8' },
+        { text: 'TRANSPARENCIA', to: '/transparencia', color: '#276acc' }
       ]
     }
   },
@@ -110,6 +111,7 @@ export default {
     position: fixed;
     top: 64px;
     left: 0;
+    /* background-color: #342a83; */
     background-color: #342a83;
     border-radius: 0px 0px 50px 0px;
     z-index: 9999;
@@ -121,22 +123,44 @@ export default {
     padding: 10px 0;
   }
 
+  .nav-item::before {
+    display: none !important; /* Quitar el color gris del elemento */
+  }
+
   .nav-item {
-    margin: 5px 20px;
-    border-radius: 10px;
-    transition: background 0.3s;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    color: #ffffff; /* Aseguramos que el texto base sea blanco */
+    transition: color 0.3s ease; /* Transición suave al cambiar de color */
   }
 
   .nav-item:hover {
     background-color: rgba(255, 255, 255, 0.15); /* Efecto hover sutil */
   }
 
+  .v-list-item--active .nav-text {
+    color: #ffffff !important; /* Naranja primario de Niñez Primero */
+    font-weight: 900;
+    /* text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5); */
+    font-size: 1.15rem !important;
+  }
+
   .nav-text {
     font-size: 1.1rem;
     font-weight: 600;
     text-align: center;
+
+    word-break: break-word; /* permite que las palabras se dividan si es necesario */
+    white-space: normal; /* permite los saltos de línea */
+    line-height: 1.2; /* mejora el espaciado entre líneas */
+    padding: 0 5px; /* opcional: margen interno para pantallas pequeñas */
   }
 
+  .nav-item:hover .nav-text {
+    filter: brightness(1.2);
+    transform: scale(1.05);
+  }
   /* ===============================
     4. RESPONSIVIDAD (Anchos y altos por dispositivo)
   ================================ */
@@ -175,8 +199,9 @@ export default {
       border-radius: 0px 0px 60px 0px;
     }
     .nav-text {
-      font-size: 1.25rem;
-      padding: 5px;
+      font-size: 1.1rem !important; /* 1.25rem */
+      padding: 2px 25px;
+      line-height: 1.2 !important;
     }
   }
 </style>

@@ -4,6 +4,7 @@
       <custom-navbar />
       <!-- <span class="ml-2 font-weight-bold">REDIM</span> -->
       <v-spacer></v-spacer>
+      <img src="@/assets/logos/Isologo.png" alt="Logo Niñez Primero">
     </v-app-bar>
 
     <div class="map-wrapper">
@@ -30,6 +31,12 @@
         @show-cards="setShowCards"
       />
 
+      <cards-info
+        ref="hoverPopup"
+        :hoverInfo="hoverInfo"
+        class="elevation-5" style="position: absolute; top: 0; left: 0; will-change: transform;"
+      />
+
       <!-- PANEL ESTADÍSTICO -->
       <div class="stats-panel">
         <!-- <stack-cards :category_details="category_details"/> -->
@@ -45,17 +52,27 @@
         />
       </div>
 
-      <div ref="hoverPopup" v-show="hoverInfo.show" class="custom-hover-popup elevation-5" style="position: absolute; top: 0; left: 0; will-change: transform;" >
+      <!-- <div ref="hoverPopup" v-show="hoverInfo.show" class="custom-hover-popup elevation-5" style="position: absolute; top: 0; left: 0; will-change: transform;" >
         <div class="font-weight-bold">{{ hoverInfo.data ? hoverInfo.data.name : '...' }}</div>
-        <!-- <div class="font-weight-bold"> SESNSP, Trata de personas de 0 a 17 años en México, 2025 </div> -->
+        <div class="font-weight-bold"> SESNSP, Trata de personas de 0 a 17 años en México, 2025 </div>
          <v-divider class="my-1"></v-divider>
         <div class="caption">
           <strong> SESNSP, Trata de personas de 0 a 17 años en México, 2025 </strong> <br>
-          <!-- <strong> {{ hoverInfo.data ? hoverInfo.data.name : '...' }} </strong> <br> -->
+          <strong> {{ hoverInfo.data ? hoverInfo.data.name : '...' }} </strong> <br>
           Hombres: {{ hoverInfo.data ? hoverInfo.data.man : 0 }}<br>
           Mujeres: {{ hoverInfo.data ? hoverInfo.data.woman : 0 }}
         </div>
-      </div>
+      </div> -->
+      <!-- <div ref="hoverPopup" v-show="hoverInfo.show" class="custom-hover-popup elevation-5" style="position: absolute; top: 0; left: 0; will-change: transform;" >
+        <div class="font-weight-bold">{{ hoverInfo.data ? hoverInfo.data.name : '...' }}</div>
+         <v-divider class="my-1"></v-divider>
+        <div class="caption">
+          <strong> SESNSP, Trata de personas de 0 a 17 años en México, 2025 </strong> <br>
+          <strong> {{ hoverInfo.data ? hoverInfo.data.name : '...' }} </strong> <br>
+          Hombres: {{ hoverInfo.data ? hoverInfo.data.man : 0 }}<br>
+          Mujeres: {{ hoverInfo.data ? hoverInfo.data.woman : 0 }}
+        </div>
+      </div> -->
 
       <v-dialog v-model="dialog_rules.actived" scrollable max-width="800px">
           <v-card>
@@ -147,6 +164,7 @@ import StackCards from '@/components/map/StackCards.vue'
 import LogosCards from '@/components/map/LogosCards.vue'
 import CustomNavbar from '@/components/map/CustomNavbar.vue'
 import LeftFilterDeck from '@/components/map/LeftFilterDeck.vue'
+import CardsInfo from '@/components/map/CardsInfo.vue'
 
 import '@/assets/css/style_maps.css'
 import '@/assets/css/style_notifications.css'
@@ -181,7 +199,8 @@ export default {
     LogosCards,
     CustomNavbar,
     // ChartComp,
-    LeftFilterDeck
+    LeftFilterDeck,
+    CardsInfo
   },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -233,7 +252,7 @@ export default {
       hoverLayer: null,
       capasInteractivas: [],
       lastHoveredId: null,
-      hoverStrategy: 'generalized-outline', // 'generalized-outline', 'raw-outline', 'native-highlight'
+      hoverStrategy: 'native-highlight', // 'generalized-outline', 'raw-outline', 'native-highlight'
       hoverInfo: {
         show: false,
         x: 0,
@@ -244,7 +263,7 @@ export default {
       // =========================================================================
       // vue
       dialog_rules: {
-        actived: true,
+        actived: false,
         message: '',
         image: '@/assets/logos/NiñezPrimero-Placa.png'
       },
@@ -386,6 +405,7 @@ export default {
         // 1. Mover el popup suavemente (Bypass a Vue)
         if (this.hoverInfo.show && this.$refs.hoverPopup) {
           this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
+          console.log('1. Mover: ', `translate(${event.x + 15}px, ${event.y + 15}px)`)
         }
 
         // 2. THROTTLE INTELIGENTE (Solo limita si ya estamos navegando por un estado)
@@ -462,7 +482,8 @@ export default {
               const stateData = this.dataStates.find(s => s.cve_ent === cveEntNum)
               this.hoverInfo.data = stateData || { nombre: graphic.attributes.NOMGEO }
               this.hoverInfo.show = true
-              this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
+              // this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
+              console.log('6. Actualización: ', `translate(${event.x + 15}px, ${event.y + 15}px)`)
             }
           } else {
             // Salida del mouse: Limpiar todo

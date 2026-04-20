@@ -15,16 +15,16 @@ const routes = [
   //   component: HomeView,
   //   meta: { title: 'Inicio' }
   // },
-  // {
-  //   path: '/mapa',
-  //   name: 'MapView',
-  //   component: () => import('../views/ArcGISMapView.vue'),
-  //   meta: { title: 'Mapa' }
-  // },
   {
     path: '/',
     name: 'home',
     component: MapView,
+    meta: { title: 'Mapa' }
+  },
+  {
+    path: '/mapa',
+    name: 'MapView',
+    component: () => import('../views/ArcGISMapView.vue'),
     meta: { title: 'Mapa' }
   },
   {
@@ -33,6 +33,51 @@ const routes = [
     component: () => import('../views/LoginView.vue'),
     meta: { title: 'Administrador' }
   },
+  // ===================================================================================
+  {
+    path: '/contexto',
+    name: 'contextView',
+    component: () => import('../views/UnderConstructionView.vue'),
+    meta: { title: 'Contexto' }
+  },
+  {
+    path: '/voces',
+    name: 'vocesView',
+    component: () => import('../views/UnderConstructionView.vue'),
+    meta: { title: 'Voces' }
+  },
+  {
+    path: '/miradas',
+    name: 'MiradasView',
+    component: () => import('../views/UnderConstructionView.vue'),
+    meta: { title: 'Miradas' }
+  },
+  {
+    path: '/tv-ninez-primero',
+    name: 'TVNinezPrimeroView',
+    component: () => import('../views/UnderConstructionView.vue'),
+    meta: { title: 'TV Niñez Primero' }
+  },
+  {
+    path: '/actuamos',
+    name: 'ActuamosView',
+    component: () => import('../views/UnderConstructionView.vue'),
+    meta: { title: 'Actuamos' }
+  },
+  {
+    path: '/recursos',
+    name: 'RecursosView',
+    component: () => import('../views/UnderConstructionView.vue'),
+    meta: { title: 'Recursos' }
+  },
+  {
+    path: '/transparencia',
+    name: 'TransparenciaView',
+    component: () => import('../views/UnderConstructionView.vue'),
+    meta: { title: 'Transparencia' }
+  },
+  // ===================================================================================
+
   {
     path: '/charts',
     name: 'ChartsView',
