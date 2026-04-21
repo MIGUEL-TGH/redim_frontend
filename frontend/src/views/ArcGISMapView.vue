@@ -240,7 +240,7 @@ export default {
       hoverLayer: null,
       capasInteractivas: [],
       lastHoveredId: null,
-      hoverStrategy: 'native-highlight', // 'generalized-outline', 'raw-outline', 'native-highlight'
+      hoverStrategy: 'generalized-outline', // 'generalized-outline', 'raw-outline', 'native-highlight'
       hoverInfo: {
         show: false,
         x: 0,
@@ -452,6 +452,7 @@ export default {
 
                 if (this.hoverStrategy === 'generalized-outline') { // 4.4. Modo Rápido (Simplificado)
                   const maxDeviation = this.view.resolution * 2 // 2
+                  // console.log(maxDeviation)
                   geometriaParaDibujar = geometryEngine.generalize(graphic.geometry, maxDeviation, true)
                 }
 
@@ -634,27 +635,27 @@ export default {
 
       // ============================================================================================================
       // 5. Agregamos la capa de México con el efecto de SOMBRA
-      await this.addGeoJSONLayer({
-        url: '/assets/Mexico_WGS84_04.json',
-        color: '#dfdad0', // Relleno de los estados
-        outlineColor: '#dfdad0', // Color del contorno
-        effect: 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))', // Efecto sombreado
+      // await this.addGeoJSONLayer({
+      //   url: '/assets/Mexico_WGS84_04.json',
+      //   color: '#dfdad0', // Relleno de los estados
+      //   outlineColor: '#dfdad0', // Color del contorno
+      //   effect: 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))', // Efecto sombreado
 
-        dataSource: 'files', // 'files' 'rendered'
-        layerRole: 'background-shadow', // 'interactive' 'background-shadow'
-        renderingStrategy: 'static' // 'static' 'scale-dependent'
-      })
+      //   dataSource: 'files', // 'files' 'rendered'
+      //   layerRole: 'background-shadow', // 'interactive' 'background-shadow'
+      //   renderingStrategy: 'static' // 'static' 'scale-dependent'
+      // })
 
-      await this.addGeoJSONLayer({
-        url: '/assets/WGS84_04_10.json', // WGS84_04_100  WGS84_04_10  WGS84_04_05  WGS84_04_2ent
-        color: '#b8ab9b', // Relleno de los estados
-        outlineColor: '#efeee8', // Color del contorno
-        effect: null,
+      // await this.addGeoJSONLayer({
+      //   url: '/assets/WGS84_04_10.json', // WGS84_04_100  WGS84_04_10  WGS84_04_05  WGS84_04_2ent
+      //   color: '#b8ab9b', // Relleno de los estados
+      //   outlineColor: '#efeee8', // Color del contorno
+      //   effect: null,
 
-        dataSource: 'files', // 'files' 'rendered'
-        layerRole: 'interactive', // 'interactive' 'background-shadow'
-        renderingStrategy: 'static' // 'static' 'scale-dependent'
-      })
+      //   dataSource: 'files', // 'files' 'rendered'
+      //   layerRole: 'interactive', // 'interactive' 'background-shadow'
+      //   renderingStrategy: 'static' // 'static' 'scale-dependent'
+      // })
 
       // ======================================================================================================================================
       // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
@@ -663,7 +664,7 @@ export default {
       // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04_100.json', color: [130, 130, 130, 0.1], type: 'files' })
 
       // ======================================================================================================================================
-      await this.hoverLayers()
+      // await this.hoverLayers()
       // ======================================================================================================================================
 
       this.view.on('click', (event) => {
@@ -1067,7 +1068,7 @@ export default {
       }
 
       // 3. Cargar catálogos base
-      await this.loadCatalogs()
+      // await this.loadCatalogs()
 
       // 4. MODALIDAD 2: validar parámetros
       await this.evaluateUrlParams()
