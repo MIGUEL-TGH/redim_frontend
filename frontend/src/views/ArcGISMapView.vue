@@ -36,6 +36,11 @@
         :hoverInfo="hoverInfo"
       />
 
+      <state-details-dialog
+        :dialog.sync="dialogState"
+        :stateData="clickedStateData"
+      />
+
       <!-- PANEL ESTADÍSTICO -->
       <div class="stats-panel">
         <!-- <stack-cards :category_details="category_details"/> -->
@@ -72,7 +77,7 @@
           </v-card>
       </v-dialog>
 
-      <v-dialog v-model="dialogState" max-width="900" :fullscreen="$vuetify.breakpoint.smAndDown">
+      <!-- <v-dialog v-model="dialogState" max-width="900" :fullscreen="$vuetify.breakpoint.smAndDown">
         <v-card v-if="selectedStateData">
           <v-toolbar color="#342a83" dark flat>
             <v-toolbar-title>Información: {{ selectedStateData.state_name }}</v-toolbar-title>
@@ -125,7 +130,7 @@
             </v-tabs-items>
           </v-tabs>
         </v-card>
-      </v-dialog>
+      </v-dialog> -->
 
       <!-- MODO DESARROLLO -->
       <!-- <div style="position: absolute; bottom: 20px; left: 20px; z-index: 90; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px;" class="elevation-4">
@@ -153,6 +158,7 @@ import LogosCards from '@/components/map/LogosCards.vue'
 import CustomNavbar from '@/components/map/CustomNavbar.vue'
 import LeftFilterDeck from '@/components/map/LeftFilterDeck.vue'
 import HoverPopupCard from '@/components/map/HoverPopupCard.vue'
+import StateDetailsDialog from '@/components/map/StateDetailsDialog.vue'
 
 import '@/assets/css/style_maps.css'
 import '@/assets/css/style_notifications.css'
@@ -188,7 +194,8 @@ export default {
     CustomNavbar,
     // ChartComp,
     LeftFilterDeck,
-    HoverPopupCard
+    HoverPopupCard,
+    StateDetailsDialog
   },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -215,6 +222,9 @@ export default {
       chartDataGender: null,
       chartDataState: null,
 
+      // StateDetailsDialog =======================================================================
+      dialogState: true, // Controla si el modal está abierto o cerrado
+      clickedStateData: null, // Guarda la info del estado cliqueado
       // =========================================================================
       // map
       vectors: [
@@ -258,7 +268,7 @@ export default {
       // =========================================================================
       // vue data test
       tab: null,
-      dialogState: false,
+      // dialogState: false,
       selectedStateData: {
         state_id: 15,
         state_name: 'Estado de México',
@@ -678,6 +688,32 @@ export default {
         //   }
         // })
       })
+
+      // ======================================================================================================================================
+      // this.view.on('click', (event) => {
+      //   this.view.hitTest(event).then((response) => {
+      //     if (response.results.length > 0) {
+      //       const graphic = response.results.filter(
+      //         (result) => result.graphic.layer.id === 'tu_id_de_capa'
+      //       )[0]
+
+      //       if (graphic) {
+      //         // 1. Extraemos los datos del polígono
+      //         const attributes = graphic.graphic.attributes
+
+      //         // 2. Preparamos el objeto para el modal (igual que el hoverInfo)
+      //         this.clickedStateData = {
+      //           name: attributes.NOMGEO, // O el nombre de tu campo
+      //           woman: attributes.total_mujeres,
+      //           man: attributes.total_hombres
+      //         }
+
+      //         // 3. Abrimos el modal
+      //         this.dialogState = true
+      //       }
+      //     }
+      //   })
+      // })
       // ======================================================================================================================================
     },
 
