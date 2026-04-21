@@ -31,10 +31,9 @@
         @show-cards="setShowCards"
       />
 
-      <cards-info
+      <hover-popup-card
         ref="hoverPopup"
         :hoverInfo="hoverInfo"
-        class="elevation-5" style="position: absolute; top: 0; left: 0; will-change: transform;"
       />
 
       <!-- PANEL ESTADÍSTICO -->
@@ -52,17 +51,6 @@
         />
       </div>
 
-      <!-- <div ref="hoverPopup" v-show="hoverInfo.show" class="custom-hover-popup elevation-5" style="position: absolute; top: 0; left: 0; will-change: transform;" >
-        <div class="font-weight-bold">{{ hoverInfo.data ? hoverInfo.data.name : '...' }}</div>
-        <div class="font-weight-bold"> SESNSP, Trata de personas de 0 a 17 años en México, 2025 </div>
-         <v-divider class="my-1"></v-divider>
-        <div class="caption">
-          <strong> SESNSP, Trata de personas de 0 a 17 años en México, 2025 </strong> <br>
-          <strong> {{ hoverInfo.data ? hoverInfo.data.name : '...' }} </strong> <br>
-          Hombres: {{ hoverInfo.data ? hoverInfo.data.man : 0 }}<br>
-          Mujeres: {{ hoverInfo.data ? hoverInfo.data.woman : 0 }}
-        </div>
-      </div> -->
       <!-- <div ref="hoverPopup" v-show="hoverInfo.show" class="custom-hover-popup elevation-5" style="position: absolute; top: 0; left: 0; will-change: transform;" >
         <div class="font-weight-bold">{{ hoverInfo.data ? hoverInfo.data.name : '...' }}</div>
          <v-divider class="my-1"></v-divider>
@@ -164,7 +152,7 @@ import StackCards from '@/components/map/StackCards.vue'
 import LogosCards from '@/components/map/LogosCards.vue'
 import CustomNavbar from '@/components/map/CustomNavbar.vue'
 import LeftFilterDeck from '@/components/map/LeftFilterDeck.vue'
-import CardsInfo from '@/components/map/CardsInfo.vue'
+import HoverPopupCard from '@/components/map/HoverPopupCard.vue'
 
 import '@/assets/css/style_maps.css'
 import '@/assets/css/style_notifications.css'
@@ -200,7 +188,7 @@ export default {
     CustomNavbar,
     // ChartComp,
     LeftFilterDeck,
-    CardsInfo
+    HoverPopupCard
   },
   directives: {}, // Directivas personalizadas
   filters: {}, // Filtros (si usas)
@@ -404,8 +392,11 @@ export default {
 
         // 1. Mover el popup suavemente (Bypass a Vue)
         if (this.hoverInfo.show && this.$refs.hoverPopup) {
-          this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
-          console.log('1. Mover: ', `translate(${event.x + 15}px, ${event.y + 15}px)`)
+          // Cuando el elemento html esta en ArcGISMapView.vue (en el mismo componente)
+          // this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
+
+          // Cuando esta en otro componente (HoverPopupCard.vue)
+          this.$refs.hoverPopup.$el.style.transform = `translate(${event.x + 50}px, ${event.y + -50}px)`
         }
 
         // 2. THROTTLE INTELIGENTE (Solo limita si ya estamos navegando por un estado)
@@ -482,8 +473,12 @@ export default {
               const stateData = this.dataStates.find(s => s.cve_ent === cveEntNum)
               this.hoverInfo.data = stateData || { nombre: graphic.attributes.NOMGEO }
               this.hoverInfo.show = true
+
+              // Cuando el elemento html esta en ArcGISMapView.vue (en el mismo componente)
               // this.$refs.hoverPopup.style.transform = `translate(${event.x + 15}px, ${event.y + 15}px)`
-              console.log('6. Actualización: ', `translate(${event.x + 15}px, ${event.y + 15}px)`)
+
+              // Cuando esta en otro componente (HoverPopupCard.vue)
+              this.$refs.hoverPopup.$el.style.transform = `translate(${event.x + 50}px, ${event.y + -50}px)`
             }
           } else {
             // Salida del mouse: Limpiar todo
