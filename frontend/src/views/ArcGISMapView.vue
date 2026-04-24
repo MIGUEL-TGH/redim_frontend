@@ -71,7 +71,7 @@
           <v-card>
             <!-- <v-card-text> -->
               <!-- <img :src="dialog_rules.image" style="max-width: 100%; height: auto;" elevation="5"> -->
-              <img src="@/assets/logos/Tutorial.jpg" style="max-width: 100%; height: auto;">
+              <img src="@/assets/logos/Tutorial.png" style="max-width: 100%; height: auto;">
               <!-- <img src="https://picsum.photos/200/300?random=1" style="max-width: 100%; height: auto;"> -->
             <!-- </v-card-text> -->
           </v-card>
@@ -1168,9 +1168,9 @@ export default {
   },
   beforeMount () {},
   async mounted () {
-    await this.loadDataMap()
-    await this.initMap()
-    await this.initApplication()
+    // await this.loadDataMap()
+    // await this.initMap()
+    // await this.initApplication()
   },
   beforeUpdate () {},
   updated () {},
