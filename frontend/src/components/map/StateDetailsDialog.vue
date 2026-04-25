@@ -3,15 +3,15 @@
   <div class="popup-wrapper" v-show="internalDialog">
     <div class="deck-container">
       <div class="card-blue elevation-10">
-        <!-- <div class="d-flex justify-end mb-1">
-          <v-icon color="#efeee8" x-large>mdi-close</v-icon>
-        </div> -->
+
         <div class="d-flex justify-end mb-1">
-          <v-btn icon @click="internalDialog = false"> <v-icon color="#efeee8" x-large>mdi-close</v-icon>
+          <v-btn icon @click="internalDialog = false">
+            <v-icon color="#efeee8" x-large>mdi-close</v-icon>
           </v-btn>
         </div>
+
         <v-row align="center" no-gutters>
-          <v-col cols="12" md="5" class="mb-2 mb-md-0">
+          <v-col cols="12" md="5" class="mb-3 mb-md-0 text-center text-md-left">
             <div class="text-h6 font-weight-bold title-text">
               <!-- {{ stateData ? stateData.name.toUpperCase() : '...' }} -->
               PUEBLA
@@ -21,8 +21,8 @@
             </div>
           </v-col>
 
-          <v-col cols="12" md="7" class="text-md-right text-left">
-            <v-row class="ma-0 stats-row" dense align="center" no-gutters>
+          <v-col cols="12" md="7" class="text-center text-md-right">
+            <v-row class="ma-0 stats-row" dense align="center" justify="center" justify-md="end" no-gutters>
               <v-col cols="6" class="text-center pa-1 stats-border-right">
                 <br>
                 <span class="text-h6 font-weight-bold">
@@ -65,13 +65,13 @@
               <v-row>
                 <v-col cols="12" sm="12" md="12">
                   <v-img src="https://picsum.photos/300/533"
-                    aspect-ratio="0.5625" class="rounded-lg elevation-3"
-                    style="aspect-ratio: 16/9; height: 200px; width: 100%;"
+                    class="rounded-lg elevation-5"
+                    style="aspect-ratio: 16/9; height: 150px; width: 100%;"
                   ></v-img>
                 </v-col>
                 <v-col cols="12" sm="12" md="12">
                   <!-- <h3 class="text-h5 mb-4" style="color: #342a83; font-weight: 700;">Título del Boletín Estatal</h3> -->
-                  <p class="text-body-2 text-justify" style="color: #342a83;">
+                  <p class="text-description text-justify" style="color: #342a83;">
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                   </p>
                   <p class="text-body-2 text-justify" style="color: #342a83;">
@@ -161,14 +161,12 @@
 
           </v-tabs-items>
 
-          <!-- <div class="text-right" style="padding-right: 25px;">
-            <v-icon color="#6a3d8f" x-large>mdi-minus</v-icon>
-          </div> -->
-          <div class="text-right pr-6 mt-2">
+          <!-- <div class="text-right mt-1">
             <v-btn icon>
               <v-icon color="#6a3d8f" x-large>mdi-minus</v-icon>
             </v-btn>
-          </div>
+          </div> -->
+
         </div>
       </div>
 
@@ -295,25 +293,67 @@ export default {
 <style scoped>
 
   .popup-wrapper {
-    position: fixed; /* Asegura que flote sobre toda la pantalla */
+    position: fixed; /* Mejor fixed para que siempre esté sobre el mapa */
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* El truco mágico para centrar perfecto */
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
     z-index: 1000;
-    width: 90%; /* Opcional: para que no pegue en los bordes en móviles */
-    max-width: 800px; /* O el ancho máximo que prefieras */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
   }
+
+  .deck-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    max-height: 95vh;
+  }
+
+  .card-blue {
+    background-color: #342a83;
+    color: #ffffff;
+    border-radius: 15px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .title-text {
+    line-height: 1.1;
+    font-weight: bold;
+  }
+
+  .text-description {
+    font-size: 1rem !important;
+  }
+
+  /* --- TARJETA BLANCA --- */
+  .card-white-wrapper {
+    background-color: #efeee8;
+    border-radius: 0 0 15px 15px;
+    margin-top: -15px;
+    padding-top: 20px;
+
+    /* Flexbox para que este contenedor crezca y se encoja correctamente */
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    overflow-y: auto; /* IMPORTANTE: Aquí se genera el scroll */
+
+    /* Ajuste para pantallas con poca altura (Laptops pequeñas) */
+    max-height: calc(95vh - 120px); /* Restamos el espacio aproximado de la cabecera azul */
+  }
+
+  /* ======================================================================================= */
 
   /* Quita el espacio forzado entre tabs */
   .compact-tab {
     min-width: auto !important;
     padding: 0 12px !important;
   }
-
-  /* Reduce el padding general del contenedor blanco */
-  /* .card-white-wrapper {
-    padding: 10px !important;
-  } */
 
   .scroll-container {
     max-height: 320px; /* Ajusta esta altura a tu gusto */
@@ -335,36 +375,6 @@ export default {
 
   /* ======================================================================================= */
 
-  /* .popup-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    will-change: transform;
-    width: 700px;
-    z-index: 1000;
-  } */
-
-  .deck-container {
-    display: flex;
-    flex-direction: column;
-  }
-  /* --- TARJETA AZUL --- */
-  .card-blue {
-    background-color: #342a83;
-    color: #ffffff;
-    border-radius: 15px;
-    padding: 15px 30px;
-    position: relative;
-    z-index: 2; /* Siempre encima de la blanca */
-  }
-
-  .title-text {
-    line-height: 1.1;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-  }
-
   .subtitle-text {
     color: #efeee8; /* Blanco-gris para contrastar suavemente */
     line-height: 1.5;
@@ -376,43 +386,117 @@ export default {
     opacity: 0.7;
   }
 
-  /* --- TARJETA BLANCA --- */
-  .card-white-wrapper {
-    background-color: #efeee8;
-    border-radius: 0 0 15px 15px;
-    margin-top: -15px; /* Sube la tarjeta blanca para esconderse bajo la azul */
-    /* Compensa el espacio comido por el margen negativo */
-    /* padding-top: 20px;
-    padding-bottom: 0px !important; */
-    padding: 10px 20px;
-    position: relative;
-    z-index: 1; /* Por debajo de la tarjeta azul */
-  }
-
   .card-white {
     color: #342a83; /* Texto azul para combinar */
     font-size: 15px;
-  }
-
-  /* ======================================================================================================================================== */
-
-  .dialog-wrapper {
-    overflow: hidden; /* Para que la tarjeta azul no pierda sus bordes redondos si aplica */
-  }
-
-  /* =================== TABS & CONTENIDO =================== */
-  .card-white-wrapper {
-    background-color: #efeee8; /* Fondo blanco-gris de la interfaz */
-    min-height: 60vh; /* Asegura que el pop-up tenga buena altura */
   }
 
   .transparent-bg {
     background-color: transparent !important;
   }
 
-  /* Sobrescribir estilos de Tabs para un look más limpio */
   .v-tab {
     font-weight: 700;
     letter-spacing: 1px;
   }
+
+  /* ======================================================================================================================================== */
+
+  /* Mobile */
+  /* @media (max-width: 767.98px) {  } */
+  /* Tablet */
+  /* @media (min-width: 768px) and (max-width: 991.98px) { } */
+  /* Desktop */
+  /* @media (min-width: 992px) and (max-width: 1199.98px) { } */
+  /* Large Desktop */
+  /* @media (min-width: 1200px) { } */
+
+  /* Mobile (Teléfonos en vertical y horizontal) */
+@media (max-width: 767.98px) {
+  .popup-wrapper {
+    width: 95%; /* Ocupa casi toda la pantalla */
+  }
+  .card-blue {
+    padding: 12px 15px;
+  }
+  .title-text {
+    font-size: 1rem !important; /* Texto más pequeño */
+    text-align: center; /* Centrado forzoso en móviles */
+  }
+  /* .card-white-wrapper {
+    padding-left: 10px;
+    padding-right: 10px;
+    max-height: 55vh;
+  } */
+}
+
+/* Tablet (iPads, tabletas Android) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .popup-wrapper {
+    width: 85%;
+    max-width: 700px;
+  }
+  .card-blue {
+    padding: 15px 25px;
+  }
+  .title-text {
+    font-size: 1.15rem !important;
+  }
+  /* .card-white-wrapper {
+    padding-left: 20px;
+    padding-right: 20px;
+    max-height: 60vh;
+  } */
+}
+
+/* Desktop (Laptops estándar) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .popup-wrapper {
+    width: 70%;
+    max-width: 800px;
+  }
+  .card-blue {
+    padding: 20px 30px;
+  }
+  .title-text {
+    font-size: 1.25rem !important; /* Tamaño normal text-h6 */
+  }
+  /* .card-white-wrapper {
+    padding-left: 30px;
+    padding-right: 30px;
+    max-height: 20vh;
+  } */
+}
+
+/* Large Desktop (Monitores grandes y PCs de escritorio) */
+@media (min-width: 1200px) {
+  .popup-wrapper {
+    width: 60%;
+    max-width: 600px; /* En pantallas gigantes no pasará de 900px */
+  }
+  .card-blue {
+    padding: 20px 35px; /* Más espacio para respirar */
+  }
+  .title-text {
+    font-size: 1.35rem !important; /* Título ligeramente más grande */
+  }
+  .card-white-wrapper {
+    padding-left: 10px;
+    padding-right: 10px;
+    max-height: 52vh;
+  }
+  .text-description {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* ======================================================================================================================================== */
+@media (max-height: 600px) {
+  .card-white-wrapper {
+    max-height: calc(90vh - 100px);
+  }
+  .title-text {
+    font-size: 0.9rem !important; /* Achicamos texto para ganar espacio vertical */
+  }
+}
 </style>
