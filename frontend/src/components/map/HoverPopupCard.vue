@@ -1,12 +1,4 @@
 
-<!-- <template>
-  <div class="hover-popup-wrapper">
-    <div class="deck-container">
-      Nueva ventana
-    </div>
-  </div>
-</template> -->
-
 <template>
   <div class="hover-popup-wrapper" v-show="hoverInfo && hoverInfo.show">
   <!-- <div class="hover-popup-wrapper"> -->

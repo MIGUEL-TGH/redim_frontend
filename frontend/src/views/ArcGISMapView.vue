@@ -1,11 +1,13 @@
 <template>
   <div>
-    <v-app-bar app dark elevation="10" clipped-left class="app-bar-gradient">
+    <!-- <v-app-bar app dark elevation="10" clipped-left class="app-bar-gradient">
       <custom-navbar />
-      <!-- <span class="ml-2 font-weight-bold">REDIM</span> -->
+      <span class="ml-2 font-weight-bold">REDIM</span>
       <v-spacer></v-spacer>
       <img src="@/assets/logos/Isologo.png" alt="Logo Niñez Primero">
-    </v-app-bar>
+    </v-app-bar> -->
+
+    <header-comp/>
 
     <div class="map-wrapper">
       <div id="viewDiv" ref="mapView"></div>
@@ -56,6 +58,12 @@
         />
       </div>
 
+      <v-dialog v-model="dialog_rules.actived" scrollable max-width="600px" content-class="elevation-0">
+        <v-card flat color="transparent">
+          <img src="@/assets/logos/Tutorial.png" style="max-width: 100%; height: auto; display: block;">
+        </v-card>
+      </v-dialog>
+
       <!-- <div ref="hoverPopup" v-show="hoverInfo.show" class="custom-hover-popup elevation-5" style="position: absolute; top: 0; left: 0; will-change: transform;" >
         <div class="font-weight-bold">{{ hoverInfo.data ? hoverInfo.data.name : '...' }}</div>
          <v-divider class="my-1"></v-divider>
@@ -67,78 +75,13 @@
         </div>
       </div> -->
 
-      <v-dialog v-model="dialog_rules.actived" scrollable max-width="800px">
-          <v-card>
-            <!-- <v-card-text> -->
-              <!-- <img :src="dialog_rules.image" style="max-width: 100%; height: auto;" elevation="5"> -->
-              <img src="@/assets/logos/Tutorial.png" style="max-width: 100%; height: auto;">
-              <!-- <img src="https://picsum.photos/200/300?random=1" style="max-width: 100%; height: auto;"> -->
-            <!-- </v-card-text> -->
-          </v-card>
-      </v-dialog>
-
-      <!-- <v-dialog v-model="dialogState" max-width="900" :fullscreen="$vuetify.breakpoint.smAndDown">
-        <v-card v-if="selectedStateData">
-          <v-toolbar color="#342a83" dark flat>
-            <v-toolbar-title>Información: {{ selectedStateData.state_name }}</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon @click="dialogState = false"><v-icon>mdi-close</v-icon></v-btn>
-          </v-toolbar>
-
-          <v-card-text v-if="!selectedStateData.has_content" class="text-center py-10">
-            <v-icon size="64" color="grey lighten-1">mdi-information-off-outline</v-icon>
-            <h3 class="grey--text mt-4">Información no disponible por el momento para este estado.</h3>
-          </v-card-text>
-
-          <v-tabs v-else v-model="tab" color="#ed712c" centered>
-            <v-tab>Boletín</v-tab>
-            <v-tab :disabled="!selectedStateData.gallery.length">Galería</v-tab>
-            <v-tab :disabled="!selectedStateData.videos.length">Videos</v-tab>
-
-            <v-tabs-items v-model="tab">
-              <v-tab-item>
-                <v-card flat class="pa-4">
-                  <h2 class="mb-2">{{ selectedStateData.bulletin.title }}</h2>
-                  <p class="caption grey--text">{{ selectedStateData.bulletin.date }}</p>
-                  <v-img v-if="selectedStateData.bulletin.cover_image" :src="selectedStateData.bulletin.cover_image" height="300" class="mb-4 rounded"></v-img>
-                  <p class="font-weight-bold">{{ selectedStateData.bulletin.summary }}</p>
-                  <div v-html="selectedStateData.bulletin.body"></div> </v-card>
-              </v-tab-item>
-
-              <v-tab-item>
-                <v-card flat class="pa-4">
-                  <v-row>
-                    <v-col v-for="(img, i) in selectedStateData.gallery" :key="i" cols="12" sm="6" md="4">
-                      <v-card hover>
-                        <v-img :src="img.url" height="200" contain></v-img>
-                        <v-card-subtitle class="text-center">{{ img.caption }}</v-card-subtitle>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-tab-item>
-
-              <v-tab-item>
-                <v-card flat class="pa-4">
-                  <v-row>
-                    <v-col v-for="(vid, i) in selectedStateData.videos" :key="i" cols="12" md="6">
-                      <iframe width="100%" height="250" :src="vid.url_iframe" frameborder="0" allowfullscreen></iframe>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-tab-item>
-            </v-tabs-items>
-          </v-tabs>
-        </v-card>
-      </v-dialog> -->
-
       <!-- MODO DESARROLLO -->
       <!-- <div style="position: absolute; bottom: 20px; left: 20px; z-index: 90; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px;" class="elevation-4">
         <div class="caption font-weight-bold mb-2">Estrategia de Hover (Pruebas)</div>
         <v-radio-group v-model="hoverStrategy" hide-details class="mt-0">
           <v-radio label="Relleno Nativo (Highlight)" value="native-highlight"></v-radio>
           <v-radio label="Contorno Simplificado (Rápido)" value="generalized-outline"></v-radio>
-          <v-radio label="Contorno Crudo (Pesado)" value="raw-outline"></v-radio>
+          <v-radio label="Contorno Crudo (Pesado)" value="native-outline"></v-radio>
         </v-radio-group>
       </div> -->
 
@@ -146,16 +89,15 @@
 
     <loader-comp />
     <view-notifications-comp ref="notifier"/>
-    <!-- <h1>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis ipsum cumque aspernatur amet nesciunt alias reiciendis! Ab eum officiis laudantium earum velit iure totam quod beatae dolorem! Nam, ex cumque.</h1> -->
   </div>
 </template>
 
 <script>
+import HeaderComp from '@/components/HeaderComp.vue'
 import LoaderComp from '@/components/LoaderComp.vue'
 import viewNotificationsComp from '@/components/dashboard/viewNotifications.vue'
 import StackCards from '@/components/map/StackCards.vue'
 import LogosCards from '@/components/map/LogosCards.vue'
-import CustomNavbar from '@/components/map/CustomNavbar.vue'
 import LeftFilterDeck from '@/components/map/LeftFilterDeck.vue'
 import HoverPopupCard from '@/components/map/HoverPopupCard.vue'
 import StateDetailsDialog from '@/components/map/StateDetailsDialog.vue'
@@ -187,11 +129,11 @@ export default {
   // 1️⃣ Identificación
   name: 'ArcGISMap',
   components: { // Importación de componentes hijos
+    HeaderComp,
     LoaderComp,
     viewNotificationsComp,
     StackCards,
     LogosCards,
-    CustomNavbar,
     // ChartComp,
     LeftFilterDeck,
     HoverPopupCard,
@@ -209,7 +151,7 @@ export default {
   data () {
     return {
       // LeftFilterDeck =======================================================================
-      category_details: [], // X
+      category_details: [],
       indicators: [],
       categories: [],
       years: [],
@@ -223,8 +165,8 @@ export default {
       chartDataState: null,
 
       // StateDetailsDialog =======================================================================
-      dialogState: true, // Controla si el modal está abierto o cerrado
-      clickedStateData: null, // Guarda la info del estado cliqueado
+      dialogState: false,
+      clickedStateData: null,
       // =========================================================================
       // map
       vectors: [
@@ -247,10 +189,10 @@ export default {
       ],
       view: undefined,
       map: undefined,
+      lastHoveredId: null,
       hoverLayer: null,
       capasInteractivas: [],
-      lastHoveredId: null,
-      hoverStrategy: 'generalized-outline', // 'generalized-outline', 'raw-outline', 'native-highlight'
+      hoverStrategy: 'generalized-highlight', // 'generalized-outline', 'native-outline', 'native-highlight', 'generalized-highlight'
       hoverInfo: {
         show: false,
         x: 0,
@@ -261,7 +203,7 @@ export default {
       // =========================================================================
       // vue
       dialog_rules: {
-        actived: false,
+        actived: true,
         message: '',
         image: '@/assets/logos/NiñezPrimero-Placa.png'
       },
@@ -302,7 +244,21 @@ export default {
   },
 
   // 4️⃣ Observadores
-  watch: {},
+  watch: {
+    dialogState: {
+      // immediate: true, // Se ejecuta apenas se crea el componente
+      async handler (status) {
+        if (status) {
+          this.isCardOpen = false
+          this.hoverInfo.show = false
+          this.$refs.filterDeck.isOpen = false
+          // this.setShowCards(false)
+        } else {
+          // this.isCardOpen = true
+        }
+      }
+    }
+  },
 
   // 5️⃣ Métodos
   methods: {
@@ -382,9 +338,36 @@ export default {
 
       this.dataStates = data
     },
-    async hoverLayers () {
-      // console.log('hoverLayers() --> N1')
+    async clickLayers () {
+      // 1. Asegurarnos de que el arreglo de capas interactivas existe
+      if (!this.capasInteractivas || this.capasInteractivas.length === 0) return
 
+      this.view.on('click', (event) => {
+        // 2. Ejecutar HitTest buscando en las capas
+        this.view.hitTest(event, { include: this.capasInteractivas }).then(async (response) => {
+          if (response.results.length > 0) {
+            const result = response.results[0]
+            const graphic = result.graphic
+            const attributes = graphic.attributes
+
+            // 3. Actualización de la Información del Pop-up
+            const cveEntNum = Number(attributes.CVE_ENT)
+            const stateData = this.dataStates.find(s => s.cve_ent === cveEntNum)
+
+            this.clickedStateData = {
+              // name: attributes.NOMGEO,
+              name: stateData.name,
+              woman: stateData.woman,
+              man: stateData.man
+            }
+
+            // 3. Abrimos el modal
+            this.dialogState = true
+          }
+        })
+      })
+    },
+    async hoverLayers () {
       // Asegurarnos de que el arreglo de capas interactivas existe
       if (!this.capasInteractivas || this.capasInteractivas.length === 0) return
 
@@ -393,13 +376,11 @@ export default {
       let activeLayerView = null
       let isThrottled = false
 
-      // Agregar la capa de gráficos para el resaltado oscuro
+      // Agregar la capa de gráficos para el resaltado
       this.hoverLayer = new GraphicsLayer({ title: 'CapaHover' })
       this.map.add(this.hoverLayer)
 
       this.view.on('pointer-move', async (event) => {
-        // console.log('hoverLayers() --> N2', event)
-
         // 1. Mover el popup suavemente (Bypass a Vue)
         if (this.hoverInfo.show && this.$refs.hoverPopup) {
           // Cuando el elemento html esta en ArcGISMapView.vue (en el mismo componente)
@@ -437,8 +418,6 @@ export default {
             return
           }
 
-          // console.log('hoverLayers() --> N3')
-
           if (response.results.length > 0) {
             const result = response.results[0]
             const graphic = result.graphic
@@ -454,19 +433,71 @@ export default {
                 activeHighlightHandle = null
               }
 
-              if (this.hoverStrategy === 'native-highlight') { // 4.2. Modalidad 1: Highlight Nativo de ArcGIS (Relleno completo)
-                activeLayerView = await this.view.whenLayerView(currentLayer)
-                activeHighlightHandle = activeLayerView.highlight(graphic)
-              } else { // 4.3. Modalidad 2 y 3: Borde Dibujado (GraphicsLayer)
-                let geometriaParaDibujar = graphic.geometry
+              // ===============================================================================================================
+              let geometriaParaDibujar = null
 
-                if (this.hoverStrategy === 'generalized-outline') { // 4.4. Modo Rápido (Simplificado)
+              switch (this.hoverStrategy) {
+                case 'generalized-outline': { // Modo Rápido (Capa Simplificado)
                   const maxDeviation = this.view.resolution * 2 // 2
-                  // console.log(maxDeviation)
                   geometriaParaDibujar = geometryEngine.generalize(graphic.geometry, maxDeviation, true)
+                  break
                 }
+                case 'native-outline': { // Modo Pesado (Capa Completa)
+                  geometriaParaDibujar = graphic.geometry
+                  break
+                }
+                case 'generalized-highlight': { // Highlight Simplificado (Relleno Completo)
+                  // 1. Obtiene el nivel de zoom actual de la vista
+                  // const currentZoom = this.view.zoom
+                  const currentScale = this.view.scale
 
-                // 5. Si es 'raw-outline', usa la geometriaParaDibujar original
+                  // 2. Simplifica la geometría
+                  let maxDeviation = 500
+                  if (currentScale >= 15000000) {
+                    maxDeviation = 10000
+                  } else if (currentScale >= 5000000) {
+                    maxDeviation = 5000
+                  } else if (currentScale >= 2500000) {
+                    maxDeviation = 2500
+                  } else if (currentScale >= 1000000) {
+                    maxDeviation = 1000
+                  }
+
+                  // console.log(currentZoom, maxDeviation)
+
+                  const generalizedGeometry = geometryEngine.generalize(
+                    graphic.geometry,
+                    maxDeviation,
+                    true,
+                    'meters'
+                  )
+
+                  // 2. Construye el gráfico con Relleno Naranja y Contorno #efeee8
+                  const generalizedHighlightGraphic = new Graphic({
+                    geometry: generalizedGeometry,
+                    symbol: {
+                      type: 'simple-fill',
+                      color: '#f44545', // [244, 69, 69, 0.5]
+                      outline: {
+                        color: '#efeee8', // El color de contorno exacto que solicitaste
+                        width: 2 // Puedes ajustar el grosor del contorno
+                      }
+                    }
+                  })
+
+                  // this.view.graphics.add(generalizedHighlightGraphic)
+                  this.hoverLayer.add(generalizedHighlightGraphic)
+
+                  break
+                }
+                case 'native-highlight': { // Highlight Nativo de ArcGIS (Relleno completo)
+                  activeLayerView = await this.view.whenLayerView(currentLayer)
+                  activeHighlightHandle = activeLayerView.highlight(graphic)
+                  break
+                }
+              }
+
+              if (this.hoverStrategy === 'generalized-outline' || this.hoverStrategy === 'native-outline') {
                 const highlightGraphic = new Graphic({
                   geometry: geometriaParaDibujar,
                   symbol: {
@@ -478,6 +509,7 @@ export default {
                 this.hoverLayer.add(highlightGraphic)
               }
 
+              // ===============================================================================================================
               // 6. Actualización de la Información del Pop-up
               this.view.container.style.cursor = 'pointer'
               const cveEntNum = Number(cveEnt)
@@ -645,195 +677,61 @@ export default {
 
       // ============================================================================================================
       // 5. Agregamos la capa de México con el efecto de SOMBRA
-      // await this.addGeoJSONLayer({
-      //   url: '/assets/Mexico_WGS84_04.json',
-      //   color: '#dfdad0', // Relleno de los estados
-      //   outlineColor: '#dfdad0', // Color del contorno
-      //   effect: 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))', // Efecto sombreado
+      await this.addGeoJSONLayer({
+        url: '/assets/Mexico_WGS84_04.json',
+        color: '#dfdad0', // Relleno de los estados
+        outlineColor: '#dfdad0', // Color del contorno
+        effect: 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.35))', // Efecto sombreado
 
-      //   dataSource: 'files', // 'files' 'rendered'
-      //   layerRole: 'background-shadow', // 'interactive' 'background-shadow'
-      //   renderingStrategy: 'static' // 'static' 'scale-dependent'
-      // })
-
-      // await this.addGeoJSONLayer({
-      //   url: '/assets/WGS84_04_10.json', // WGS84_04_100  WGS84_04_10  WGS84_04_05  WGS84_04_2ent
-      //   color: '#b8ab9b', // Relleno de los estados
-      //   outlineColor: '#efeee8', // Color del contorno
-      //   effect: null,
-
-      //   dataSource: 'files', // 'files' 'rendered'
-      //   layerRole: 'interactive', // 'interactive' 'background-shadow'
-      //   renderingStrategy: 'static' // 'static' 'scale-dependent'
-      // })
-
-      // ======================================================================================================================================
-      // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
-      // await this.AddGeoJSONLayer({ url: '/assets/32entMX05.geojson', color: [130, 130, 130, 0.1], type: 'files' })
-      // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [184, 171, 155, 0.9], type: 'files' })
-      // await this.AddGeoJSONLayerV1({ url: '/assets/WGS84_04_100.json', color: [130, 130, 130, 0.1], type: 'files' })
-
-      // ======================================================================================================================================
-      // await this.hoverLayers()
-      // ======================================================================================================================================
-
-      this.view.on('click', (event) => {
-        // console.log('click', event)
-        // this.view.hitTest(event).then((response) => {
-        //   const results = response.results.filter(r => r.layer.title === 'Estados')
-        //   if (results.length > 0) {
-        //     const stateId = results[0].graphic.attributes.id
-        //     // Aquí llamas a tu API/backend (ej. axios.get(`/api/estado/${stateId}`))
-        //     this.fetchStateDetails(stateId)
-        //   }
-        // })
+        dataSource: 'files', // 'files' 'rendered'
+        layerRole: 'background-shadow', // 'interactive' 'background-shadow'
+        renderingStrategy: 'static' // 'static' 'scale-dependent'
       })
 
+      // 6. Capa Interactiva de los Estados de México
+      await this.addGeoJSONLayer({
+        url: '/assets/WGS84_04_10.json', // WGS84_04_100  WGS84_04_10  WGS84_04_05  WGS84_04_2ent
+        color: '#b8ab9b', // Relleno de los estados
+        outlineColor: '#efeee8', // Color del contorno
+        effect: null,
+
+        dataSource: 'files', // 'files' 'rendered'
+        layerRole: 'interactive', // 'interactive' 'background-shadow'
+        renderingStrategy: 'static' // 'static' 'scale-dependent'
+      })
+
+      await this.hoverLayers()
+      await this.clickLayers()
       // ======================================================================================================================================
-      // this.view.on('click', (event) => {
-      //   this.view.hitTest(event).then((response) => {
-      //     if (response.results.length > 0) {
-      //       const graphic = response.results.filter(
-      //         (result) => result.graphic.layer.id === 'tu_id_de_capa'
-      //       )[0]
-
-      //       if (graphic) {
-      //         // 1. Extraemos los datos del polígono
-      //         const attributes = graphic.graphic.attributes
-
-      //         // 2. Preparamos el objeto para el modal (igual que el hoverInfo)
-      //         this.clickedStateData = {
-      //           name: attributes.NOMGEO, // O el nombre de tu campo
-      //           woman: attributes.total_mujeres,
-      //           man: attributes.total_hombres
-      //         }
-
-      //         // 3. Abrimos el modal
-      //         this.dialogState = true
-      //       }
-      //     }
-      //   })
-      // })
-      // ======================================================================================================================================
+      // await this.AddGeoJSONLayer({ url: 'https://sdti-ippi.github.io/SIEPI/multimedia/20192024/map_layers/puebla.geojson', color: [130, 130, 130, 0.1], type: 'files' })
+      // await this.AddGeoJSONLayer({ url: '/assets/WGS84_04.json', color: [184, 171, 155, 0.9], type: 'files' })
     },
 
     // ======================================================================================================================================
-    async handleSubmit_V1 (formData) {
-      // console.log('submit-->', formData)
-      this.dialog_loader.actived = true
-      this.dialog_loader.message = 'Por favor espere...'
-
-      this.category_details = []
-      await this.setSleep(500)
-
-      const sendData = {
-      // category_id: [1, 2, 3],
-      // state_id: [1, 2, 3]
-      // year_id: [24, 25, 26],
-      // gender_id: [1, 2],
-        category_id: [],
-        state_id: [],
-        year_id: [],
-        gender_id: []
-      }
-
-      if (formData.state_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
-        const ids = this.states
-          .filter(item => item.id !== 0)
-          .map(item => item.id)
-
-        sendData.state_id = ids
-      } else {
-        sendData.state_id = formData.state_id
-      }
-
-      if (formData.year_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
-        const ids = this.years
-          .filter(item => item.id !== 0)
-          .map(item => item.id)
-
-        sendData.year_id = ids
-      } else {
-        sendData.year_id = formData.year_id
-      }
-
-      if (formData.gender_id.includes(0)) { // Quitar { id: 0, title: 'Todos' }
-        const ids = this.genders
-          .filter(item => item.id !== 0)
-          .map(item => item.id)
-
-        sendData.gender_id = ids
-      } else {
-        sendData.gender_id = formData.gender_id
-      }
-
-      const categoryIds = formData.category_id
-        .filter(item => item !== 0)
-        .map(item => item)
-
-      if (!categoryIds.length) {
-        this.$store.dispatch('storeNotif/error', {
-          message: '¡Favor de seleccionar al menos una de las categorías disponobles!'
-        })
-        return
-      }
-      sendData.category_id = categoryIds
-      // console.log(sendData)
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}map?type=getdata`
-        const response = await axios.post(url, sendData)
-        console.log(response.data)
-        if (response.data.status === 200) {
-          // await this.setSleep(1000)
-          this.category_details = response.data.result
-        }
-      } catch (error) {
-        console.log(error)
-        console.log(error.response.data)
-      } finally {
-        this.dialog_loader.actived = false
-        this.dialog_loader.message = ''
-      }
-    },
     // ======================================================================================================================================
     async getGenders () {
-      // try {
       const url = `${process.env.VUE_APP_API_SERVER}genders?type=getdatabysector`
       const response = await axios.get(url)
       if (response.data.status === 200) {
         this.genders = response.data.result
         this.genders.unshift({ id: 0, title: 'Todos' })
       }
-      // } catch (error) {
-      //   console.log(error.response.data)
-      //   console.log(error)
-      // }
     },
     async getYears () {
-      // try {
       const url = `${process.env.VUE_APP_API_SERVER}years?type=getdatabysector`
       const response = await axios.get(url)
       if (response.data.status === 200) {
         this.years = response.data.result
         this.years.unshift({ id: 0, title: 'Todos' })
       }
-      // } catch (error) {
-      //   console.log(error.response.data)
-      //   console.log(error)
-      // }
     },
     async getStates () {
-      // try {
       const url = `${process.env.VUE_APP_API_SERVER}states?type=getdatabysector`
       const response = await axios.get(url)
       if (response.data.status === 200) {
         this.states = response.data.result
         this.states.unshift({ id: 0, title: 'Todos' })
       }
-      // } catch (error) {
-      //   console.log(error)
-      //   console.log(error.response.data)
-      // }
     },
     async getCategories (sendData) {
       try {
@@ -871,21 +769,16 @@ export default {
       }
     },
     async getIndicators () {
-      // try {
       const url = `${process.env.VUE_APP_API_SERVER}indicators?type=getwithdata`
       const response = await axios.get(url)
       if (response.data.success) {
         this.indicators = response.data.result
         // console.log('getIndicators ', this.indicators)
       }
-      // }
-      // catch (error) {
-      //   console.log(error)
-      // }
     },
 
+    // ======================================================================================================================================
     setShowCards (type) {
-      // console.log('setShowCards --> ', type)
       this.isCardOpen = type
     },
     async fetchGroupedData (payload) {
@@ -1104,7 +997,7 @@ export default {
       }
 
       // 3. Cargar catálogos base
-      // await this.loadCatalogs()
+      await this.loadCatalogs()
 
       // 4. MODALIDAD 2: validar parámetros
       await this.evaluateUrlParams()
@@ -1112,6 +1005,7 @@ export default {
       this.dialog_loader.actived = false
       this.dialog_loader.message = ''
     }
+
     // ======================================================================================================================================
   },
 
@@ -1168,9 +1062,9 @@ export default {
   },
   beforeMount () {},
   async mounted () {
-    // await this.loadDataMap()
-    // await this.initMap()
-    // await this.initApplication()
+    await this.loadDataMap()
+    await this.initMap()
+    await this.initApplication()
   },
   beforeUpdate () {},
   updated () {},

@@ -1,9 +1,10 @@
 <template>
   <div class="construction-wrapper">
-    <v-app-bar app dark elevation="10" clipped-left class="app-bar-gradient">
+    <!-- <v-app-bar app dark elevation="10" clipped-left class="app-bar-gradient">
       <custom-navbar />
       <v-spacer></v-spacer>
-    </v-app-bar>
+    </v-app-bar> -->
+    <header-comp/>
 
     <div class="content-wrapper d-flex flex-column justify-center align-center">
 
@@ -37,12 +38,14 @@
 </template>
 
 <script>
-import CustomNavbar from '@/components/map/CustomNavbar.vue'
+// import CustomNavbar from '@/components/CustomNavbar.vue'
+import HeaderComp from '@/components/HeaderComp.vue'
 
 export default {
   name: 'UnderConstructionView',
   components: {
-    CustomNavbar
+    // CustomNavbar,
+    HeaderComp
   }
 }
 </script>

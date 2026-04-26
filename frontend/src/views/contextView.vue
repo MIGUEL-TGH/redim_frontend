@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import CustomNavbar from '@/components/map/CustomNavbar.vue'
+import CustomNavbar from '@/components/CustomNavbar.vue'
 
 export default {
   // 1️⃣ Identificación

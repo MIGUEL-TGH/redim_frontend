@@ -1,9 +1,8 @@
 <template>
-  <div class="navbar-wrapper">
+  <div class="navbar-wrapper" @mouseenter="openMenu" @mouseleave="closeMenu">
 
     <v-btn @click="isOpen = !isOpen" :class="['menu-btn', isOpen ? 'btn-open' : 'btn-closed']" elevation="0" height="40">
       MENU
-      <!-- <v-icon right>{{ isOpen ? 'mdi-close' : 'mdi-menu' }}</v-icon> -->
     </v-btn>
 
     <v-expand-transition>
@@ -39,6 +38,7 @@ export default {
   data () {
     return {
       isOpen: false,
+      closeTimer: null,
       menuItems: [
         { text: 'INICIO', to: '/', color: '#efeee8' },
         { text: 'CONTEXTO', to: '/contexto', color: '#efeee8' },
@@ -58,7 +58,17 @@ export default {
   watch: {},
 
   // 5️⃣ Métodos
-  methods: {},
+  methods: {
+    openMenu () {
+      clearTimeout(this.closeTimer)
+      this.isOpen = true
+    },
+    closeMenu () {
+      this.closeTimer = setTimeout(() => {
+        this.isOpen = false
+      }, 150)
+    }
+  },
 
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
@@ -76,7 +86,7 @@ export default {
 </script>
 <style scoped>
   .navbar-wrapper {
-    margin-right: 15px; /* Separación con el texto REDIM */
+    margin-right: 15px;
   }
 
   /* ===============================
@@ -124,23 +134,23 @@ export default {
   }
 
   .nav-item::before {
-    display: none !important; /* Quitar el color gris del elemento */
+    display: none !important;
   }
 
   .nav-item {
     font-size: 1.1rem;
     font-weight: 600;
     text-align: center;
-    color: #ffffff; /* Aseguramos que el texto base sea blanco */
-    transition: color 0.3s ease; /* Transición suave al cambiar de color */
+    color: #ffffff;
+    transition: color 0.3s ease;
   }
 
   .nav-item:hover {
-    background-color: rgba(255, 255, 255, 0.15); /* Efecto hover sutil */
+    background-color: rgba(255, 255, 255, 0.15);
   }
 
   .v-list-item--active .nav-text {
-    color: #ffffff !important; /* Naranja primario de Niñez Primero */
+    color: #ffffff !important;
     font-weight: 900;
     /* text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5); */
     font-size: 1.15rem !important;
@@ -151,10 +161,10 @@ export default {
     font-weight: 600;
     text-align: center;
 
-    word-break: break-word; /* permite que las palabras se dividan si es necesario */
-    white-space: normal; /* permite los saltos de línea */
-    line-height: 1.2; /* mejora el espaciado entre líneas */
-    padding: 0 5px; /* opcional: margen interno para pantallas pequeñas */
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.2;
+    padding: 0 5px;
   }
 
   .nav-item:hover .nav-text {
