@@ -4,11 +4,17 @@ export default [
     component: () => import('@/layouts/dashboard.vue'),
     meta: { requiresAuth: true },
     children: [
+      // {
+      //   path: '',
+      //   name: 'DBInitView',
+      //   component: () => import('@/views/dashboard/InitView.vue'),
+      //   meta: { moduleName: 'welcome', title: 'Inicio - Panel' }
+      // },
       {
         path: '',
-        name: 'DBInitView',
-        component: () => import('@/views/dashboard/InitView.vue'),
-        meta: { moduleName: 'welcome', title: 'Inicio - Panel' }
+        name: 'DB_SESNSP_View',
+        component: () => import('@/views/dashboard/SESNSPView.vue'),
+        meta: { moduleName: 'welcome', title: 'SESNSP - Panel' }
       },
       {
         path: '/dashboard/users',
