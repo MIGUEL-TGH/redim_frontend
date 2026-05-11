@@ -36,7 +36,7 @@
         <v-dialog v-model="dialog_item.actived" scrollable max-width="500px" persistent>
           <v-card>
             <v-toolbar color="#9B162E" dark style="height: 43px !important;">
-              <div style="height: 43px !important; padding: 0 16 0 0px;">
+              <div style="height: 43px !important; padding: 0 16 0 0px; ">
                 {{dialog_item.title}}
               </div>
             </v-toolbar>

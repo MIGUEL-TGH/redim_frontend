@@ -23,6 +23,12 @@
                 <v-icon v-if="hasWritePermission" dense @click="reset({task:'get_item', item})" class="BtnHover" color="green"> mdi-pencil </v-icon>
               </template>
 
+              <!-- <template v-slot:item.status="{item}">
+                <v-switch :disabled="!hasWritePermission" v-model="item.status" @change="submit({task:'status_item', id:item.id, status: $event})"
+                  dense hide-details color="#246257" style="padding: 0px 0px 10px 0px !important;" label="">
+                </v-switch>
+              </template> -->
+
               <template v-slot:item.status="{item}">
                 <v-switch :disabled="!hasWritePermission" v-model="item.status" @change="submit({task:'status_item', id:item.id, status: $event})"
                   dense hide-details color="#246257" style="padding: 0px 0px 10px 0px !important;" label="">
@@ -35,45 +41,45 @@
       <template>
         <v-dialog v-model="dialog_item.actived" scrollable max-width="500px" persistent>
           <v-card>
-            <v-toolbar color="#9B162E" dark style="height: 43px !important;">
-              <div style="height: 43px !important; padding: 0 16 0 0px;">
+            <!-- <v-toolbar color="#9B162E" dark style="height: 43px !important;">
+              <div style="height: 43px !important; padding: 0 16 0 0px; text-overflow: ellipsis;">
                 {{dialog_item.title}}
               </div>
+            </v-toolbar> -->
+            <v-toolbar color="#9B162E" dark class="dialog-toolbar">
+              <div class="dialog-toolbar-title">
+                {{ dialog_item.title }}
+              </div>
             </v-toolbar>
-              <v-card-text style="max-height: 500px;">
-                <br>
-               <v-form v-form ref="form_item" @submit="onSubmit">
-                  <v-row no-gutters>
-                    <v-col cols="12" md="12" class="pa-1">
-                      <v-autocomplete :items="states" v-model="forms.state_id" :rules="rules.required" label="Estado:*"
-                        item-text="name" item-value="id" dense outlined color="#246257">
-                      </v-autocomplete>
-                    </v-col>
-                    <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.woman" :rules="rules.txt_10"
-                        counter maxlength="10" type="number" label="Estado:*" color="#246257">
-                      </v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.man" :rules="rules.txt_10"
-                        counter maxlength="10" type="number" label="Gentilicio:*" color="#246257">
-                      </v-text-field>
-                    </v-col>
-                    <!-- <v-col cols="12" md="12" class="pa-1">
-                      <v-text-field v-model="forms.iso_code" :rules="rules.txt_3"
-                        counter maxlength="3" type="text" label="Código ISO:*" color="#246257">
-                      </v-text-field>
-                    </v-col> -->
-                  </v-row>
-                </v-form>
-              </v-card-text>
-              <v-divider class="mx-4 pa-0 ma-1"></v-divider>
-              <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <!--- #9B162E #861E34  #AF1731  #246257--->
-                  <v-btn @click="reset({task:'close_item'})" elevation="5" color="#9B162E" class="text-white" small> cancelar </v-btn>
-                  <v-btn @click="submit({task: 'send_item'})" elevation="5" color="#246257" class="text-white" small> guardar </v-btn>
-              </v-card-actions>
+            <v-card-text style="max-height: 500px;">
+              <br>
+              <v-form ref="form_item" @submit="onSubmit">
+                <v-row no-gutters>
+                  <v-col cols="12" md="12" class="pa-1">
+                    <v-autocomplete :items="states" v-model="forms.state_id" :rules="rules.required" label="Estado:*"
+                      item-text="name" item-value="id" dense outlined color="#246257">
+                    </v-autocomplete>
+                  </v-col>
+                  <v-col cols="12" md="12" class="pa-1">
+                    <v-text-field v-model="forms.woman" :rules="rules.txt_4" label="Mujeres:*"
+                      counter maxlength="4" type="number" dense outlined color="#246257">
+                    </v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="12" class="pa-1">
+                    <v-text-field v-model="forms.man" :rules="rules.txt_4" label="Hombres:*"
+                      counter maxlength="4" type="number" dense outlined color="#246257">
+                    </v-text-field>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+            <v-divider class="mx-4 pa-0 ma-1"></v-divider>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <!--- #9B162E #861E34  #AF1731  #246257--->
+                <v-btn @click="reset({task:'close_item'})" elevation="5" color="#9B162E" class="text-white" small> cancelar </v-btn>
+                <v-btn @click="submit({task: 'send_item'})" elevation="5" color="#246257" class="text-white" small> guardar </v-btn>
+            </v-card-actions>
           </v-card>
         </v-dialog>
       </template>
@@ -118,8 +124,8 @@ export default {
           { text: 'Estado', value: 'state_name', class: 'bg-dark white--text' },
           { text: 'Mujeres', value: 'woman', class: 'bg-dark white--text' },
           { text: 'Hombres', value: 'man', class: 'bg-dark white--text' },
-          { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' }
-          // { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
+          { text: 'edit', value: 'acc', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'center' },
+          { text: '', value: 'status', sortable: false, width: '1%', class: 'bg-dark white--text', align: 'right' }
         ],
         items: []
       },
@@ -132,7 +138,8 @@ export default {
       forms: {
         state_id: null,
         woman: '',
-        man: ''
+        man: '',
+        status: true
       },
       params: {
         id: 0
@@ -144,10 +151,11 @@ export default {
           v => (v && v.length <= 50) || 'El nombre debe tener menos de 50 caracteres',
           v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,50}$/.test(v)) || 'El campo no debe contener carácteres especiales'
         ],
-        txt_3: [
-          v => !!v || 'Se requiere el campo',
-          v => (v && v.length <= 3) || 'El código ISO debe tener menos de 3 caracteres',
-          v => !v || (/^[\w\s-_.,áéíóúÁÉÍÓÚñÑ]{1,3}$/.test(v)) || 'El campo no debe contener carácteres especiales'
+        txt_4: [
+          // v => !!v || 'Se requiere el campo',
+          v => (v !== null && v !== undefined && v !== '') || 'Se requiere el campo',
+          v => /^\d+$/.test(v) || 'Solo se permiten números',
+          v => (Number(v) >= 0 && Number(v) <= 9999) || 'El valor debe estar entre 0 y 9999'
         ]
       }
     }
@@ -194,7 +202,7 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}sesnsp?type=getdata`
         const response = await axios.get(url)
-        console.log('getSESNSP()', response.data)
+        console.log('getSESNSP()', response.data.result)
         if (response.data.success) {
           this.dataTable.items = response.data.result
         }
@@ -211,9 +219,9 @@ export default {
         const url = `${process.env.VUE_APP_API_SERVER}states?type=getactive`
         const response = await axios.get(url)
         console.log('getStates()', response.data)
-        // if (response.data.success) {
-        //   this.dataTable.items = response.data.result
-        // }
+        if (response.data.success) {
+          this.states = response.data.result
+        }
       } catch (error) {
         console.log('getStates()', error.response.data)
         console.log('getStates()', error)
@@ -223,22 +231,6 @@ export default {
       }
     },
 
-    // async getCountries () {
-    //   try {
-    //     const url = `${process.env.VUE_APP_API_SERVER}countries?type=getactive`
-    //     const response = await axios.get(url)
-    //     // console.log(response.data.result)
-    //     if (response.data.success) {
-    //       this.countries = response.data.result
-    //     }
-    //   } catch (error) {
-    //     // console.log(error.response.data)
-    //     // console.log(error)
-    //     this.$store.dispatch('error', {
-    //       message: error.response?.data.message || error.message || error || 'Error en la operación'
-    //     })
-    //   }
-    // },
     async reset (value) {
       // console.log('reset -->' ,value)
       const RESET_ = {
@@ -252,18 +244,31 @@ export default {
         },
         get_item: async () => {
           const { /* task, */ item } = value
-          Object.keys(item).forEach(key => {
-            const itemValue = item[key]
-            if (Object.prototype.hasOwnProperty.call(this.forms, key)) {
-              this.forms[key] = itemValue
+
+          // Recorre SOLO las llaves que estan predefinidas en el formulario
+          Object.keys(this.forms).forEach(key => {
+            // Si el item de la fila seleccionada tiene esa llave, la copiamos
+            if (item[key] !== undefined) {
+              this.forms[key] = item[key]
             }
-            // console.log('key: ' + key, ' ----- value: ' + itemValue)
+          })
+
+          await this.setSleep(500)
+          console.log('Formulario dinámico listo:', this.forms)
+
+          // Abres el diálogo
+          this.dialog_item.actived = true
+
+          // Limpieza de validaciones
+          this.$nextTick(() => {
+            if (this.$refs.form) {
+              this.$refs.form.resetValidation()
+            }
           })
 
           this.params.id = item.id
           this.dialog_item.actived = true
-          const truncatedName = await this.truncateText({ text: item.name, maxLength: 45 })
-          this.dialog_item.title = 'Estado: ' + truncatedName
+          this.dialog_item.title = 'Estado: ' + item.state_name
         },
         close_item: async () => {
           if (this.$refs.form_item) {
@@ -279,14 +284,18 @@ export default {
       const SUBMIT = {
         send_item: async () => {
           if (!this.$refs.form_item.validate()) {
-            return this.$store.dispatch('error', { message: 'validar datos por favor' })
+            return this.$store.dispatch('storeNotif/error', {
+              message: '¡Por favor, valida los datos ingresados!'
+            })
           }
 
-          const result = await this.executeCrud(action)
-          if (result.success) {
-            await this.setSleep(500)
-            this.reset({ task: 'close_item' })
-          }
+          console.log('enviar datos')
+
+          // const result = await this.executeCrud(action)
+          // if (result.success) {
+          //   await this.setSleep(500)
+          //   this.reset({ task: 'close_item' })
+          // }
         },
         status_item: async () => {
           const result = await this.executeCrud(action)
@@ -329,4 +338,20 @@ export default {
 </script>
 <style scoped>
   /* Personalizar estilos aquí */
+  .dialog-toolbar {
+    height: 43px !important;
+  }
+
+  .dialog-toolbar ::v-deep .v-toolbar__content {
+    height: 43px !important;
+    padding: 0 16px;
+    /* height: 43px !important; padding: 0 16 0 0px; */
+  }
+
+  .dialog-toolbar-title {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 </style>

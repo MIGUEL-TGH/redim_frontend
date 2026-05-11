@@ -27,7 +27,7 @@ export default {
           data: result
         }
       } catch (error) {
-        // console.log(error)
+        console.log(error)
         // this.$store.dispatch('storeNotif/error', {
         //   message: error.response?.data.message || error.message || error || 'Error en la operación'
         // })
