@@ -202,13 +202,13 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}sesnsp?type=getdata`
         const response = await axios.get(url)
-        console.log('getSESNSP()', response.data.result)
+        // console.log('getSESNSP()', response.data.result)
         if (response.data.success) {
           this.dataTable.items = response.data.result
         }
       } catch (error) {
-        console.log('getSESNSP()', error.response.data)
-        console.log('getSESNSP()', error)
+        // console.log('getSESNSP()', error.response.data)
+        // console.log('getSESNSP()', error)
         this.$store.dispatch('error', {
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })
@@ -218,13 +218,12 @@ export default {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}states?type=getactive`
         const response = await axios.get(url)
-        console.log('getStates()', response.data)
         if (response.data.success) {
           this.states = response.data.result
         }
       } catch (error) {
-        console.log('getStates()', error.response.data)
-        console.log('getStates()', error)
+        // console.log('getStates()', error.response.data)
+        // console.log('getStates()', error)
         this.$store.dispatch('error', {
           message: error.response?.data.message || error.message || error || 'Error en la operación'
         })
@@ -289,13 +288,13 @@ export default {
             })
           }
 
-          console.log('enviar datos')
+          // console.log('enviar datos')
 
-          // const result = await this.executeCrud(action)
-          // if (result.success) {
-          //   await this.setSleep(500)
-          //   this.reset({ task: 'close_item' })
-          // }
+          const result = await this.executeCrud(action)
+          if (result.success) {
+            await this.setSleep(500)
+            this.reset({ task: 'close_item' })
+          }
         },
         status_item: async () => {
           const result = await this.executeCrud(action)

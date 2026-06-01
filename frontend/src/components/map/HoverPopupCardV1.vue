@@ -5,8 +5,10 @@
     <div class="deck-container">
 
       <div class="card-blue elevation-10">
-        <div class="mb-1 title-text">
-          {{ hoverInfo.sesnsp ? hoverInfo.sesnsp.name.toUpperCase() : '...' }}
+
+        <div class="text-h6 mb-1 title-text">
+          {{ hoverInfo.data ? hoverInfo.data.name.toUpperCase() : '...' }}
+          <!-- PUEBLA -->
         </div>
         <div class="mb-1 subtitle-text">
           Trata de personas de 0 a 17 años en México, 2025
@@ -14,48 +16,29 @@
 
         <v-row class="ma-0 stats-row" dense align="center" no-gutters>
           <v-col cols="6" class="text-center pa-1 stats-border-right">
-            <span class=" font-weight-bold">
-               {{ (hoverInfo.sesnsp && hoverInfo.sesnsp.woman) ? hoverInfo.sesnsp.woman : 0 }}
+            <span class="text-h6 font-weight-bold">
+               {{ (hoverInfo.data && hoverInfo.data.woman) ? hoverInfo.data.woman : 0 }}
+               <!-- 10 -->
             </span>
-            <span class=""> MUJERES </span>
+            <span class="text-h6"> MUJERES </span>
           </v-col>
           <v-col cols="6" class="text-center pa-1">
-            <span class=" font-weight-bold">
-               {{ (hoverInfo.sesnsp && hoverInfo.sesnsp.man) ? hoverInfo.sesnsp.man : 0 }}
+            <span class="text-h6 font-weight-bold">
+               {{ (hoverInfo.data && hoverInfo.data.man) ? hoverInfo.data.man : 0 }}
+                <!-- 25 -->
             </span>
-            <span class=""> HOMBRES </span>
+            <span class="text-h6"> HOMBRES </span>
           </v-col>
         </v-row>
 
-        <div class="text-right">
+        <div class="text-right mt-1">
           <em class="source-text"> SESNSP </em>
         </div>
       </div>
 
       <div class="card-white-wrapper elevation-5">
-        <div class="card-white" >
-          <div class="mb-1 subtitle-text-white">
-            Reclutamiento de niños y adolescentes en México, 2025
-          </div>
-
-          <v-row class="ma-0 stats-row" dense align="center" no-gutters>
-            <v-col cols="6" class="text-center pa-1 stats-border-right-white">
-              <span class="font-weight-bold">
-                {{ (hoverInfo.delitos && hoverInfo.delitos.woman) ? hoverInfo.delitos.woman : 0 }}
-              </span>
-              <span class=""> MUJERES </span>
-            </v-col>
-            <v-col cols="6" class="text-center pa-1">
-              <span class="font-weight-bold">
-                {{ (hoverInfo.delitos && hoverInfo.delitos.man) ? hoverInfo.delitos.man : 0 }}
-              </span>
-              <span class=""> HOMBRES </span>
-            </v-col>
-          </v-row>
-
-          <div class="text-right ">
-            <em class="source-text"> CNSIPEE </em>
-          </div>
+        <div class="card-white d-flex justify-center align-center">
+          <span class="font-weight-bold">MÁS INFORMACIÓN +</span>
         </div>
       </div>
 
@@ -148,24 +131,14 @@ export default {
   font-size: 0.7rem !important;
 }
 
-.subtitle-text-white {
-  /* color: #ffffff; Blanco-gris para contrastar suavemente */
-  line-height: 1.5;
-  font-size: 0.7rem !important;
-}
-
-.stats-border-right {
-  border-right: 2px solid rgba(255, 255, 255, 0.2);
-}
-
 /* .stats-row {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
 } */
 
-.stats-border-right-white {
-  border-right: 2px solid rgba(52, 42, 131, 0.2);
+.stats-border-right {
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .source-text {
@@ -185,10 +158,8 @@ export default {
 }
 
 .card-white {
-  color: #342a83;
-  padding: 15px;
-  padding-bottom: 0;
-  position: relative;
+  color: #342a83; /* Texto azul para combinar */
+  font-size: 15px;
 }
 
 </style>

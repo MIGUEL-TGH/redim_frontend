@@ -106,14 +106,15 @@ export default {
         { title: 'Inicio', icon: 'mdi-view-dashboard', route: '/dashboard/', module: 'welcome' },
         { title: 'Mi Perfil', icon: 'mdi-account', route: '/dashboard/my_profile', module: 'my_profile' },
         { title: 'Usuarios', icon: 'mdi-account-group', route: '/dashboard/users', module: 'users' },
-        { title: 'Población', icon: 'mdi-account-group', route: '/dashboard/indicators', module: 'indicators' },
+        { title: 'Población', icon: 'mdi-human-male-female-child', route: '/dashboard/indicators', module: 'indicators' },
         { title: 'Tipo de Delito', icon: 'mdi-shield-alert', route: '/dashboard/indicator_categories', module: 'indicator_categories' },
         { title: 'Info Tipo de Delito', icon: 'mdi-chart-box', route: '/dashboard/indicator_category_details', module: 'indicator_category_details' },
         { title: 'Centros', icon: 'mdi-office-building', route: '/dashboard/centers', module: 'centers' },
         { title: 'Estados', icon: 'mdi-map', route: '/dashboard/states', module: 'states' },
         { title: 'Países', icon: 'mdi-earth', route: '/dashboard/countries', module: 'countries' },
         { title: 'Sexo', icon: 'mdi-gender-male-female', route: '/dashboard/genders', module: 'genders' },
-        { title: 'Años', icon: 'mdi-calendar-range', route: '/dashboard/years', module: 'years' }
+        { title: 'Años', icon: 'mdi-calendar-range', route: '/dashboard/years', module: 'years' },
+        { title: 'SESNSP', icon: 'mdi-human-child', route: '/dashboard/sesnsp', module: 'sesnsp' }
       ],
 
       // Variables para inactividad

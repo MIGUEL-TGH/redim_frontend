@@ -65,13 +65,13 @@
       </v-dialog>
 
       <!-- <div ref="hoverPopup" v-show="hoverInfo.show" class="custom-hover-popup elevation-5" style="position: absolute; top: 0; left: 0; will-change: transform;" >
-        <div class="font-weight-bold">{{ hoverInfo.sesnsp ? hoverInfo.sesnsp.name : '...' }}</div>
+        <div class="font-weight-bold">{{ hoverInfo.data ? hoverInfo.data.name : '...' }}</div>
          <v-divider class="my-1"></v-divider>
         <div class="caption">
           <strong> SESNSP, Trata de personas de 0 a 17 años en México, 2025 </strong> <br>
-          <strong> {{ hoverInfo.sesnsp ? hoverInfo.sesnsp.name : '...' }} </strong> <br>
-          Hombres: {{ hoverInfo.sesnsp ? hoverInfo.sesnsp.man : 0 }}<br>
-          Mujeres: {{ hoverInfo.sesnsp ? hoverInfo.sesnsp.woman : 0 }}
+          <strong> {{ hoverInfo.data ? hoverInfo.data.name : '...' }} </strong> <br>
+          Hombres: {{ hoverInfo.data ? hoverInfo.data.man : 0 }}<br>
+          Mujeres: {{ hoverInfo.data ? hoverInfo.data.woman : 0 }}
         </div>
       </div> -->
 
@@ -99,8 +99,8 @@ import viewNotificationsComp from '@/components/dashboard/viewNotifications.vue'
 import StackCards from '@/components/map/StackCards.vue'
 import LogosCards from '@/components/map/LogosCards.vue'
 import LeftFilterDeck from '@/components/map/LeftFilterDeck.vue'
-import HoverPopupCard from '@/components/map/HoverPopupCard.vue'
-import StateDetailsDialog from '@/components/map/StateDetailsDialog.vue'
+import HoverPopupCard from '@/components/map/HoverPopupCardV1.vue'
+import StateDetailsDialog from '@/components/map/StateDetailsDialogV1.vue'
 
 import '@/assets/css/style_maps.css'
 import '@/assets/css/style_notifications.css'
@@ -197,16 +197,13 @@ export default {
         show: false,
         x: 0,
         y: 0,
-        data: null,
-        sesnsp: null,
-        delitos: null
+        data: null
       },
       dataSESNSP: [],
-      dataDELITOS: [],
       // =========================================================================
       // vue
       dialog_rules: {
-        actived: false,
+        actived: true,
         message: '',
         image: '@/assets/logos/NiñezPrimero-Placa.png'
       },
@@ -304,78 +301,42 @@ export default {
 
     async loadDataMap () {
       // SESNSP, Trata de personas de 0 a 17 años en México, 2025
-      // const dataSESNSP = [
-      //   { id: 1, name: 'Aguascalientes', man: 0, woman: 1, cve_ent: 1 },
-      //   { id: 2, name: 'Baja California', man: 4, woman: 12, cve_ent: 2 },
-      //   { id: 3, name: 'Baja California Sur', man: 3, woman: 4, cve_ent: 3 },
-      //   { id: 4, name: 'Campeche', man: 0, woman: 1, cve_ent: 4 },
-      //   { id: 5, name: 'Chiapas', man: 2, woman: 4, cve_ent: 7 },
-      //   { id: 6, name: 'Chihuahua', man: 13, woman: 21, cve_ent: 8 },
-      //   { id: 7, name: 'Ciudad de México', man: 6, woman: 16, cve_ent: 9 },
-      //   { id: 8, name: 'Coahuila de Zaragoza', man: 1, woman: 2, cve_ent: 5 },
-      //   { id: 9, name: 'Colima', man: 0, woman: 0, cve_ent: 6 },
-      //   { id: 10, name: 'Durango', man: 0, woman: 0, cve_ent: 10 },
-      //   { id: 11, name: 'Guanajuato', man: 2, woman: 3, cve_ent: 11 },
-      //   { id: 12, name: 'Guerrero', man: 3, woman: 12, cve_ent: 12 },
-      //   { id: 13, name: 'Hidalgo', man: 0, woman: 3, cve_ent: 13 },
-      //   { id: 14, name: 'Jalisco', man: 5, woman: 0, cve_ent: 14 },
-      //   { id: 15, name: 'México', man: 11, woman: 31, cve_ent: 15 },
-      //   { id: 16, name: 'Michoacán de Ocampo', man: 0, woman: 1, cve_ent: 16 },
-      //   { id: 17, name: 'Morelos', man: 0, woman: 3, cve_ent: 17 },
-      //   { id: 18, name: 'Nayarit', man: 0, woman: 1, cve_ent: 18 },
-      //   { id: 19, name: 'Nuevo León', man: 0, woman: 7, cve_ent: 19 },
-      //   { id: 20, name: 'Oaxaca', man: 3, woman: 6, cve_ent: 20 },
-      //   { id: 21, name: 'Puebla', man: 5, woman: 5, cve_ent: 21 },
-      //   { id: 22, name: 'Querétaro', man: 0, woman: 0, cve_ent: 22 },
-      //   { id: 23, name: 'Quintana Roo', man: 17, woman: 53, cve_ent: 23 },
-      //   { id: 24, name: 'San Luis Potosí', man: 0, woman: 11, cve_ent: 24 },
-      //   { id: 25, name: 'Sinaloa', man: 0, woman: 0, cve_ent: 25 },
-      //   { id: 26, name: 'Sonora', man: 1, woman: 2, cve_ent: 26 },
-      //   { id: 27, name: 'Tabasco', man: 0, woman: 5, cve_ent: 27 },
-      //   { id: 28, name: 'Tamaulipas', man: 0, woman: 3, cve_ent: 28 },
-      //   { id: 29, name: 'Tlaxcala', man: 0, woman: 0, cve_ent: 29 },
-      //   { id: 30, name: 'Veracruz de Ignacio de la Llave', man: 2, woman: 2, cve_ent: 30 },
-      //   { id: 31, name: 'Yucatán', man: 0, woman: 0, cve_ent: 31 },
-      //   { id: 32, name: 'Zacatecas', man: 2, woman: 12, cve_ent: 32 }
-      // ]
-
-      const dataDELITOS = [
+      const data = [
         { id: 1, name: 'Aguascalientes', man: 0, woman: 1, cve_ent: 1 },
-        { id: 2, name: 'Baja California', man: 2, woman: 3, cve_ent: 2 },
-        { id: 3, name: 'Baja California Sur', man: 3, woman: 5, cve_ent: 3 },
-        { id: 4, name: 'Campeche', man: 6, woman: 7, cve_ent: 4 },
+        { id: 2, name: 'Baja California', man: 4, woman: 12, cve_ent: 2 },
+        { id: 3, name: 'Baja California Sur', man: 3, woman: 4, cve_ent: 3 },
+        { id: 4, name: 'Campeche', man: 0, woman: 1, cve_ent: 4 },
         { id: 5, name: 'Chiapas', man: 2, woman: 4, cve_ent: 7 },
-        { id: 6, name: 'Chihuahua', man: 8, woman: 9, cve_ent: 8 },
-        { id: 7, name: 'Ciudad de México', man: 10, woman: 11, cve_ent: 9 },
-        { id: 8, name: 'Coahuila de Zaragoza', man: 12, woman: 13, cve_ent: 5 },
-        { id: 9, name: 'Colima', man: 14, woman: 15, cve_ent: 6 },
-        { id: 10, name: 'Durango', man: 16, woman: 17, cve_ent: 10 },
-        { id: 11, name: 'Guanajuato', man: 18, woman: 19, cve_ent: 11 },
-        { id: 12, name: 'Guerrero', man: 20, woman: 21, cve_ent: 12 },
-        { id: 13, name: 'Hidalgo', man: 22, woman: 23, cve_ent: 13 },
-        { id: 14, name: 'Jalisco', man: 24, woman: 25, cve_ent: 14 },
-        { id: 15, name: 'México', man: 26, woman: 27, cve_ent: 15 },
-        { id: 16, name: 'Michoacán de Ocampo', man: 28, woman: 29, cve_ent: 16 },
-        { id: 17, name: 'Morelos', man: 30, woman: 31, cve_ent: 17 },
-        { id: 18, name: 'Nayarit', man: 32, woman: 33, cve_ent: 18 },
-        { id: 19, name: 'Nuevo León', man: 34, woman: 35, cve_ent: 19 },
-        { id: 20, name: 'Oaxaca', man: 36, woman: 37, cve_ent: 20 },
-        { id: 21, name: 'Puebla', man: 38, woman: 39, cve_ent: 21 },
-        { id: 22, name: 'Querétaro', man: 40, woman: 41, cve_ent: 22 },
-        { id: 23, name: 'Quintana Roo', man: 42, woman: 43, cve_ent: 23 },
-        { id: 24, name: 'San Luis Potosí', man: 44, woman: 45, cve_ent: 24 },
-        { id: 25, name: 'Sinaloa', man: 46, woman: 47, cve_ent: 25 },
-        { id: 26, name: 'Sonora', man: 48, woman: 49, cve_ent: 26 },
-        { id: 27, name: 'Tabasco', man: 50, woman: 51, cve_ent: 27 },
-        { id: 28, name: 'Tamaulipas', man: 52, woman: 53, cve_ent: 28 },
-        { id: 29, name: 'Tlaxcala', man: 54, woman: 55, cve_ent: 29 },
-        { id: 30, name: 'Veracruz de Ignacio de la Llave', man: 56, woman: 57, cve_ent: 30 },
-        { id: 31, name: 'Yucatán', man: 58, woman: 59, cve_ent: 31 },
-        { id: 32, name: 'Zacatecas', man: 60, woman: 61, cve_ent: 32 }
+        { id: 6, name: 'Chihuahua', man: 13, woman: 21, cve_ent: 8 },
+        { id: 7, name: 'Ciudad de México', man: 6, woman: 16, cve_ent: 9 },
+        { id: 8, name: 'Coahuila de Zaragoza', man: 1, woman: 2, cve_ent: 5 },
+        { id: 9, name: 'Colima', man: 0, woman: 0, cve_ent: 6 },
+        { id: 10, name: 'Durango', man: 0, woman: 0, cve_ent: 10 },
+        { id: 11, name: 'Guanajuato', man: 2, woman: 3, cve_ent: 11 },
+        { id: 12, name: 'Guerrero', man: 3, woman: 12, cve_ent: 12 },
+        { id: 13, name: 'Hidalgo', man: 0, woman: 3, cve_ent: 13 },
+        { id: 14, name: 'Jalisco', man: 5, woman: 0, cve_ent: 14 },
+        { id: 15, name: 'México', man: 11, woman: 31, cve_ent: 15 },
+        { id: 16, name: 'Michoacán de Ocampo', man: 0, woman: 1, cve_ent: 16 },
+        { id: 17, name: 'Morelos', man: 0, woman: 3, cve_ent: 17 },
+        { id: 18, name: 'Nayarit', man: 0, woman: 1, cve_ent: 18 },
+        { id: 19, name: 'Nuevo León', man: 0, woman: 7, cve_ent: 19 },
+        { id: 20, name: 'Oaxaca', man: 3, woman: 6, cve_ent: 20 },
+        { id: 21, name: 'Puebla', man: 5, woman: 5, cve_ent: 21 },
+        { id: 22, name: 'Querétaro', man: 0, woman: 0, cve_ent: 22 },
+        { id: 23, name: 'Quintana Roo', man: 17, woman: 53, cve_ent: 23 },
+        { id: 24, name: 'San Luis Potosí', man: 0, woman: 11, cve_ent: 24 },
+        { id: 25, name: 'Sinaloa', man: 0, woman: 0, cve_ent: 25 },
+        { id: 26, name: 'Sonora', man: 1, woman: 2, cve_ent: 26 },
+        { id: 27, name: 'Tabasco', man: 0, woman: 5, cve_ent: 27 },
+        { id: 28, name: 'Tamaulipas', man: 0, woman: 3, cve_ent: 28 },
+        { id: 29, name: 'Tlaxcala', man: 0, woman: 0, cve_ent: 29 },
+        { id: 30, name: 'Veracruz de Ignacio de la Llave', man: 2, woman: 2, cve_ent: 30 },
+        { id: 31, name: 'Yucatán', man: 0, woman: 0, cve_ent: 31 },
+        { id: 32, name: 'Zacatecas', man: 2, woman: 12, cve_ent: 32 }
       ]
 
-      // this.dataSESNSP = dataSESNSP
-      this.dataDELITOS = dataDELITOS
+      this.dataSESNSP = data
     },
     async clickLayers () {
       // 1. Asegurarnos de que el arreglo de capas interactivas existe
@@ -559,11 +520,10 @@ export default {
               // 6. Actualización de la Información del Pop-up
               this.view.container.style.cursor = 'pointer'
               const cveEntNum = Number(cveEnt)
-
-              const stateSESNSP = this.dataSESNSP.find(s => s.cve_ent === cveEntNum)
-              // console.log('stateSESNSP:', stateSESNSP)
-              if (stateSESNSP) {
-                this.hoverInfo.sesnsp = stateSESNSP || { nombre: graphic.attributes.NOMGEO }
+              const stateData = this.dataSESNSP.find(s => s.cve_ent === cveEntNum)
+              if (stateData) {
+                // console.log(`Hover sobre ${stateData.name}: Hombres=${stateData.man}, Mujeres=${stateData.woman}`)
+                this.hoverInfo.data = stateData || { nombre: graphic.attributes.NOMGEO }
                 this.hoverInfo.show = true
 
                 // Cuando el elemento html esta en ArcGISMapView.vue (en el mismo componente)
@@ -573,15 +533,6 @@ export default {
                 this.$refs.hoverPopup.$el.style.transform = `translate(${event.x + 50}px, ${event.y + -50}px)`
               } else {
                 this.hoverInfo.show = false
-                this.hoverInfo.sesnsp = null
-              }
-
-              const stateDELITOS = this.dataDELITOS.find(s => s.cve_ent === cveEntNum)
-              // console.log('stateDELITOS:', stateDELITOS)
-              if (stateDELITOS) {
-                this.hoverInfo.delitos = stateDELITOS
-              } else {
-                this.hoverInfo.delitos = null
               }
             }
           } else {
@@ -1139,7 +1090,7 @@ export default {
   },
   beforeMount () {},
   async mounted () {
-    await this.loadDataMap()
+    // await this.loadDataMap()
     await this.getSESNSP()
     await this.initMap()
     await this.initApplication()

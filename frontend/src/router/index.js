@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 // import HomeView from '../views/MainView.vue'
+// import MapView from '../views/ArcGISMapView_v3.vue'
 import MapView from '../views/ArcGISMapView.vue'
 import RoutesDashBoard from './RoutesDashBoard'
 import store from '../store'
@@ -26,6 +27,12 @@ const routes = [
     name: 'MapView',
     component: () => import('../views/ArcGISMapView.vue'),
     meta: { title: 'Mapa' }
+  },
+  {
+    path: '/mapa_v1',
+    name: 'MapViewV1',
+    component: () => import('../views/ArcGISMapView_v3.vue'),
+    meta: { title: 'Mapa V1' }
   },
   {
     path: '/administrator',
