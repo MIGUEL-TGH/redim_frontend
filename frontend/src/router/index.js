@@ -50,19 +50,19 @@ const routes = [
   {
     path: '/voces',
     name: 'vocesView',
-    component: () => import('../views/UnderConstructionView.vue'),
+    component: () => import('../views/VocesView1.vue'),
     meta: { title: 'Voces' }
   },
   {
     path: '/miradas',
     name: 'MiradasView',
-    component: () => import('../views/UnderConstructionView.vue'),
+    component: () => import('../views/MiradasView.vue'),
     meta: { title: 'Miradas' }
   },
   {
     path: '/tv-ninez-primero',
     name: 'TVNinezPrimeroView',
-    component: () => import('../views/UnderConstructionView.vue'),
+    component: () => import('../views/TVView.vue'),
     meta: { title: 'TV Niñez Primero' }
   },
   {
@@ -74,7 +74,7 @@ const routes = [
   {
     path: '/recursos',
     name: 'RecursosView',
-    component: () => import('../views/UnderConstructionView.vue'),
+    component: () => import('../views/RecursosView.vue'),
     meta: { title: 'Recursos' }
   },
   {
