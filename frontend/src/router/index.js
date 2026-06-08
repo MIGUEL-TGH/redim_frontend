@@ -43,14 +43,14 @@ const routes = [
   // ===================================================================================
   {
     path: '/contexto',
-    name: 'contextView',
-    component: () => import('../views/UnderConstructionView.vue'),
+    name: 'ContextoView',
+    component: () => import('../views/ContextoView.vue'),
     meta: { title: 'Contexto' }
   },
   {
     path: '/voces',
     name: 'vocesView',
-    component: () => import('../views/VocesView1.vue'),
+    component: () => import('../views/VocesView.vue'),
     meta: { title: 'Voces' }
   },
   {
