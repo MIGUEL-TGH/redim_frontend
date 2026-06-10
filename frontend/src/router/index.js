@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-// import HomeView from '../views/MainView.vue'
+import HomeView from '../views/MainView.vue'
 // import MapView from '../views/ArcGISMapView_v3.vue'
-import MapView from '../views/ArcGISMapView.vue'
+// import MapView from '../views/ArcGISMapView.vue'
 import RoutesDashBoard from './RoutesDashBoard'
 import store from '../store'
 
@@ -10,18 +10,18 @@ Vue.use(VueRouter)
 
 const routes = [
   ...RoutesDashBoard,
-  // {
-  //   path: '/',
-  //   name: 'home',
-  //   component: HomeView,
-  //   meta: { title: 'Inicio' }
-  // },
   {
     path: '/',
     name: 'home',
-    component: MapView,
-    meta: { title: 'Mapa' }
+    component: HomeView,
+    meta: { title: 'Inicio' }
   },
+  // {
+  //   path: '/',
+  //   name: 'home',
+  //   component: MapView,
+  //   meta: { title: 'Mapa' }
+  // },
   {
     path: '/mapa',
     name: 'MapView',

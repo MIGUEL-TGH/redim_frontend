@@ -3,147 +3,146 @@
     <!-- ===== Barra superior con menú ===== -->
     <header-comp />
 
-    <!-- ===== Cuerpo con degradado (crema arriba ~55% / café abajo ~45%) ===== -->
+    <!-- ===== Cuerpo: fondo original crema→café (fondo-contexto.png) ===== -->
     <div class="contexto-main">
-      <!-- Capas de fondo sobrepuestas (decorativas) -->
-      <img :src="manosContexto" class="bg-manos" alt="" aria-hidden="true">
-      <img :src="consumidorContexto" class="bg-consumidor" alt="" aria-hidden="true">
+      <div class="contexto-frame">
+        <div class="contexto-inner">
+          <!-- Título -->
+          <h1 class="contexto-title">CONTEXTO</h1>
 
-      <div class="contexto-inner">
-        <!-- Título -->
-        <h1 class="contexto-title">CONTEXTO</h1>
-
-        <!-- ===== Sección 1: Contexto ===== -->
-        <section class="ctx-section ctx-section--intro">
-          <div class="ctx-visual">
-            <img :src="mariposasContexto" class="sec1-img" alt="" aria-hidden="true">
-            <context-card
-              class="card-floating card-mariposa"
-              title="LA MARIPOSA"
-              header-color="#342a83"
-              :body="cards.mariposa"
-              @expand="onExpand"
-            />
-          </div>
-          <div class="ctx-text ctx-text--right">
-            <h2 class="ctx-heading">
-              Contexto sobre trata, reclutamiento y
-              utilización de niñas, niños y adolescentes
-              en actividades lícitas e ilícitas en México
-            </h2>
-            <p class="ctx-paragraph">
-              La trata y el reclutamiento de niñas, niños y adolescentes
-              es más común de lo que parece. Aquí te explicamos
-              cómo sucede, cómo identificarlo, qué está pasando en tu
-              estado y qué puedes hacer para prevenirlo.
-            </p>
-            <button type="button" class="leer-mas" @click="onExpand('Contexto')">LEER MÁS <span>+</span></button>
-          </div>
-        </section>
-
-        <!-- ===== Sección 2: Mitos y realidades ===== -->
-        <section class="ctx-section">
-          <div class="ctx-visual">
-            <img :src="mariposaRecursos" class="sec2-img" alt="" aria-hidden="true">
-          </div>
-          <div class="ctx-text">
-            <h2 class="ctx-heading">Mitos y realidades</h2>
-            <p class="ctx-paragraph">
-              Estos son algunos mitos y realidades en torno a la
-              trata, reclutamiento y utilización de niñas, niños y
-              adolescentes en México
-            </p>
-            <button type="button" class="leer-mas" @click="onExpand('Mitos y realidades')">LEER MÁS <span>+</span></button>
-          </div>
-        </section>
-
-        <!-- ===== Sección 3: Lo que pasa en mi estado ===== -->
-        <section class="ctx-section">
-          <div class="ctx-visual">
-            <div class="overlap-images">
-              <img :src="manoContexto1" class="overlap-img overlap-1" alt="" aria-hidden="true">
-              <img :src="crisalidaContexto1" class="overlap-img overlap-2" alt="" aria-hidden="true">
-              <img :src="manoContexto2" class="overlap-img overlap-3" alt="" aria-hidden="true">
+          <!-- ===== Sección 1: Contexto (manos mariposa + tarjeta LA MARIPOSA) ===== -->
+          <section class="ctx-section ctx-section--intro">
+            <div class="ctx-visual">
+              <img :src="mariposasContexto" class="hero-manos" alt="" aria-hidden="true">
+              <context-card
+                class="card-floating card-mariposa"
+                title="LA MARIPOSA"
+                header-color="#342a83"
+                :body="cards.mariposa"
+                @expand="onExpand"
+              />
             </div>
+            <div class="ctx-text">
+              <h2 class="ctx-heading">
+                Contexto sobre trata, reclutamiento y
+                utilización de niñas, niños y adolescentes
+                en actividades lícitas e ilícitas en México
+              </h2>
+              <p class="ctx-paragraph">
+                La trata y el reclutamiento de niñas, niños y adolescentes
+                es más común de lo que parece. Aquí te explicamos
+                cómo sucede, cómo identificarlo, qué está pasando en tu
+                estado y qué puedes hacer para prevenirlo.
+              </p>
+              <button type="button" class="leer-mas" @click="onExpand('Contexto')">LEER MÁS <span>+</span></button>
+            </div>
+          </section>
+
+          <!-- ===== Sección 2: Mitos y realidades (estela de mariposas) ===== -->
+          <section class="ctx-section">
+            <div class="ctx-visual">
+              <img :src="mariposaRecursos" class="sec2-img" alt="" aria-hidden="true">
+            </div>
+            <div class="ctx-text">
+              <h2 class="ctx-heading">Mitos y realidades</h2>
+              <p class="ctx-paragraph">
+                Estos son algunos mitos y realidades en torno a la
+                trata, reclutamiento y utilización de niñas, niños y
+                adolescentes en México
+              </p>
+              <button type="button" class="leer-mas" @click="onExpand('Mitos y realidades')">LEER MÁS <span>+</span></button>
+            </div>
+          </section>
+
+          <!-- ===== Sección 3: Lo que pasa en mi estado (saco con crías + manos) ===== -->
+          <section class="ctx-section">
+            <div class="ctx-visual sack-scene">
+              <img :src="manoContexto1" class="sack-mano-1" alt="" aria-hidden="true">
+              <img :src="crisalidaContexto1" class="sack-img" alt="" aria-hidden="true">
+              <img :src="manoContexto2" class="sack-mano-2" alt="" aria-hidden="true">
+              <context-card
+                class="card-floating card-senales"
+                title="SEÑALES DE ALERTA"
+                header-color="#342a83"
+                :body="cards.senales"
+                @expand="onExpand"
+              />
+            </div>
+            <div class="ctx-text">
+              <h2 class="ctx-heading">Lo que pasa en mi estado</h2>
+              <p class="ctx-paragraph">
+                La trata de personas y el reclutamiento de niñas, niños y
+                adolescentes afectan distintos territorios de México de
+                maneras particulares, pero comparten causas estructurales
+                como la violencia, la desigualdad, la impunidad, la
+                discriminación y la falta de acceso a derechos.
+              </p>
+              <button type="button" class="leer-mas" @click="onExpand('Lo que pasa en mi estado')">LEER MÁS <span>+</span></button>
+            </div>
+          </section>
+
+          <!-- ===== Sección 4: Campaña Niñez Primero (tarjeta TRATA) ===== -->
+          <section class="ctx-section ctx-section--campaign">
+            <div class="ctx-visual">
+              <context-card
+                class="card-floating card-trata"
+                title="TRATA"
+                header-color="#342a83"
+                :body="cards.trata"
+                @expand="onExpand"
+              />
+            </div>
+            <div class="ctx-text">
+              <h2 class="ctx-heading">Campaña “Niñez Primero”</h2>
+              <p class="ctx-paragraph">
+                #NiñezPrimero es una campaña impulsada por la Red
+                por los Derechos de la Infancia en México (REDIM) y el
+                CAM, con apoyo de la Unión Europea, junto a organizaciones
+                aliadas para visibilizar, prevenir y atender la trata
+                de personas, reclutamiento y utilización de niñas, niños
+                y adolescentes por grupos delictivos en México.
+              </p>
+              <button type="button" class="leer-mas" @click="onExpand('Campaña Niñez Primero')">LEER MÁS <span>+</span></button>
+            </div>
+          </section>
+
+          <!-- ===== Escena café: criaturas, marañas de brazos, crisálida y monumento ===== -->
+          <div class="cafe-block">
+            <!-- Capas decorativas (proporciones del mockup a 1920px) -->
+            <img :src="manosContexto" class="cafe-manos" alt="" aria-hidden="true">
+            <img :src="trataContexto" class="cafe-creature cafe-trata" alt="" aria-hidden="true">
+            <img :src="reclutamientoContexto" class="cafe-creature cafe-recl" alt="" aria-hidden="true">
+            <img :src="crisalidaColgante" class="cafe-crisalida" alt="" aria-hidden="true">
+            <img :src="consumidorContexto" class="cafe-monumento" alt="" aria-hidden="true">
+
+            <!-- Tarjetas flotantes sobre la escena café -->
             <context-card
-              class="card-floating card-senales"
-              title="SEÑALES DE ALERTA"
+              class="card-floating card-reclutamiento"
+              title="EL RECLUTAMIENTO"
               header-color="#342a83"
-              :body="cards.senales"
+              :body="cards.reclutamiento"
               @expand="onExpand"
             />
-          </div>
-          <div class="ctx-text">
-            <h2 class="ctx-heading">Lo que pasa en mi estado</h2>
-            <p class="ctx-paragraph">
-              La trata de personas y el reclutamiento de niñas, niños y
-              adolescentes afectan distintos territorios de México de
-              maneras particulares, pero comparten causas estructurales
-              como la violencia, la desigualdad, la impunidad, la
-              discriminación y la falta de acceso a derechos.
-            </p>
-            <button type="button" class="leer-mas" @click="onExpand('Lo que pasa en mi estado')">LEER MÁS <span>+</span></button>
-          </div>
-        </section>
-
-        <!-- ===== Sección 4: Campaña Niñez Primero (texto a la derecha) ===== -->
-        <section class="ctx-section ctx-section--campaign">
-          <div class="ctx-visual">
             <context-card
-              class="card-floating card-trata"
-              title="TRATA"
-              header-color="#6a3d8f"
-              :body="cards.trata"
+              class="card-floating card-crisalida"
+              title="LA CRISÁLIDA"
+              header-color="#342a83"
+              :body="cards.crisalida"
+              @expand="onExpand"
+            />
+            <context-card
+              class="card-floating card-consumidor"
+              title="EL CONSUMIDOR"
+              header-color="#342a83"
+              :body="cards.consumidor"
               @expand="onExpand"
             />
           </div>
-          <div class="ctx-text ctx-text--right">
-            <h2 class="ctx-heading">Campaña “Niñez Primero”</h2>
-            <p class="ctx-paragraph">
-              #NiñezPrimero es una campaña impulsada por la Red
-              por los Derechos de la Infancia en México (REDIM) y el
-              CAM, con apoyo de la Unión Europea, junto a organizaciones
-              aliadas para visibilizar, prevenir y atender la trata
-              de personas, reclutamiento y utilización de niñas, niños
-              y adolescentes por grupos delictivos en México.
-            </p>
-            <button type="button" class="leer-mas" @click="onExpand('Campaña Niñez Primero')">LEER MÁS <span>+</span></button>
-          </div>
-        </section>
-
-        <!-- ===== Escena café: criaturas (fondo) + tarjetas flotantes ===== -->
-        <div class="cafe-block">
-          <!-- Criaturas decorativas (funcionan como fondo) -->
-          <img :src="trataContexto" class="cafe-creature cafe-trata" alt="" aria-hidden="true">
-          <img :src="reclutamientoContexto" class="cafe-creature cafe-recl" alt="" aria-hidden="true">
-
-          <!-- Tarjetas flotantes sobre la escena café -->
-          <context-card
-            class="card-floating card-reclutamiento"
-            title="EL RECLUTAMIENTO"
-            header-color="#6a3d8f"
-            :body="cards.reclutamiento"
-            @expand="onExpand"
-          />
-          <context-card
-            class="card-floating card-crisalida"
-            title="LA CRISÁLIDA"
-            header-color="#342a83"
-            :body="cards.crisalida"
-            @expand="onExpand"
-          />
-          <context-card
-            class="card-floating card-consumidor"
-            title="EL CONSUMIDOR"
-            header-color="#342a83"
-            :body="cards.consumidor"
-            @expand="onExpand"
-          />
         </div>
       </div>
     </div>
 
-    <!-- ===== Pie de página ===== -->
+    <!-- ===== Pie de página (índigo plano, según mockup) ===== -->
     <footer class="footer-bar">
       <span class="footer-text">CIUDAD DE MÉXICO. COL. NO.</span>
       <router-link to="/transparencia" class="footer-text footer-link">AVISO DE PRIVACIDAD</router-link>
@@ -167,6 +166,7 @@ import manosContexto from '@/assets/contexto/manos-contexto.png'
 import trataContexto from '@/assets/contexto/trata-contexto.png'
 import reclutamientoContexto from '@/assets/contexto/reclutamiento-contexto.png'
 import consumidorContexto from '@/assets/contexto/consumidor-contexto.png'
+import crisalidaColgante from '@/assets/contexto/crisalida-colgante.svg'
 
 export default {
   // 1️⃣ Identificación
@@ -196,6 +196,7 @@ export default {
       trataContexto,
       reclutamientoContexto,
       consumidorContexto,
+      crisalidaColgante,
       detailOpen: false,
       detailItem: null,
       cards: {
@@ -211,12 +212,13 @@ export default {
   computed: {
     // Mapa de contenidos para el diálogo de detalle, indexado por título.
     // Reúne las seis tarjetas flotantes y los cuatro botones "LEER MÁS".
+    // Todas las cabeceras usan el índigo #342a83 del mockup 3.2.
     conceptDetails () {
       return {
         'LA MARIPOSA': { title: 'LA MARIPOSA', headerColor: '#342a83', body: this.cards.mariposa },
         'SEÑALES DE ALERTA': { title: 'SEÑALES DE ALERTA', headerColor: '#342a83', body: this.cards.senales },
-        TRATA: { title: 'TRATA', headerColor: '#6a3d8f', body: this.cards.trata },
-        'EL RECLUTAMIENTO': { title: 'EL RECLUTAMIENTO', headerColor: '#6a3d8f', body: this.cards.reclutamiento },
+        TRATA: { title: 'TRATA', headerColor: '#342a83', body: this.cards.trata },
+        'EL RECLUTAMIENTO': { title: 'EL RECLUTAMIENTO', headerColor: '#342a83', body: this.cards.reclutamiento },
         'LA CRISÁLIDA': { title: 'LA CRISÁLIDA', headerColor: '#342a83', body: this.cards.crisalida },
         'EL CONSUMIDOR': { title: 'EL CONSUMIDOR', headerColor: '#342a83', body: this.cards.consumidor },
         Contexto: {
@@ -236,7 +238,7 @@ export default {
         },
         'Campaña Niñez Primero': {
           title: 'CAMPAÑA “NIÑEZ PRIMERO”',
-          headerColor: '#6a3d8f',
+          headerColor: '#342a83',
           body: '#NiñezPrimero es una campaña impulsada por la Red por los Derechos de la Infancia en México (REDIM) y el CAM, con apoyo de la Unión Europea, junto a organizaciones aliadas para visibilizar, prevenir y atender la trata de personas, reclutamiento y utilización de niñas, niños y adolescentes por grupos delictivos en México.'
         }
       }
@@ -275,8 +277,9 @@ export default {
 
 <style scoped>
   /* ===============================
-    Paleta: Crema #efeee8 · Azul #342a83 · Morado #6a3d8f · Magenta #b62b86
-    Café (escena inferior) #6b5742 / #5a4a37
+    Paleta (1.2 GUIA PRELIMINAR): Crema #efeee8 · Azul #342a83 · Morado #6a3d8f
+    Magenta #b62b86 · Naranja #ed712c
+    Las posiciones/proporciones provienen del mockup 3.2 (lienzo de 1920px).
   ================================ */
   .contexto-page {
     background-color: #efeee8;
@@ -295,54 +298,27 @@ export default {
     ) !important;
   }
 
-  /* Degradado de fondo: crema arriba (~55%) → café abajo (~45%) */
+  /* Fondo original del mockup (degradado crema→café), estirado a todo el alto */
   .contexto-main {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(
-      to bottom,
-      #efeee8 0%,
-      #efeee8 50%,
-      #6b5742 70%,
-      #5a4a37 100%
-    );
+    background-color: #efeee8;
+    background-image: url('~@/assets/contexto/fondo-contexto.png');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
   }
 
-  /* ===============================
-    CAPAS DE FONDO
-  ================================ */
-  /* Manos enredadas: segunda capa al fondo, sobre la zona café */
-  .bg-manos {
-    position: absolute;
-    left: 50%;
-    bottom: 220px;
-    transform: translateX(-50%);
-    width: 1100px;
-    max-width: 96%;
-    height: auto;
-    opacity: 0.85;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  /* Consumidor (nichos): tercera capa, siempre pegada al pie de página (abajo-izquierda) */
-  .bg-consumidor {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 300px;
-    max-width: 34%;
-    height: auto;
-    z-index: 0;
-    pointer-events: none;
+  /* Marco que replica el lienzo de 1920px del mockup */
+  .contexto-frame {
+    position: relative;
+    max-width: 1920px;
+    margin: 0 auto;
   }
 
   .contexto-inner {
     position: relative;
     z-index: 1;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px 24px 80px;
+    padding: clamp(8px, 1.2vw, 24px) 4% 0;
   }
 
   /* ===============================
@@ -352,78 +328,64 @@ export default {
     font-family: 'Chelsea Market', cursive;
     font-weight: 400;
     color: #b62b86;
-    font-size: clamp(34px, 6vw, 64px);
+    font-size: clamp(42px, 9.5vw, 182px);
+    line-height: 1.05;
     text-align: right;
-    margin: 8px 0 12px;
+    margin: clamp(8px, 1.5vw, 30px) 0 clamp(10px, 1.8vw, 36px);
   }
 
   /* ===============================
-    SECCIONES (2 columnas: visual izq / texto der)
+    SECCIONES (2 columnas: visual izq / texto der, como el mockup)
   ================================ */
   .ctx-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    align-items: center;
-    margin-bottom: 56px;
-  }
-
-  /* Sección intro (Contexto): encabezado pegado al título, alineado arriba */
-  .ctx-section--intro {
+    gap: 0 24px;
     align-items: start;
-    margin-top: -8px;
-  }
-
-  /* Baja la imagen de mariposas ~10% del alto del título para alinearla con
-     el borde inferior de "CONTEXTO" sin mover la columna de texto */
-  .ctx-section--intro .ctx-visual {
-    padding-top: 10px;
+    margin-bottom: clamp(16px, 1.8vw, 36px);
   }
 
   .ctx-visual {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
   }
 
+  /* Todo el texto de secciones va anclado a la derecha (mockup) */
   .ctx-text {
     position: relative;
     z-index: 3;
-  }
-
-  .ctx-text--right {
     text-align: right;
   }
 
   .ctx-heading {
     font-family: 'Noto Sans', sans-serif;
-    font-weight: 800;
+    font-weight: 700;
     color: #342a83;
-    font-size: clamp(16px, 2.2vw, 22px);
-    line-height: 1.25;
-    margin: 0 0 14px;
+    font-size: clamp(17px, 2.15vw, 41px);
+    line-height: 1.3;
+    margin: 0 0 clamp(10px, 1.2vw, 24px);
   }
 
   .ctx-paragraph {
     font-family: 'Noto Sans', sans-serif;
     font-weight: 400;
     color: #342a83;
-    font-size: clamp(13px, 1.6vw, 16px);
-    line-height: 1.5;
-    margin: 0 0 16px;
+    font-size: clamp(13px, 1.67vw, 32px);
+    line-height: 1.45;
+    text-align: justify;
+    text-align-last: right;
+    margin: 0 0 clamp(12px, 1.8vw, 36px);
   }
 
   .leer-mas {
     font-family: 'Noto Sans', sans-serif;
-    font-weight: 800;
+    font-weight: 900;
     letter-spacing: 1px;
     color: #ed712c;
     background: none;
     border: none;
     padding: 0;
     cursor: pointer;
-    font-size: clamp(13px, 1.6vw, 16px);
+    font-size: clamp(14px, 2.05vw, 39px);
   }
 
   .leer-mas span {
@@ -436,55 +398,74 @@ export default {
   }
 
   /* ===============================
-    IMÁGENES DECORATIVAS POR SECCIÓN
+    SECCIÓN 1: manos mariposa + tarjeta LA MARIPOSA
+    (la imagen sube hasta el nivel del título y sangra por la izquierda)
   ================================ */
-  .sec1-img {
-    width: 520px;
-    max-width: 100%;
+  .hero-manos {
+    display: block;
+    width: 111%;
+    max-width: none;
     height: auto;
+    margin: -44% 0 0 -19%;
   }
 
-  /* Mariposas con inclinación de derecha a izquierda (≈ -45°) */
+  .card-mariposa {
+    width: 81%;
+    margin: -20% 0 0 19%;
+  }
+
+  /* ===============================
+    SECCIÓN 2: estela de mariposas que baja hacia el saco
+  ================================ */
   .sec2-img {
-    width: 300px;
-    max-width: 80%;
+    display: block;
+    width: 60%;
     height: auto;
-    transform: rotate(-45deg);
+    margin: 48% 0 -32% 3%;
+    transform: rotate(-58deg);
   }
 
-  /* Tres imágenes sobrepuestas (manos + crisálida) */
-  .overlap-images {
+  /* ===============================
+    SECCIÓN 3: saco con crías + manos que lo acechan + tarjeta SEÑALES
+  ================================ */
+  .sack-img {
     position: relative;
-    width: 360px;
-    max-width: 100%;
-    height: 320px;
-  }
-
-  .overlap-img {
-    position: absolute;
+    display: block;
+    width: 50%;
     height: auto;
-  }
-
-  .overlap-1 {
-    width: 250px;
-    left: 0;
-    top: 40px;
+    margin-left: 4%;
     z-index: 1;
   }
 
-  .overlap-2 {
-    width: 170px;
-    left: 95px;
-    top: 0;
-    z-index: 3;
+  .sack-mano-1 {
+    position: absolute;
+    left: -22%;
+    top: -10%;
+    width: 52%;
+    height: auto;
+    z-index: 0;
   }
 
-  .overlap-3 {
-    width: 230px;
-    right: 0;
-    top: 120px;
+  .sack-mano-2 {
+    position: absolute;
+    left: -28%;
+    top: 60%;
+    width: 75%;
+    height: auto;
     z-index: 2;
-    transform: scaleX(-1);
+  }
+
+  .card-senales {
+    width: 81%;
+    margin: -25% 0 0 30%;
+  }
+
+  /* ===============================
+    SECCIÓN 4: tarjeta TRATA
+  ================================ */
+  .card-trata {
+    width: 81%;
+    margin: 28% 0 0 5%;
   }
 
   /* ===============================
@@ -495,90 +476,102 @@ export default {
     z-index: 4;
   }
 
-  .card-mariposa {
-    margin-top: -40px;
-  }
-
-  .card-senales {
-    margin-top: -10px;
-  }
-
   /* ===============================
-    ESCENA CAFÉ (criaturas de fondo + tarjetas)
+    ESCENA CAFÉ (lienzo proporcional al mockup: 1920 × 2750)
   ================================ */
   .cafe-block {
     position: relative;
-    min-height: 860px;
-    margin-top: 24px;
+    margin: 0 -4.35%;
+    aspect-ratio: 1920 / 2750;
   }
 
-  /* Criaturas: actúan como fondo de la escena café */
-  .cafe-creature {
+  .cafe-block img {
     position: absolute;
     height: auto;
-    z-index: 0;
     pointer-events: none;
   }
 
-  /* Trata (criatura con cuernos): zona superior-izquierda */
+  /* Maraña de brazos que cruza toda la zona oscura */
+  .cafe-manos {
+    left: -5%;
+    top: 15.3%;
+    width: 110%;
+    z-index: 0;
+  }
+
+  /* Criatura con cuernos (trata): sangra por la izquierda */
   .cafe-trata {
-    left: -2%;
-    top: 0;
-    width: 46%;
+    left: -18%;
+    top: -3.4%;
+    width: 64%;
+    z-index: 1;
   }
 
-  /* Reclutamiento (criatura enojada): zona central-derecha */
+  /* Criatura enojada (reclutamiento): sangra por la derecha */
   .cafe-recl {
-    right: -2%;
-    top: 240px;
-    width: 50%;
+    left: 42.7%;
+    top: -6.2%;
+    width: 68.4%;
+    z-index: 1;
   }
 
-  /* Tarjetas de la escena café (posicionadas sobre las criaturas) */
+  /* Crisálida colgante bajo la tarjeta EL RECLUTAMIENTO */
+  .cafe-crisalida {
+    left: 30.7%;
+    top: 19.5%;
+    width: 37.7%;
+    z-index: 2;
+  }
+
+  /* Monumento con nichos (consumidor): ancla inferior, recortado por el pie */
+  .cafe-monumento {
+    left: -11.6%;
+    top: 49.3%;
+    width: 140.7%;
+    z-index: 2;
+  }
+
+  /* Tarjetas de la escena café (porcentajes del lienzo del mockup) */
   .card-reclutamiento {
     position: absolute;
-    left: 30%;
-    top: 300px;
+    left: 39%;
+    top: 5.3%;
+    width: 35.7%;
   }
 
   .card-crisalida {
     position: absolute;
-    right: 4%;
-    top: 470px;
+    left: 52.7%;
+    top: 33.6%;
+    width: 35.7%;
   }
 
   .card-consumidor {
     position: absolute;
-    left: 2%;
-    bottom: 0;
+    left: 22%;
+    top: 69.1%;
+    width: 35.7%;
   }
 
   /* ===============================
-    PIE DE PÁGINA
+    PIE DE PÁGINA (índigo plano #342a83, como el mockup)
   ================================ */
   .footer-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    background: linear-gradient(
-      to right,
-      #2e91ce 0%,
-      #342a83 25%,
-      #6a3d8f 50%,
-      #b62b86 75%,
-      #ed712c 100%
-    );
-    padding: 14px 24px;
+    background-color: #342a83;
+    padding: clamp(14px, 2.2vw, 42px) 4%;
     position: relative;
     z-index: 1;
   }
 
   .footer-text {
     font-family: 'Noto Sans', sans-serif;
-    font-weight: 600;
-    color: #ffffff;
-    font-size: clamp(10px, 1.4vw, 13px);
+    font-weight: 400;
+    color: #efeee8;
+    font-size: clamp(10px, 1.25vw, 24px);
     letter-spacing: 0.5px;
     text-decoration: none;
   }
@@ -591,6 +584,22 @@ export default {
     RESPONSIVIDAD
   ================================ */
 
+  /* Mobile */
+  @media (max-width: 575.98px) {
+    .contexto-title {
+      font-size: clamp(34px, 11vw, 56px);
+    }
+    .ctx-heading {
+      font-size: 17px;
+    }
+    .ctx-paragraph {
+      font-size: 13px;
+    }
+    .leer-mas {
+      font-size: 14px;
+    }
+  }
+
   /* Mobile + Mobile landscape: una sola columna, escena café apilada */
   @media (max-width: 767.98px) {
     .ctx-section {
@@ -598,106 +607,174 @@ export default {
       gap: 20px;
       margin-bottom: 40px;
     }
-    .ctx-text,
-    .ctx-text--right {
-      text-align: center;
-    }
     .contexto-title {
       text-align: center;
     }
-    .card-floating {
-      margin: -20px auto 0 !important;
+    .ctx-text {
+      text-align: center;
+    }
+    .ctx-paragraph {
+      text-align: justify;
+      text-align-last: center;
     }
 
-    /* La escena café pasa a flujo vertical: criaturas como fondo tenue */
+    /* Sección 1: la imagen vuelve al flujo y la tarjeta se centra */
+    .hero-manos {
+      width: 92%;
+      margin: 0 auto;
+    }
+    .card-mariposa {
+      width: 100%;
+      max-width: 420px;
+      margin: -12% auto 0;
+    }
+
+    /* Sección 2: estela centrada y sin solaparse */
+    .sec2-img {
+      width: 70%;
+      margin: 4% auto;
+      transform: rotate(-45deg);
+    }
+
+    /* Sección 3: saco centrado con manos a los lados */
+    .sack-img {
+      width: 64%;
+      margin: 0 auto;
+    }
+    .sack-mano-1 {
+      left: -10%;
+      top: -6%;
+      width: 46%;
+    }
+    .sack-mano-2 {
+      left: -14%;
+      top: 64%;
+      width: 60%;
+    }
+    .card-senales {
+      width: 100%;
+      max-width: 420px;
+      margin: -10% auto 0;
+    }
+
+    /* Sección 4: tarjeta TRATA centrada */
+    .card-trata {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    /* En pantallas angostas el fondo estirado desalinea la zona oscura:
+       se apaga la imagen global y la escena café lleva su propio degradado */
+    .contexto-main {
+      background-image: none;
+    }
+
+    /* La escena café pasa a flujo vertical con degradado propio */
     .cafe-block {
-      min-height: 0;
+      aspect-ratio: auto;
+      margin: 24px -5vw 0;
+      padding: 48px 5vw 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 28px;
-      padding-bottom: 200px;
+      background: linear-gradient(
+        to bottom,
+        rgba(239, 238, 232, 0) 0%,
+        #aaa49e 5%,
+        #6e6862 10%,
+        #353335 20%,
+        #38302e 45%,
+        #5e4a3c 78%,
+        #443b3a 100%
+      );
     }
-    .cafe-creature {
-      opacity: 0.3;
+    .cafe-block img {
+      position: absolute;
+    }
+    .cafe-manos {
+      left: -15%;
+      top: 10%;
+      width: 130%;
+      opacity: 0.5;
     }
     .cafe-trata {
-      width: 70%;
-      top: 60px;
-      left: 0;
+      left: -20%;
+      top: 0;
+      width: 75%;
+      opacity: 0.35;
     }
     .cafe-recl {
-      width: 75%;
-      top: 360px;
-      right: 0;
+      left: 45%;
+      top: 22%;
+      width: 80%;
+      opacity: 0.35;
+    }
+    /* La crisálida y el monumento sí entran al flujo entre tarjetas */
+    .cafe-block img.cafe-crisalida {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: 64%;
+      margin: 0 auto;
+      order: 2;
+    }
+    .cafe-block img.cafe-monumento {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: 100%;
+      margin: 0 auto -10%;
+      order: 4;
     }
     .card-reclutamiento,
     .card-crisalida,
     .card-consumidor {
       position: relative;
       left: auto;
-      right: auto;
       top: auto;
-      bottom: auto;
+      width: 100%;
+      max-width: 420px;
       margin: 0 auto;
     }
-    .bg-consumidor {
-      width: 150px;
-      max-width: 44%;
+    .card-reclutamiento {
+      order: 1;
     }
-    .bg-manos {
-      bottom: 280px;
-      width: 130%;
-      max-width: 130%;
-      opacity: 0.5;
+    .card-crisalida {
+      order: 3;
+    }
+    .card-consumidor {
+      order: 5;
+      margin-top: -55%;
     }
   }
 
-  /* Tablet */
+  /* Tablet: mantiene las dos columnas con sangrados más discretos */
   @media (min-width: 768px) and (max-width: 991.98px) {
-    .contexto-inner {
-      max-width: 900px;
+    .hero-manos {
+      width: 104%;
+      margin: -36% 0 0 -12%;
     }
-    .cafe-block {
-      min-height: 760px;
+    .sack-mano-1 {
+      left: -14%;
     }
-    .cafe-trata {
-      width: 50%;
-    }
-    .cafe-recl {
-      width: 54%;
-      top: 210px;
-    }
-    .card-reclutamiento {
-      left: 28%;
-      top: 270px;
-    }
-    .card-crisalida {
-      right: 2%;
-      top: 430px;
+    .sack-mano-2 {
+      left: -18%;
     }
   }
 
   /* Desktop */
   @media (min-width: 992px) and (max-width: 1199.98px) {
-    .cafe-block {
-      min-height: 840px;
+    .contexto-inner {
+      padding-top: clamp(12px, 1.4vw, 28px);
     }
   }
 
-  /* Extra Large */
+  /* Extra Large: el marco se limita al lienzo original de 1920px */
   @media (min-width: 1200px) {
-    .contexto-inner {
-      max-width: 1200px;
-    }
-    .cafe-block {
-      min-height: 900px;
-    }
-    .cafe-recl {
-      top: 280px;
-    }
-    .card-crisalida {
-      top: 520px;
+    .contexto-frame {
+      max-width: 1920px;
     }
   }
 </style>

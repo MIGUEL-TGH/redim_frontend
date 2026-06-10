@@ -82,43 +82,44 @@ export default {
 </script>
 
 <style scoped>
-  /* Tarjeta inspirada en StateDetailsDialog.vue: cabecera de color + cuerpo claro */
+  /* Tarjeta del mockup 3.2: cabecera índigo + cuerpo claro.
+     Escala fluida calcada del lienzo de 1920px (tarjeta de 686px). */
   .ctx-card {
     width: 100%;
-    max-width: 340px;
+    max-width: 686px;
     filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.25));
   }
 
   .ctx-card-header {
     position: relative;
     z-index: 2;
-    border-radius: 14px;
-    padding: 14px 22px 26px;
+    border-radius: clamp(12px, 1.25vw, 24px);
+    padding: 6% 10% 9%;
   }
 
   .ctx-card-title {
     font-family: 'Noto Sans', sans-serif;
-    font-weight: 900;
+    font-weight: 700;
     letter-spacing: 1px;
     color: #efeee8;
-    font-size: clamp(13px, 1.6vw, 16px);
+    font-size: clamp(13px, 1.77vw, 34px);
     text-transform: uppercase;
   }
 
   .ctx-card-body {
     position: relative;
     z-index: 1;
-    margin-top: -16px;
+    margin-top: clamp(-26px, -1.3vw, -14px);
     background-color: #f6f5f0;
-    border-radius: 12px;
-    padding: 16px 18px 30px;
+    border-radius: clamp(12px, 1.2vw, 22px);
+    padding: 5% 6% 9%;
   }
 
   .ctx-card-text {
     font-family: 'Noto Sans', sans-serif;
     font-weight: 400;
     color: #342a83;
-    font-size: clamp(10px, 1.2vw, 12px);
+    font-size: clamp(10px, 1.2vw, 23px);
     line-height: 1.4;
     text-align: justify;
   }
@@ -130,10 +131,10 @@ export default {
 
   .ctx-card-expand {
     position: absolute;
-    right: 12px;
-    bottom: 8px;
-    width: 26px;
-    height: 26px;
+    right: 3%;
+    bottom: 4%;
+    width: clamp(22px, 1.9vw, 36px);
+    height: clamp(22px, 1.9vw, 36px);
     border: none;
     background: none;
     padding: 0;

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 620">
+  <!-- Crisálida colgante reconstruida del mockup 3.2 (no existía como PNG):
+       capullo segmentado que pende de dos hilos bajo la tarjeta EL RECLUTAMIENTO -->
+  <defs>
+    <radialGradient id="seg" cx="0.62" cy="0.28" r="0.9">
+      <stop offset="0" stop-color="#7a5433"/>
+      <stop offset="0.55" stop-color="#4a3522"/>
+      <stop offset="1" stop-color="#241a12"/>
+    </radialGradient>
+    <radialGradient id="segHead" cx="0.58" cy="0.32" r="0.95">
+      <stop offset="0" stop-color="#8a6440"/>
+      <stop offset="0.6" stop-color="#5a4129"/>
+      <stop offset="1" stop-color="#2c2014"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Hilos con remate del que cuelga el capullo -->
+  <g fill="none" stroke="#e9e6df" stroke-width="7" stroke-linecap="round">
+    <path d="M612 402 C 622 280, 630 120, 642 34"/>
+    <path d="M628 398 C 650 280, 670 110, 694 30"/>
+  </g>
+  <circle cx="642" cy="30" r="11" fill="#35302b"/>
+  <circle cx="695" cy="26" r="11" fill="#35302b"/>
+
+  <!-- Capullo segmentado (cabeza al fondo, cola por delante) -->
+  <circle cx="640" cy="348" r="104" fill="url(#segHead)"/>
+  <circle cx="552" cy="372" r="146" fill="url(#seg)"/>
+  <circle cx="424" cy="402" r="166" fill="url(#seg)"/>
+  <circle cx="288" cy="432" r="158" fill="url(#seg)"/>
+  <circle cx="158" cy="462" r="144" fill="url(#seg)"/>
+</svg>
