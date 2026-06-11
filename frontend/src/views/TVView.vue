@@ -76,6 +76,7 @@
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowfullscreen
                 ></iframe>
+                <!-- <img v-else :src="thumbUrl(video.youtubeId)" :alt="video.title" loading="lazy"> -->
                 <img v-else :src="thumbUrl(video.youtubeId)" :alt="video.title" loading="lazy">
               </div>
               <figcaption class="cf-caption">
@@ -147,11 +148,55 @@ export default {
       dragDelta: 0,
       isDragging: false,
       socialButtons: [
-        { label: 'YOUTUBE', url: 'https://www.youtube.com/@REDIMAC' },
-        { label: 'FACEBOOK', url: 'https://www.facebook.com/REDIMAC' },
-        { label: 'TIKTOK', url: 'https://www.tiktok.com/@redimac' }
+        { label: 'YOUTUBE', url: 'https://www.youtube.com/@DerechosInfanciaREDIM' },
+        { label: 'FACEBOOK', url: 'https://www.facebook.com/derechosinfancia.org.mx' }
+        // { label: 'TIKTOK', url: 'https://www.tiktok.com/@redimac' }
       ],
-      videos: []
+      // videos: []
+      videos: [
+        {
+          youtubeId: 'ipaF-0j6ZlY',
+          title: 'REDIM: Migrar es un derecho',
+          date: '26 DE ENERO 2021',
+          channel: 'REDIM'
+        },
+        {
+          youtubeId: 'ccnA9oNsi7w',
+          title: 'REDIM: ¿Quiénes buscan a niñas, niños y adolescentes desaparecidos?',
+          date: '26 DE ENERO 2021',
+          channel: 'REDIM'
+        },
+        {
+          youtubeId: 'fw9AAIEbVaw',
+          title: 'REDIM: En Ciudad Juárez, candidat@s también firmaron el ¡Compromiso con la Niñez. SuFuturoEsHOY!',
+          date: '26 DE ENERO 2021',
+          channel: 'REDIM'
+        },
+        {
+          youtubeId: 'W6upFglzI_s',
+          title: 'REDIM: #NiñezIndígena habla sobre su derecho a la participación',
+          date: '26 DE ENERO 2021',
+          channel: 'REDIM'
+        },
+        {
+          youtubeId: 'NnfB5NOWl-w',
+          title: 'REDIM: Derecho a la identidad desde la mirada de la #NiñezIndígena | Comunidad de Chabeclumil, Chiapas',
+          date: '26 DE ENERO 2021',
+          channel: 'REDIM'
+        },
+        {
+          youtubeId: '4LSr9erYiGE',
+          title: 'REDIM: Niñez y adolescencia indígena de Pajajté, en Chiapas, hablan sobre su derecho a la paz',
+          date: '26 DE ENERO 2021',
+          channel: 'REDIM'
+        },
+        {
+          youtubeId: 'DLpPL2NwIHU',
+          title: 'REDIM: ABRAZOS - Historias de niñas y niños con familiares privados de libertad / Cap. 4 - Visitas',
+          date: '26 DE ENERO 2021',
+          channel: 'REDIM'
+        }
+      ]
     }
   },
   computed: {
@@ -257,6 +302,7 @@ export default {
           channel: 'REDIM'
         })
       }
+      // console.log('Cargando videos...', list)
       this.videos = list
     }
   },
@@ -264,7 +310,7 @@ export default {
   // 6️⃣ Ciclo de vida
   beforeCreate () {},
   created () {
-    this.loadData()
+    // this.loadData()
   },
   beforeMount () {},
   mounted () {},

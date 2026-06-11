@@ -52,15 +52,15 @@
         <img class="equipo-titulo" :src="equipoTitulo" alt="EQUIPO" draggable="false">
         <img class="equipo-imagotipo" :src="imagotipoColor" alt="Niñez Primero: niñez protegida, libre y digna" draggable="false">
 
-        <div class="equipo-card equipo-card--ue">
+        <a class="equipo-card equipo-card--ue" href="https://european-union.europa.eu/index_es" target="_blank" rel="noopener noreferrer">
           <img class="equipo-logo equipo-logo--ue" :src="logoUe" alt="Financiado por la Unión Europea" draggable="false">
-        </div>
-        <div class="equipo-card equipo-card--redim">
+        </a>
+        <a class="equipo-card equipo-card--redim" href="https://derechosinfancia.org.mx" target="_blank" rel="noopener noreferrer">
           <img class="equipo-logo equipo-logo--redim" :src="logoRedim" alt="REDIM, Red por los Derechos de la Infancia en México" draggable="false">
-        </div>
-        <div class="equipo-card equipo-card--cam">
+        </a>
+        <a class="equipo-card equipo-card--cam" href="https://www.centromontesinos.com" target="_blank" rel="noopener noreferrer">
           <img class="equipo-logo equipo-logo--cam" :src="logoCam" alt="CAM, Centro de Estudios Sociales y Culturales Antonio de Montesinos, A.C." draggable="false">
-        </div>
+        </a>
 
         <img class="equipo-mariposa-1" :src="mariposaEquipo1" alt="" aria-hidden="true" draggable="false">
         <img class="equipo-mariposa-2" :src="mariposaEquipo2" alt="" aria-hidden="true" draggable="false">
@@ -133,7 +133,7 @@ const PIECES = [
   { id: 'i2', alt: 'Letra i de Primero', w: 39, h: 187, sx: 541, sy: 790, tx: 803, ty: 621 },
   { id: 'm', alt: 'Letra m', w: 188, h: 178, sx: 650, sy: 250, tx: 943, ty: 633 },
   { id: 'e2', alt: 'Letra e de Primero', w: 150, h: 152, sx: 1441, sy: 760, tx: 1104, ty: 620 },
-  { id: 'r2', alt: 'Segunda letra r de Primero', w: 87, h: 177, sx: 1533, sy: 457, tx: 1225, ty: 595 },
+  { id: 'r2', alt: 'Segunda letra r de Primero', w: 87, h: 177, sx: 1533, sy: 457, tx: 1225, ty: 616 },
   { id: 'o', alt: 'Letra o', w: 133, h: 154, sx: 1675, sy: 609, tx: 1310, ty: 632 },
   { id: 'mar1', alt: 'Mariposa naranja grande', w: 121, h: 111, sx: 232, sy: 238, tx: 541, ty: 467 },
   { id: 'mar2', alt: 'Mariposa naranja pequeña', w: 91, h: 65, sx: 1649, sy: 139, tx: 1334, ty: 372 },
@@ -582,6 +582,12 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .equipo-card:hover {
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.32);
   }
 
   .equipo-card--ue {
