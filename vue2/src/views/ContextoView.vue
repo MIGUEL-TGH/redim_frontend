@@ -403,15 +403,15 @@ export default {
   ================================ */
   .hero-manos {
     display: block;
-    width: 111%;
+    width: 92%;
     max-width: none;
     height: auto;
-    margin: -44% 0 0 -19%;
+    margin: -16% 0 0 -12%;
   }
 
   .card-mariposa {
     width: 81%;
-    margin: -20% 0 0 19%;
+    margin: -14% 0 0 19%;
   }
 
   /* ===============================
@@ -618,15 +618,18 @@ export default {
       text-align-last: center;
     }
 
-    /* Sección 1: la imagen vuelve al flujo y la tarjeta se centra */
+    /* Sección 1: la imagen vuelve al flujo y la tarjeta se centra.
+       Se acota con max-width para que en una sola columna (sobre todo en
+       mobile landscape, 576–767) la mariposa no crezca desproporcionada. */
     .hero-manos {
-      width: 92%;
+      width: 88%;
+      max-width: 380px;
       margin: 0 auto;
     }
     .card-mariposa {
       width: 100%;
       max-width: 420px;
-      margin: -12% auto 0;
+      margin: -14% auto 0;
     }
 
     /* Sección 2: estela centrada y sin solaparse */
@@ -753,8 +756,8 @@ export default {
   /* Tablet: mantiene las dos columnas con sangrados más discretos */
   @media (min-width: 768px) and (max-width: 991.98px) {
     .hero-manos {
-      width: 104%;
-      margin: -36% 0 0 -12%;
+      width: 88%;
+      margin: -12% 0 0 -8%;
     }
     .sack-mano-1 {
       left: -14%;

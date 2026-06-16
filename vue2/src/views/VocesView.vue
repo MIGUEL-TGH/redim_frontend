@@ -54,7 +54,14 @@
             <div class="case-main-photo">
               <img :src="mainCase.img" :alt="mainCase.name">
               <div class="case-badges">
-                <span v-for="(b, i) in mainCase.badges" :key="i" class="case-badge">{{ b }}</span>
+                <a
+                  v-for="(b, i) in mainCase.badges"
+                  :key="i"
+                  class="case-badge"
+                  :href="b.url"
+                  target="_blank"
+                  rel="noopener"
+                >{{ b.label }}</a>
               </div>
             </div>
             <div class="case-main-body">
@@ -95,9 +102,15 @@
           <coverflow-carousel :items="podcasts" variant="podcast">
             <template #card="{ item }">
               <div class="cf-podcast-card">
-                <button type="button" class="podcast-play" :aria-label="'Reproducir ' + item.title">
+                <a
+                  class="podcast-play"
+                  :href="item.url"
+                  target="_blank"
+                  rel="noopener"
+                  :aria-label="'Reproducir ' + item.title"
+                >
                   <img :src="reproducirPodcast" alt="">
-                </button>
+                </a>
                 <div class="podcast-info">
                   <p class="podcast-name">{{ item.title }}</p>
                   <p class="podcast-author">{{ item.author }}</p>
@@ -222,20 +235,19 @@ export default {
       this.mainCase = clicked
     },
     loadData () {
-      // --- Videos (pasarela) ---
-      const videoId = 'aqz-KE-bpKQ'
-      const videos = []
-      for (let i = 0; i < 8; i++) {
-        videos.push({
-          youtubeId: videoId,
-          title: 'REDIM: Reportaje sobre trata y reclutamiento de niñas, niños y adolescentes',
-          date: '26 DE ENERO 2021',
-          channel: 'REDIM'
-        })
-      }
-      this.videos = videos
+      // --- Videos (pasarela): contenido real del canal de YouTube de REDIM ---
+      this.videos = [
+        { youtubeId: 'ipaF-0j6ZlY', title: 'REDIM: Migrar es un derecho', date: '26 DE ENERO 2021', channel: 'REDIM' },
+        { youtubeId: 'ccnA9oNsi7w', title: 'REDIM: ¿Quiénes buscan a niñas, niños y adolescentes desaparecidos?', date: '26 DE ENERO 2021', channel: 'REDIM' },
+        { youtubeId: 'fw9AAIEbVaw', title: 'REDIM: En Ciudad Juárez, candidat@s también firmaron el ¡Compromiso con la Niñez. SuFuturoEsHOY!', date: '26 DE ENERO 2021', channel: 'REDIM' },
+        { youtubeId: 'W6upFglzI_s', title: 'REDIM: #NiñezIndígena habla sobre su derecho a la participación', date: '26 DE ENERO 2021', channel: 'REDIM' },
+        { youtubeId: 'NnfB5NOWl-w', title: 'REDIM: Derecho a la identidad desde la mirada de la #NiñezIndígena | Comunidad de Chabeclumil, Chiapas', date: '26 DE ENERO 2021', channel: 'REDIM' },
+        { youtubeId: '4LSr9erYiGE', title: 'REDIM: Niñez y adolescencia indígena de Pajajté, en Chiapas, hablan sobre su derecho a la paz', date: '26 DE ENERO 2021', channel: 'REDIM' },
+        { youtubeId: 'DLpPL2NwIHU', title: 'REDIM: ABRAZOS - Historias de niñas y niños con familiares privados de libertad / Cap. 4 - Visitas', date: '26 DE ENERO 2021', channel: 'REDIM' }
+      ]
 
       // --- Casos ---
+      // Cada badge enlaza a un recurso (objeto { label, url }) y se abre en otra pestaña.
       const florDesc = 'Flor fue víctima de trata laboral en Estados Unidos después de ser engañada con una oferta de trabajo desde México. Gracias al apoyo de la <strong>Organización Internacional para las Migraciones (OIM)</strong> y la <strong>Coalición para Abolir la Esclavitud y la Trata (CAST)</strong>, logró escapar y reunirse con sus hijos tras ocho años de separación. Hoy en día, Flor es una defensora de los derechos de las víctimas de trata y trabaja para crear conciencia sobre este delito, demostrando que la reunificación familiar y la recuperación son posibles; reafirmando que siempre hay una salida y que la esperanza puede transformar vidas.'
       this.mainCase = {
         id: 'flor',
@@ -244,24 +256,34 @@ export default {
         tagline: 'Un ejemplo de esperanza:',
         img: florMolina,
         desc: florDesc,
-        badges: ['ORGANIZACIÓN INTERNACIONAL PARA LAS MIGRACIONES (OIM)', 'COALICIÓN PARA ABOLIR LA ESCLAVITUD Y TRATA (CAST)']
+        badges: [
+          { label: 'ORGANIZACIÓN INTERNACIONAL PARA LAS MIGRACIONES (OIM)', url: 'https://mismomundomismosderechos.com/' },
+          { label: 'COALICIÓN PARA ABOLIR LA ESCLAVITUD Y TRATA (CAST)', url: 'https://derechosinfancia.org.mx/v1/campana-ninezprimero-llega-a-michoacan-redim-y-cam-presentan-diagnostico-sobre-trata-y-reclutamiento-de-ninas-ninos-y-adolescentes-en-la-entidad/' }
+        ]
       }
       this.sideCases = [
-        { id: 'mauricio', name: 'MAURICIO', country: 'MÉXICO', tagline: 'Un ejemplo de esperanza:', img: 'https://picsum.photos/seed/voces-mauricio/300/300', desc: LOREM, badges: ['ORGANIZACIÓN INTERNACIONAL PARA LAS MIGRACIONES (OIM)'] },
-        { id: 'melisa', name: 'MELISA', country: 'GUATEMALA', tagline: 'Un ejemplo de esperanza:', img: 'https://picsum.photos/seed/voces-melisa/300/300', desc: LOREM, badges: ['COALICIÓN PARA ABOLIR LA ESCLAVITUD Y TRATA (CAST)'] },
-        { id: 'antonio', name: 'ANTONIO', country: 'MÉXICO', tagline: 'Un ejemplo de esperanza:', img: 'https://picsum.photos/seed/voces-antonio/300/300', desc: LOREM, badges: ['ORGANIZACIÓN INTERNACIONAL PARA LAS MIGRACIONES (OIM)'] }
+        { id: 'mauricio', name: 'MAURICIO', country: 'MÉXICO', tagline: 'Un ejemplo de esperanza:', img: 'https://picsum.photos/seed/voces-mauricio/300/300', desc: LOREM, badges: [{ label: 'ORGANIZACIÓN INTERNACIONAL PARA LAS MIGRACIONES (OIM)', url: 'https://derechosinfancia.org.mx/v1/redim-presenta-ante-la-presidencia-de-la-republica-el-balance-anual-2025-sobre-la-situacion-de-la-ninez-y-adolescencia-en-mexico/' }, { label: 'CONOCE MÁS', url: 'https://derechosinfancia.org.mx/v1/conoce-mas-2/' }] },
+        { id: 'melisa', name: 'MELISA', country: 'GUATEMALA', tagline: 'Un ejemplo de esperanza:', img: 'https://picsum.photos/seed/voces-melisa/300/300', desc: LOREM, badges: [{ label: 'COALICIÓN PARA ABOLIR LA ESCLAVITUD Y TRATA (CAST)', url: 'https://derechosinfancia.org.mx/v1/en-audiencia-ante-la-cidh-redim-llama-a-proteger-a-ninas-ninos-y-adolescentes-del-reclutamiento-y-utilizacion-asi-como-a-quienes-estan-en-contexto-de-movilidad-humana/' }] },
+        { id: 'antonio', name: 'ANTONIO', country: 'MÉXICO', tagline: 'Un ejemplo de esperanza:', img: 'https://picsum.photos/seed/voces-antonio/300/300', desc: LOREM, badges: [{ label: 'INFANCIA CUENTA (ISSUU)', url: 'https://issuu.com/infanciacuenta' }, { label: 'VACANTES', url: 'https://derechosinfancia.org.mx/v1/vacantes/' }] }
       ]
 
-      // --- Podcasts (pasarela) ---
-      const podcasts = []
-      for (let i = 0; i < 8; i++) {
-        podcasts.push({
-          title: 'Podcast "1,2,3 por mí y por ti", sobre desaparición infantil.',
-          author: 'de Fer contra la desaparición y por los derechos humanos',
-          duration: '27:59'
-        })
-      }
-      this.podcasts = podcasts
+      // --- Podcasts (pasarela): enlaces reales a YouTube Music ---
+      const podcastUrls = [
+        'https://music.youtube.com/watch?v=GJWfGOtYKkk&list=PLEO9IC-WjzH3826WgCfGk5maqckrg2Cju',
+        'https://music.youtube.com/watch?v=A95P0NgOh5A&list=PLEO9IC-WjzH3826WgCfGk5maqckrg2Cju',
+        'https://music.youtube.com/watch?v=1anjO9OX9Z0&list=PLEO9IC-WjzH3826WgCfGk5maqckrg2Cju',
+        'https://music.youtube.com/watch?v=C3aDJnKjgew&list=PLEO9IC-WjzH3826WgCfGk5maqckrg2Cju',
+        'https://music.youtube.com/watch?v=SFt4Y2zEqqI&list=PLEO9IC-WjzH3826WgCfGk5maqckrg2Cju',
+        'https://music.youtube.com/watch?v=gklGoaz-y-M&list=PLEO9IC-WjzH3826WgCfGk5maqckrg2Cju',
+        'https://music.youtube.com/watch?v=r-kcMAL3GOM&list=PLEO9IC-WjzH3826WgCfGk5maqckrg2Cju',
+        'https://music.youtube.com/watch?v=Ll-W9i78eD0&list=PLEO9IC-WjzH3826WgCfGk5maqckrg2Cju'
+      ]
+      this.podcasts = podcastUrls.map(url => ({
+        title: 'Podcast "1,2,3 por mí y por ti", sobre desaparición infantil.',
+        author: 'de Fer contra la desaparición y por los derechos humanos',
+        duration: '27:59',
+        url
+      }))
 
       // --- Historias ---
       const stories = []
@@ -443,10 +465,19 @@ export default {
   }
 
   /* ===============================
+    TARJETAS DE VIDEO (pasarela): separación inferior hacia los casos
+  ================================ */
+  .videos-section {
+    /* Mayor separación entre la pasarela de videos y la sección de casos,
+       tal como se indica en el mockup 3.3 */
+    margin-bottom: clamp(40px, 6vw, 96px);
+  }
+
+  /* ===============================
     SECCIÓN DE CASOS
   ================================ */
   .cases-section {
-    padding: 24px 0 16px;
+    padding: clamp(24px, 4vw, 56px) 0 16px;
   }
 
   .cases-inner {
@@ -490,16 +521,28 @@ export default {
   }
 
   .case-badge {
+    display: block;
     font-family: 'Noto Sans', sans-serif;
     font-weight: 700;
     font-size: 9px;
     line-height: 1.2;
     color: #9e9893;
     text-transform: uppercase;
+    text-decoration: none;
     border: 1px solid #d8d2ca;
     border-radius: 8px;
     padding: 8px;
     text-align: center;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .case-badge:hover,
+  .case-badge:focus-visible {
+    color: #ed712c;
+    border-color: #ed712c;
+    background-color: rgba(237, 113, 44, 0.08);
+    outline: none;
   }
 
   .case-tagline {
@@ -650,6 +693,7 @@ export default {
 
   .podcast-play {
     flex-shrink: 0;
+    display: block;
     width: 64px;
     height: 64px;
     border: none;

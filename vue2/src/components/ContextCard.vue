@@ -1,5 +1,14 @@
 <template>
-  <div class="ctx-card" :class="{ 'ctx-card--expanded': expanded }">
+  <div
+    class="ctx-card"
+    :class="{ 'ctx-card--expanded': expanded }"
+    role="button"
+    tabindex="0"
+    :aria-label="'Expandir ' + title"
+    @click="onExpand"
+    @keydown.enter.prevent="onExpand"
+    @keydown.space.prevent="onExpand"
+  >
     <!-- Cabecera de color con el título -->
     <div class="ctx-card-header" :style="{ backgroundColor: headerColor }">
       <span class="ctx-card-title">{{ title }}</span>
@@ -9,7 +18,7 @@
     <div class="ctx-card-body">
       <div class="ctx-card-text" v-html="body"></div>
 
-      <button type="button" class="ctx-card-expand" :aria-label="'Expandir ' + title" @click="onExpand">
+      <button type="button" class="ctx-card-expand" :aria-label="'Expandir ' + title" @click.stop="onExpand">
         <img :src="expandir" alt="">
       </button>
     </div>
@@ -87,7 +96,23 @@ export default {
   .ctx-card {
     width: 100%;
     max-width: 686px;
+    cursor: pointer;
+    outline: none;
     filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.25));
+    transition: transform 0.2s ease, filter 0.2s ease;
+  }
+
+  /* Hover/foco en toda la tarjeta: se eleva ligeramente y refuerza la sombra */
+  .ctx-card:hover,
+  .ctx-card:focus-visible {
+    transform: translateY(-4px);
+    filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.32));
+  }
+
+  /* El icono de expandir acompaña el hover del card completo */
+  .ctx-card:hover .ctx-card-expand,
+  .ctx-card:focus-visible .ctx-card-expand {
+    transform: scale(1.15);
   }
 
   .ctx-card-header {
