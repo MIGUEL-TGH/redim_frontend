@@ -98,9 +98,10 @@ export default {
           this.showError('Credenciales incorrectas')
         }
       } catch (error) {
-        // Error de red, caída del servidor, etc.
-        // console.error('Error en LoginView:', error)
-        this.showError('Credenciales incorrectas o error de red')
+        // Mostramos el mensaje real del backend (ej. "El usuario se encuentra inactivo",
+        // "Credenciales incorrectas") y, si no hay respuesta, asumimos error de red.
+        const message = error.response?.data?.message || 'Error de red. Verifica tu conexión e intenta de nuevo.'
+        this.showError(message)
       } finally {
         this.loading = false
       }

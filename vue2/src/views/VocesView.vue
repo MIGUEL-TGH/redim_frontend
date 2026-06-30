@@ -781,6 +781,10 @@ export default {
     box-shadow: 0 4px 12px rgba(60, 60, 59, 0.12);
   }
 
+  .story-card:hover{
+    transform: scale(1.02);
+  }
+
   .story-photo {
     width: 100%;
     aspect-ratio: 4 / 3;

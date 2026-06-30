@@ -71,7 +71,7 @@
       <div class="gallery-inner">
         <div class="gallery-grid">
           <figure v-for="(item, i) in galleryPage" :key="i" class="gallery-card">
-            <div class="gallery-photo">
+            <div class="gallery-photo" role="button" tabindex="0" @click="openGalleryPhoto(item)" @keyup.enter="openGalleryPhoto(item)">
               <img :src="item.image" :alt="item.title" loading="lazy">
             </div>
             <figcaption class="gallery-caption">
@@ -102,6 +102,21 @@
         </div>
       </div>
     </section>
+
+    <!-- ===== Modal: imagen ampliada de la galería ===== -->
+    <v-dialog v-model="isGalleryPhotoOpen" max-width="800" content-class="gallery-dialog">
+      <div v-if="selectedGalleryItem" class="gallery-dialog-content">
+        <button type="button" class="gallery-dialog-close" aria-label="Cerrar" @click="closeGalleryPhoto">
+          &times;
+        </button>
+        <img :src="selectedGalleryItem.image" :alt="selectedGalleryItem.title" class="gallery-dialog-img">
+        <div class="gallery-dialog-caption">
+          <span class="caption-title">{{ selectedGalleryItem.title }}</span>
+          <span class="caption-name">{{ selectedGalleryItem.name }}</span>
+          <span class="caption-age">{{ selectedGalleryItem.age }} años</span>
+        </div>
+      </div>
+    </v-dialog>
 
     <!-- ===== Pie de página ===== -->
     <footer class="footer-bar">
@@ -154,7 +169,9 @@ export default {
         { label: 'REGISTRO', action: 'registro' }
       ],
       carouselItems: [],
-      galleryItems: []
+      galleryItems: [],
+      isGalleryPhotoOpen: false,
+      selectedGalleryItem: null
     }
   },
   computed: {
@@ -196,6 +213,13 @@ export default {
       if (this.galleryIndex < this.galleryPages - 1) {
         this.galleryIndex += 1
       }
+    },
+    openGalleryPhoto (item) {
+      this.selectedGalleryItem = item
+      this.isGalleryPhotoOpen = true
+    },
+    closeGalleryPhoto () {
+      this.isGalleryPhotoOpen = false
     },
     loadData () {
       // Tarjetas destacadas del carrusel (3 por página)
@@ -336,7 +360,6 @@ export default {
     align-items: center;
     text-align: center;
   }
-
   .contest-title-img {
     width: 360px;
     max-width: 80vw;
@@ -438,6 +461,10 @@ export default {
     overflow: hidden;
   }
 
+  .carousel-photo:hover {
+    transform: scale(1.02);
+  }
+
   .carousel-photo img {
     width: 100%;
     height: 100%;
@@ -513,6 +540,7 @@ export default {
     background-color: #c4ac9c;
     border-radius: 8px;
     overflow: hidden;
+    cursor: pointer;
   }
 
   .gallery-photo img {
@@ -520,6 +548,52 @@ export default {
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+  .gallery-photo:hover {
+    transform: scale(1.02);
+  }
+
+  /* ===============================
+    MODAL: IMAGEN AMPLIADA (galería)
+  ================================ */
+  .gallery-dialog-content {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gallery-dialog-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background-color: #342a83;
+    color: #ffffff;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .gallery-dialog-img {
+    width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 8px;
+    background-color: #c4ac9c;
+  }
+
+  .gallery-dialog-caption {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-top: 14px;
   }
 
   .gallery-caption {
@@ -664,6 +738,12 @@ export default {
       grid-template-columns: repeat(2, 1fr);
       gap: 14px;
     }
+    .gallery-dialog-content {
+      padding: 12px;
+    }
+    .gallery-dialog-img {
+      max-height: 50vh;
+    }
     .footer-bar {
       flex-direction: column;
       text-align: center;
@@ -683,6 +763,9 @@ export default {
     .gallery-grid {
       grid-template-columns: repeat(2, 1fr);
     }
+    .gallery-dialog-img {
+      max-height: 60vh;
+    }
     .hero-title-img {
       width: 250px;
     }
@@ -692,6 +775,9 @@ export default {
   @media (min-width: 768px) and (max-width: 991.98px) {
     .gallery-grid {
       grid-template-columns: repeat(3, 1fr);
+    }
+    .gallery-dialog-img {
+      max-height: 65vh;
     }
     .carousel-butterfly {
       width: 70px;
@@ -703,12 +789,18 @@ export default {
     .gallery-grid {
       grid-template-columns: repeat(4, 1fr);
     }
+    .gallery-dialog-img {
+      max-height: 70vh;
+    }
   }
 
   /* Extra Large Screens */
   @media (min-width: 1200px) {
     .carousel-butterfly {
       width: 110px;
+    }
+    .gallery-dialog-img {
+      max-height: 75vh;
     }
   }
 </style>

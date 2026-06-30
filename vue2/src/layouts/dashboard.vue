@@ -106,6 +106,7 @@ export default {
         { title: 'Inicio', icon: 'mdi-view-dashboard', route: '/dashboard/', module: 'welcome' },
         { title: 'Mi Perfil', icon: 'mdi-account', route: '/dashboard/my_profile', module: 'my_profile' },
         { title: 'Usuarios', icon: 'mdi-account-group', route: '/dashboard/users', module: 'users' },
+        { title: 'Visitas', icon: 'mdi-chart-line', route: '/dashboard/visits', module: 'visits' },
         { title: 'Población', icon: 'mdi-human-male-female-child', route: '/dashboard/indicators', module: 'indicators' },
         { title: 'Tipo de Delito', icon: 'mdi-shield-alert', route: '/dashboard/indicator_categories', module: 'indicator_categories' },
         { title: 'Info Tipo de Delito', icon: 'mdi-chart-box', route: '/dashboard/indicator_category_details', module: 'indicator_category_details' },
@@ -121,6 +122,13 @@ export default {
       maxIdleTime: maxIdle,
       currentIdleTime: maxIdle,
       idleInterval: null,
+      // Umbral (en segundos) para disparar la renovación proactiva del token.
+      // INVARIANTE: tanto la vida del token (JWT_EXP_MINUTES) como el tiempo de
+      // inactividad (VUE_APP_MAX_IDLE_TIME) DEBEN ser mayores que este umbral; de lo
+      // contrario la renovación proactiva por temporizador nunca se dispararía.
+      // De cualquier forma, el interceptor de Axios (main.js) cubre el caso de borde
+      // renovando de forma reactiva ante un 401.
+      tokenRefreshThreshold: 120,
       // Eventos del DOM que consideramos "actividad"
       activityEvents: ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'],
 
@@ -241,10 +249,10 @@ export default {
         // 2. Actualizar el reloj global del Token
         this.currentAbsoluteTime = Math.floor(Date.now() / 1000)
 
-        // 3. Evaluar Renovación (A los 120 segundos o menos)
-        // Usamos <= 120 y la bandera isRefreshingToken para no disparar 50 peticiones
+        // 3. Evaluar Renovación (al llegar al umbral o menos)
+        // Usamos el umbral y la bandera isRefreshingToken para no disparar 50 peticiones
         // mientras el servidor de PHP nos responde.
-        if (this.tokenTimeRemaining <= 120 && this.currentIdleTime > 120 && !this.isRefreshingToken) {
+        if (this.tokenTimeRemaining <= this.tokenRefreshThreshold && this.currentIdleTime > this.tokenRefreshThreshold && !this.isRefreshingToken) {
           this.isRefreshingToken = true
           this.$store.dispatch('storeDB/silentRefresh').catch(() => {
             this.isRefreshingToken = false // Si falla, liberamos la bandera

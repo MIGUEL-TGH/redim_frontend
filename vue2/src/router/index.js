@@ -5,6 +5,7 @@ import HomeView from '../views/MainView.vue'
 // import MapView from '../views/ArcGISMapView.vue'
 import RoutesDashBoard from './RoutesDashBoard'
 import store from '../store'
+import axios from 'axios'
 
 Vue.use(VueRouter)
 
@@ -14,7 +15,7 @@ const routes = [
     path: '/',
     name: 'home',
     component: HomeView,
-    meta: { title: 'Inicio' }
+    meta: { title: 'Inicio', track: true, viewKey: 'home' }
   },
   // {
   //   path: '/',
@@ -26,7 +27,7 @@ const routes = [
     path: '/mapa',
     name: 'MapView',
     component: () => import('../views/ArcGISMapView.vue'),
-    meta: { title: 'Mapa' }
+    meta: { title: 'Mapa', track: true, viewKey: 'mapa' }
   },
   {
     path: '/mapa_v1',
@@ -45,43 +46,43 @@ const routes = [
     path: '/contexto',
     name: 'ContextoView',
     component: () => import('../views/ContextoView.vue'),
-    meta: { title: 'Contexto' }
+    meta: { title: 'Contexto', track: true, viewKey: 'contexto' }
   },
   {
     path: '/voces',
     name: 'vocesView',
     component: () => import('../views/VocesView.vue'),
-    meta: { title: 'Voces' }
+    meta: { title: 'Voces', track: true, viewKey: 'voces' }
   },
   {
     path: '/miradas',
     name: 'MiradasView',
     component: () => import('../views/MiradasView.vue'),
-    meta: { title: 'Miradas' }
+    meta: { title: 'Miradas', track: true, viewKey: 'miradas' }
   },
   {
     path: '/tv-ninez-primero',
     name: 'TVNinezPrimeroView',
     component: () => import('../views/TVView.vue'),
-    meta: { title: 'TV Niñez Primero' }
+    meta: { title: 'TV Niñez Primero', track: true, viewKey: 'tv' }
   },
   {
     path: '/actuamos',
     name: 'ActuamosView',
     component: () => import('../views/UnderConstructionView.vue'),
-    meta: { title: 'Actuamos' }
+    meta: { title: 'Actuamos', track: true, viewKey: 'actuamos' }
   },
   {
     path: '/recursos',
     name: 'RecursosView',
     component: () => import('../views/RecursosView.vue'),
-    meta: { title: 'Recursos' }
+    meta: { title: 'Recursos', track: true, viewKey: 'recursos' }
   },
   {
     path: '/transparencia',
     name: 'TransparenciaView',
     component: () => import('../views/UnderConstructionView.vue'),
-    meta: { title: 'Transparencia' }
+    meta: { title: 'Transparencia', track: true, viewKey: 'transparencia' }
   },
   // ===================================================================================
 
@@ -156,6 +157,34 @@ router.beforeEach((to, from, next) => {
     } else {
       next() // Permitir el paso para cualquier otra ruta pública
     }
+  }
+})
+
+// ======================================================================================================================================================
+// Contador de visitas de vistas públicas (escalable / auto-registrable).
+// Cualquier ruta con meta.track + meta.viewKey se contabiliza automáticamente.
+// La identidad es meta.viewKey (INMUTABLE): aunque cambie el título o el path,
+// el histórico se conserva. NUNCA cambies un viewKey ya publicado.
+function trackVisit (viewKey, path, label) {
+  try {
+    // Dedupe ligero por sesión: evita repetir la petición en la misma sesión/día.
+    // El conteo "real" de visita única lo resuelve el backend por IP + día.
+    const today = new Date().toISOString().slice(0, 10)
+    const flag = `visit_${viewKey}_${today}`
+    if (sessionStorage.getItem(flag)) return
+    sessionStorage.setItem(flag, '1')
+  } catch (e) {
+    // sessionStorage puede no estar disponible (modo privado); seguimos igual.
+  }
+
+  const url = `${process.env.VUE_APP_API_SERVER}visits?type=hit`
+  // Fire-and-forget: una visita nunca debe romper ni bloquear la navegación.
+  axios.post(url, { viewKey, path, label }).catch(() => {})
+}
+
+router.afterEach((to) => {
+  if (to.meta && to.meta.track && to.meta.viewKey) {
+    trackVisit(to.meta.viewKey, to.path, to.meta.title)
   }
 })
 

@@ -23,6 +23,12 @@ export default [
         meta: { moduleName: 'welcome', title: 'Usuarios - Panel' }
       },
       {
+        path: '/dashboard/visits',
+        name: 'DBVisitsView',
+        component: () => import('@/views/dashboard/VisitsView.vue'),
+        meta: { moduleName: 'visits', title: 'Visitas - Panel' }
+      },
+      {
         path: '/dashboard/my_profile',
         name: 'DBMyProfileView',
         component: () => import('@/views/dashboard/MyProfileView.vue'),

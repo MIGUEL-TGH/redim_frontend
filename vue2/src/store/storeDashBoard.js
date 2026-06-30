@@ -58,29 +58,27 @@ export default {
     }
   },
   actions: {
-    async login ({ commit }, credentials) {
-      try {
-        const url = `${process.env.VUE_APP_API_SERVER}auth/login` // Ajusta la URL
-        const response = await axios.post(url, credentials)
-        if (response.data.success) {
-          const { token, user } = response.data.result
-          const decodedToken = jwtDecode(token)
-          // console.log(decodedToken)
-          const permissions = decodedToken.data.permissions
-
-          localStorage.setItem('token', token)
-          // axios.defaults.headers.common.Authorization = `Bearer ${token}`
-          axios.defaults.headers.common['X-Authorization'] = `Bearer ${token}`
-
-          commit('SET_AUTH', { token, user, permissions })
-          return true
-        }
-        return false
-      } catch (error) {
-        // console.error('Error en login:', error)
-        // console.log('Error expuesto')
-        // throw error
+    // Aplica un token al estado: lo decodifica, configura axios y actualiza el store.
+    // NO escribe en localStorage (de eso se encarga quien obtuvo el token).
+    // Centraliza la lógica usada por login, silentRefresh y la sincronización entre pestañas.
+    applyToken ({ commit }, token) {
+      const decoded = jwtDecode(token)
+      const permissions = decoded.data.permissions || []
+      axios.defaults.headers.common['X-Authorization'] = `Bearer ${token}`
+      commit('SET_AUTH', { token, user: decoded.data, permissions })
+    },
+    async login ({ dispatch }, credentials) {
+      // Sin try/catch a propósito: dejamos que el error (401 credenciales, 403 inactivo,
+      // error de red) se propague a la vista para mostrar el mensaje real del backend.
+      const url = `${process.env.VUE_APP_API_SERVER}auth/login`
+      const response = await axios.post(url, credentials)
+      if (response.data.success) {
+        const { token } = response.data.result
+        localStorage.setItem('token', token)
+        dispatch('applyToken', token)
+        return true
       }
+      return false
     },
     logout ({ commit }) {
       localStorage.removeItem('token')
@@ -88,33 +86,25 @@ export default {
       delete axios.defaults.headers.common['X-Authorization']
       commit('LOGOUT')
     },
-    async silentRefresh ({ commit, state }) {
+    async silentRefresh ({ dispatch, commit }) {
       try {
         const url = `${process.env.VUE_APP_API_SERVER}auth/refresh`
-        // Se envia la petición. Axios automáticamente inyectará el token actual gracias a defaults.headers
+        // Axios inyecta el token actual gracias a defaults.headers
         const response = await axios.post(url, {})
         if (response.data.success) {
-          const { token, user } = response.data.result
-
-          const decodedToken = jwtDecode(token)
-          const permissions = decodedToken.data.permissions
-
+          const { token } = response.data.result
           // Se sobrescribe el token viejo con el nuevo
           localStorage.setItem('token', token)
-          // axios.defaults.headers.common.Authorization = `Bearer ${token}`
-          axios.defaults.headers.common['X-Authorization'] = `Bearer ${token}`
-
-          commit('SET_AUTH', { token, user, permissions })
-          // console.log('Token renovado silenciosamente en segundo plano.')
+          dispatch('applyToken', token)
           return true
         }
+        return false
       } catch (error) {
-        console.error('Fallo la renovación silenciosa', error)
         // Si falla (ej. el backend rechazó el token viejo), limpiamos la sesión
         commit('LOGOUT')
         localStorage.removeItem('token')
-        // delete axios.defaults.headers.common.Authorization
         delete axios.defaults.headers.common['X-Authorization']
+        return false
       }
     }
   },
